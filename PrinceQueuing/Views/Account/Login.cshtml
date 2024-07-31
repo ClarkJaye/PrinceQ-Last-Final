@@ -1,0 +1,43 @@
+﻿@using PrinceQ.Models.ViewModel
+@model LoginVM
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_AccountLayout";
+}
+
+<div class="row d-flex align-items-center justify-content-center h-100">
+    <div class="bg-white p-5 py-3 loginContainer" style="max-width: 500px; border-radius: 10px;">
+        <div class="img-fluid text-center">
+            <img src="/src/prg_logo.png" />
+        </div>
+        <h2 class="text-center mb-3 fst-italic">Welcome Back</h2>
+        <div class="col-lg-12 mx-auto rounded py-4">
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Username" class="form-control" placeholder="sample" />
+                    <label asp-for="Username">Username</label>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" class="form-control" placeholder="sample" />
+                    <label asp-for="Password">Password</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col pt-2">
+                        <input type="submit" value="Login" class="btn btn-success btn-lg btn-block w-100" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

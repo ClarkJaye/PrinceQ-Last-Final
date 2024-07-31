@@ -1,0 +1,182 @@
+﻿@* @model Queues
+
+@{
+    ViewData["Title"] = "Print Number";
+    Layout = "_FormLayout";
+}
+
+<header>
+    <div class="position-absolute h-100" style="left: 58%; border-left: 1px dashed gray;"></div>
+    <div class="row position-relative">
+        <div class="col-7 text-center print-container">
+            <div class="d-flex align-items-center justify-content-between">
+                <a class="navbar-brand ">
+                    <img src="~/src/prg_newlogo.png" style="width:40px;height: 40px;object-fit: cover;" alt="Queue_Interview" />
+                </a>
+                <p class="fw-bold m-0" style="font-size: 12px;">@DateTime.ParseExact(Model.QueueId!.ToString(), "yyyyMMdd", null).ToString("MMMM d, yyyy")</p>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                <h1 class="fst-italic fw-bold text-center rounded-3 px-3" style="font-size: 2rem; border: 1px solid gray">
+                    @if (Model.CategoryId == 1)
+                    {
+                        <text>A - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 2)
+                    {
+                        <text>B - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 3)
+                    {
+                        <text>C - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 4)
+                    {
+                        <text>D - @Model.QueueNumber</text>
+                    }
+                </h1>
+
+                <div class="d-flex flex-column justify-content-center" style="border-bottom: 1px solid gray;">
+                    <p class="pb-2 px-3" style="font-size: 12px;">SUPPLIER NAME:</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-5 d-flex flex-column print-container" style="padding-left:5px;">
+            <a class="navbar-brand d-flex justify-content-center w-100">
+                <img src="~/src/prg_newlogo.png" style="width:50px;height: 50px;object-fit: cover;" alt="Queue_Interview" />
+            </a>
+            <div class="d-flex flex-row align-items-center justify-content-center mt-1">
+                <h1 class="fst-italic fw-bold text-center rounded-3 px-3" style="font-size: 2rem; border: 1px solid gray;">
+                    @if (Model.CategoryId == 1)
+                    {
+                        <text>A - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 2)
+                    {
+                        <text>B - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 3)
+                    {
+                        <text>C - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 4)
+                    {
+                        <text>D - @Model.QueueNumber</text>
+                    }
+                </h1>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        PrintQueueForm();
+    });
+
+    function PrintQueueForm() {
+        window.onafterprint = function () {
+            window.location.href = "/RegisterPersonnel/Home";
+        };
+
+        window.print();
+    }
+
+</script>
+
+ *@
+
+
+@model Queues
+
+@{
+    ViewData["Title"] = "Print Number";
+    Layout = "_FormLayout";
+}
+
+<header>
+    <div class="position-absolute h-100" style="left: 58%; border-left: 1px dashed gray;"></div>
+    <div class="row position-relative">
+        <div class="col-7 text-center print-container">
+            <div class="d-flex align-items-center justify-content-between" style="margin-top: -1rem;">
+                <a class="navbar-brand p-0">
+                    <img src="~/src/prg_logo.png" style="width:80px;height: 80px;object-fit: contain;" alt="Queue_Interview" />
+                </a>
+                <!-- <p class="fw-bold m-0" style="font-size: 12px;">@DateTime.ParseExact(Model.QueueId!.ToString(), "yyyyMMdd", null).ToString("MMMM d, yyyy")</p> -->
+            </div>
+            <p class="fw-bold m-0 position-absolute" style="top: 5px; left: 32%; font-size: 12px;">@DateTime.ParseExact(Model.QueueId!.ToString(), "yyyyMMdd", null).ToString("MMMM d, yyyy")</p>
+
+            <div class="d-flex flex-column align-items-center" style="margin-top: -1rem;">
+                <h1 class="fst-italic fw-bold text-center rounded-3 px-3" style="font-size: 2rem; border: 1px solid gray">
+                    @if (Model.CategoryId == 1)
+                    {
+                        <text>A - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 2)
+                    {
+                        <text>B - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 3)
+                    {
+                        <text>C - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 4)
+                    {
+                        <text>D - @Model.QueueNumber</text>
+                    }
+                </h1>
+
+                <div class="d-flex flex-column justify-content-center" style="border-bottom: 1px solid gray;">
+                    <p class="pb-2 px-3" style="font-size: 12px;">SUPPLIER NAME:</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-5 d-flex flex-column print-container" style="padding-left:0;">
+            <a class="navbar-brand d-flex justify-content-end" style="margin-top: -1rem; margin-right: 0;">
+                <img src="~/src/prg_logo.png" style="width:80px;height: 80px;object-fit: contain;" alt="Queue_Interview" />
+            </a>
+            <div class="d-flex flex-row align-items-center justify-content-center" style="margin-top: -1rem;">
+                <h1 class="fst-italic fw-bold text-center rounded-3 px-2" style="font-size: 2rem; border: 1px solid gray">
+                    @if (Model.CategoryId == 1)
+                    {
+                        <text>A - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 2)
+                    {
+                        <text>B - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 3)
+                    {
+                        <text>C - @Model.QueueNumber</text>
+                    }
+                    else if (Model.CategoryId == 4)
+                    {
+                        <text>D - @Model.QueueNumber</text>
+                    }
+                </h1>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        PrintQueueForm();
+    });
+
+    function PrintQueueForm() {
+        window.onafterprint = function () {
+            window.location.href = "/Clerk/Generate";
+        };
+
+        window.print();
+    }
+
+</script>

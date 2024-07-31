@@ -1,0 +1,251 @@
+﻿@using PrinceQ.Models.ViewModel
+@model RPVM
+
+@{
+    ViewData["Title"] = "Generate Queue Number";
+    Layout = "_CLayout";
+}
+
+<style>
+    .generateBtn.category-1, .m-header-category-1, .m-header-category-1 {
+        color: #fff;
+        background-color: #157347;
+        border-color: #157347;
+    }
+
+        .generateBtn.category-1:hover{
+            color: #fff;
+            background-color: #157347d1;
+            border-color: #157347d1;
+        }
+
+
+    .generateBtn.category-2, .m-header-category-2, .m-header-category-2 {
+        color: #000;
+        background-color: #ffca2c;
+        border-color: #ffca2c;
+    }
+
+
+
+        .generateBtn.category-2:hover{
+            color: #000;
+            background-color: #ffca2cbd;
+            border-color: #ffca2cbd;
+        }
+
+    .generateBtn.category-3, .m-header-category-3 {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+        .generateBtn.category-3:hover {
+            color: #fff;
+            background-color: #dc3545cc;
+            border-color: #dc3545cc;
+        }
+    
+    .generateBtn.category-4, .m-header-category-4 {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0b5ed7;
+    }
+        .generateBtn.category-4:hover {
+            color: #fff;
+            background-color: #0b5ed7c2;
+            border-color: #0b5ed7c2;
+        }
+
+
+    @@media (max-width: 767.98px) {
+/*         .row.d-flex.justify-content-center.align-items-center {
+            flex-direction: column;
+            gap: 10px;
+        } */
+        .catName{
+            display: none;
+        }
+    }
+</style>
+
+<div class="container p-5 pt-2" style="height: 80%;">
+
+    <div class="row d-flex justify-content-center align-items-center h-100 px-5">
+
+        <h2 class="text-center fst-italic fw-bold text-danger">Generate Queue</h2>
+
+        @foreach (var obj in Model.Categories!.OrderBy(u => u.CategoryId))
+        {
+            if (obj != null)
+            {
+                <div class="col-6 catBtn">
+
+                    <button type="submit" class="generateBtn d-flex flex-column align-items-center btn w-100 p-3 category-@obj.CategoryId" id="@obj.CategoryId">
+                        <h3>@obj.CategoryName</h3>
+                        <p class="h6 m-0 catName">(@obj.Description)</p>
+                    </button>
+
+                </div>
+            }
+        }
+    </div>
+
+</div>
+
+<!--Date & Time-->
+<div class="time text-center">
+    <h1 class="m-0" id="time"></h1>
+    <strong id="date"></strong>
+</div>
+
+
+<!--MODAL-->
+<div class="modal fade" id="queueNumberModal" tabindex="-1" aria-labelledby="queueNumberModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="queueNumberModalLabel"><strong id="modalCategoryName"></strong> - Queue Number </h5>
+            </div>
+            <div class="modal-body d-flex align-items-center flex-column">
+                <input id="gDate" hidden/>
+                <input id="categoryId" hidden />
+                <input id="qNumber" hidden />
+
+                <div class="p-3 rounded text-center mb-4" style="background-color: #CFE2FF;">
+                    <p class="m-0" style="font-size: 18px; color: #052C65;">Queue number successfully generated.</p>
+                </div>
+                <div class="text-center p-3 px-5" style="background-color: rgba(217, 217, 217, 0.7); border-radius: 10px;">
+                    <h1 class="fw-bolder" id="modalQueueNumber" style="font-size: 56px;"></h1>
+                </div>
+                <p class="text-black mt-2" id="modalGeneratedAt"></p>
+            </div>
+            <div class="modal-footer">
+                @* <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="printBtn" disabled>Print</button> *@
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="printBtn">Print</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<script>
+    //ContentLoad
+    $(document).ready(function () {
+        // Initial display
+        displayDateTime();
+        setInterval(displayDateTime, 1000);
+
+        //Show Modal
+        $('.generateBtn').on("click", GenerateQueue);
+
+        //Print
+        $('#printBtn').on("click", PrintQueueForm);
+
+     
+    });
+
+    //Date and Time
+    const displayDateTime = () => {
+        var currentTime = new Date();
+        var options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        var formattedTime = currentTime.toLocaleString('en-US', options);
+        var optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
+        var formattedDate = currentTime.toLocaleString('en-US', optionsDate);
+
+        $('#time').text(formattedTime);
+        $('#date').text(formattedDate);
+    };
+
+    function GenerateQueue() {
+        var categoryId = $(this).attr('id');
+        $.ajax({
+            type: 'POST',
+            url: "/Clerk/GenerateQueueNumber",
+            dataType: "json",
+            data: { categoryId: categoryId },
+            success: function (response) {
+                console.log(response);
+
+                if (response && response.isSuccess) {
+                    // Handle success
+                    var queueItem = response.obj1;
+                    var category = response.obj2;
+                    var queueNumber;
+
+                    $('#modalCategoryName').text(category.categoryName);
+
+                    switch (queueItem.categoryId) {
+                        case 1:
+                            queueNumber = "A - " + queueItem.queueNumber;
+                            break;
+                        case 2:
+                            queueNumber = "B - " + queueItem.queueNumber;
+                            break;
+                        case 3:
+                            queueNumber = "C - " + queueItem.queueNumber;
+                            break;
+                        case 4:
+                            queueNumber = "D - " + queueItem.queueNumber;
+                            break;
+                        default:
+                            queueNumber = "Error";
+                    }
+
+                    $('#modalQueueNumber').text(queueNumber);
+
+                    var generatedAt = new Date(
+                        queueItem.queueId.substr(0, 4),
+                        queueItem.queueId.substr(4, 2) - 1,
+                        queueItem.queueId.substr(6, 2)
+                    );
+                    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    var formattedDateTime = generatedAt.toLocaleString('en-US', options);
+                    $('#modalGeneratedAt').text(formattedDateTime);
+
+                    $('#gDate').val(queueItem.queueId);
+                    $('#categoryId').val(queueItem.categoryId);
+                    $('#qNumber').val(queueItem.queueNumber);
+
+                    $('#queueNumberModal').modal('show');
+                    $('.modal-header').removeClass().addClass('modal-header m-header-category-' + categoryId);
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("An error occurred while generating the queue number.");
+            }
+        });
+    }
+
+
+    //THIS CODE IS FOR PRINT
+    function PrintQueueForm() {
+        var date = document.getElementById("gDate").value;
+        var categoryId = document.getElementById("categoryId").value;
+        var queueNumber = document.getElementById("qNumber").value;
+
+        $.ajax({
+            type: 'GET', 
+            url: "/Clerk/Print_QueueNumber",
+            data: { date: date, categoryId: categoryId, queueNumber: queueNumber },
+            success: function (response) {
+                console.log(response)
+                if (response && response.isSuccess === false) {
+                    alert(response.message);
+                } else if (response && response.isSuccess === true) {
+                    window.location.href = "/Clerk/Print_Form?date=" + date + "&categoryId=" + categoryId + "&queueNumber=" + queueNumber;
+                }
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                alert("An error occurred while generating the queue number.");
+            }
+        });
+    }
+
+
+</script>

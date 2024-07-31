@@ -1,0 +1,74 @@
+﻿@using PrinceQ.Models.ViewModel;
+@model RegisterVM
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_AccountLayout";
+}
+
+<div class="row d-flex align-items-center justify-content-center h-100">
+    <div class="bg-white p-5 py-3 loginContainer" style="max-width: 600px; border-radius: 10px;">
+        <div class="img-fluid text-center">
+            <img src="/src/prg_logo.png" />
+        </div>
+        <div class="col-lg-12 mx-auto rounded py-4">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <h2 class="text-center">Register</h2>
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="ClerkNumber" class="form-control" />
+                    <label asp-for="ClerkNumber">Clerk Number(For Clerk)</label>
+                    <span asp-validation-for="ClerkNumber" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="UserName" class="form-control" />
+                    <label asp-for="UserName">Username</label>
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" />
+                    <label asp-for="Email">Email</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" class="form-control" />
+                    <label asp-for="Password">Password</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <label asp-for="ConfirmPassword">Confirm Password</label>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select asp-for="Role" asp-items="@Model.RoleList" class="form-select p-3">
+                        <option disabled selected>-Select Role</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-8">
+                        <a asp-controller="Account" asp-action="Login" class="text-decoration-none float-start mt-2">Already have an account</a>
+                    </div>
+                    <div class="col-4">
+                        <input type="submit" value="Register" class="btn btn-success btn-lg float-end" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

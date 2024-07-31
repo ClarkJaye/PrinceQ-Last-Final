@@ -1,0 +1,122 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+@inject SignInManager<User> SignInManager
+
+@using PrinceQ.Utility
+<header id="mainNav">
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow p-0 bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light" asp-area="" asp-controller="Admin" asp-action="Dashboard">
+                <img src="~/src/prg_newlogo.png" width="50" class="mx-2">
+            </a>
+
+            <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon text-white"></span>
+            </button>
+
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var user = await UserManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    var roles = await UserManager.GetRolesAsync(user);
+
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between position-relative">
+                        <ul class="navbar-nav flex-grow-1 px-2 gap-3 h-nav">
+
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "text-danger" : "text-dark")" asp-controller="Admin" asp-action="Dashboard">
+                                    <i class="lni lni-grid-alt"></i>
+                                    <p class="m-0 d-lg-block d-none">Dashboard</p>
+                                </a>
+                            </li>
+
+                            @if (roles.Contains(SD.Role_Reports))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center  gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "text-danger" : "text-dark")" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="lni lni-stats-up"></i>
+                                        <p class="m-0 d-lg-block d-none">Reports</p>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                                        <li>
+                                            <a asp-controller="Admin" asp-action="WaitingReport" class="dropdown-item">Waiting Time</a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Admin" asp-action="ServingReport" class="dropdown-item">Serving</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            @if (roles.Contains(SD.Role_Users))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "text-danger" : "text-dark")" asp-controller="Admin" asp-action="Users">
+                                        <i class="lni lni-user"></i>
+                                        <p class="m-0 d-lg-block d-none">Users</p>
+                                    </a>
+                                </li>
+                            }
+                         
+                            @if (roles.Contains(SD.Role_Videos))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "ManageVideo" ? "text-danger" : "text-dark")" asp-controller="Admin" asp-action="ManageVideo">
+                                        <i class="lni lni-video"></i>
+                                        <p class="m-0 d-lg-block d-none">Manage Video</p>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (roles.Contains(SD.Role_Announcement))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Announcement" ? "text-danger" : "text-dark")" asp-controller="Admin" asp-action="Announcement">
+                                        <i class="fa fa-bullhorn"></i>
+                                        <p class="m-0 d-lg-block d-none">Announcement</p>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (roles.Contains(SD.Role_GenerateNumber))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clerk" && ViewContext.RouteData.Values["action"]?.ToString() == "Generate" ? "text-danger" : "text-dark")" asp-controller="Clerk" asp-action="Generate">
+                                        <i class="lni lni-clipboard"></i>
+                                        <p class="m-0 d-lg-block d-none">Generate Queue</p>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (roles.Contains(SD.Role_Filling))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clerk" && ViewContext.RouteData.Values["action"]?.ToString() == "Filling" ? "text-danger" : "text-dark")" asp-controller="Clerk" asp-action="Filling">
+                                        <i class="lni lni-pencil-alt"></i>
+                                        <p class="m-0 d-lg-block d-none">Filling Up</p>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (roles.Contains(SD.Role_Releasing))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Clerk" && ViewContext.RouteData.Values["action"]?.ToString() == "Releasing" ? "text-danger" : "text-dark")" asp-controller="Clerk" asp-action="Releasing">
+                                        <i class="lni lni-arrow-right-circle"></i>
+                                        <p class="m-0 d-lg-block d-none">Releasing</p>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+
+                        <partial name="_LoginPartial" />
+                    </div>
+                }
+            }
+        </div>
+    </nav>
+</header>

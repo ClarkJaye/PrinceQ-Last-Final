@@ -1,0 +1,192 @@
+﻿@using System.Security.Claims
+﻿@using PrinceQ.Models.ViewModel
+@model ClerkVM
+@{
+    ViewData["Title"] = "Releasing";
+    Layout = "_CLayout";
+
+    var clerkNumber = Model.ClerkNumber?.ClerkNumber;
+}
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+
+        <!--Left Side-->
+        <div class="col-3 p-0 position-relative" style="background-color: #F0F1F4; border-right: 2px solid #DEE2E6">
+            <div class="py-2 px-2 d-flex align-items-center justify-content-between" style="border-bottom: 1px solid rgba(0, 0, 0, 0.5);">
+                <div>
+                    <h2 class="fst-italic" id="ClerkNum">
+                    </h2>
+                </div>
+
+                <a class="navbar-brand text-dark d-none d-md-block">
+                    <img src="~/src/logo-prince.png" style="width: 60px;height: 50px;object-fit: contain;" alt="Queuing" />
+                </a>
+            </div>
+
+            <!-- Serving-->
+            <div class="py-3" style="border-bottom: 1px solid rgba(0, 0, 0, 0.5);">
+                <div class="px-2">
+                    <h3 class="nowServing fst-italic">NOW SERVING</h3>
+                </div>
+               
+                <div class="text-center py-5" id="servingMenu">
+                    <h1 id="servingDisplay" style="font-size: 80px;">----</h1>
+                </div>
+            </div>
+
+            <!--Buttons-->
+            <div class="d-grid gap-2 col-5 mx-auto py-5">
+                <button type="button" class="btn btn-success" id="callBtn" type="button">Call</button>
+                <button type="button" class="btn btn-warning" id="reserveBtn" type="button">Reserve</button>
+                <button type="button" class="btn btn-dark" id="cancelBtn" type="button">Cancel</button>
+            </div>
+
+            <!--Date & Time-->
+            <div class="time position-absolute d-flex flex-column text-center w-100" style="bottom: 10px;">
+                <h2 class="m-0" id="time"></h2>
+                <span id="date"></span>
+            </div>
+        </div>
+
+        <!--Right Side-->
+        <div class="col-9 p-1 border">
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-sm btn-secondary" id="showNavBtn">
+                    Hide
+                </button>
+            </div>
+
+         @*    <h4 class="text-center mb-3 mb-res fst-italic">Waiting</h4>
+            <div class="mb-4">
+
+                <!--Category count-->
+                <div class="d-flex justify-content-around align-items-center mt-4 waitingCont" id="WaitingCountNumber">
+                </div>
+
+            </div> *@
+
+
+            <!------PROCESS------->
+
+@*             <div class="row">
+                <div class="col-12 pt-4">
+                    <!------Releasing------->
+                    <div class=" pt-3">
+                        <h4 class="text-center mb-res fst-italic">RELEASING</h4>
+                        <div class="overflow-auto tableRel" style="max-height: 500px; height: 400px;">
+                            <table id="releaseTable" class="table table-striped text-center bg-white" style="border-radius: 8px;">
+                                <thead class="bg-danger text-white">
+                                    <tr>
+                                        <th class="w-50">No#</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="releasingQueues">
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+ *@
+            <div class="pt-4 px-3">
+                <h4 class="text-center mb-res fst-italic">RELEASING</h4>
+                <div class="overflow-auto tableRes" style="max-height:400px; height: 200px;">
+                    <table id="releaseTable" class="table table-striped text-center bg-white" style="border-radius: 8px;">
+                        <thead class="bg-danger text-white">
+                            <tr>
+                                <th class="w-50">No#</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="releasingQueues">
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+
+
+
+            <!------RESERVE------->
+            <div class="p-3" style="border-top: 1px solid #5c636a">
+                <h4 class="text-center mb-res fst-italic">RESERVED</h4>
+                <div class="overflow-auto tableRes" style="max-height:400px; height: 200px;">
+                    <table id="reserveTable" class="table table-striped text-center bg-white" style="border-radius: 8px;">
+                        <thead class="bg-warning">
+                            <tr>
+                                <th scope="col">No#</th>
+                                <th scope="col">Reserve At</th>
+                                <th scope="col">Stage</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resQueues">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Number of Cheques Modal -->
+<div class="modal fade" id="chequeCountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 350px;">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h6 class="modal-title fw-bold">Number of Cheques</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="UpdateQueueForm" method="POST">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div id="qNum" hidden>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input id="QueueNumber" class="form-control p-2 text-center" disabled style="font-size: 2rem;" />
+                        <label for="QueueNumber">Queue #: </label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="number" id="Cheques" class="form-control" placeholder="Name" />
+                        <label for="Cheques">Number of Cheque</label>
+                        <span id="ChequeValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-4 mb-3 text-end">
+                        <button type="submit" class="btn btn-primary w-100" id="serveBtn">Save</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/clerk/ClerkScript.js"></script>
+
+<script>
+    var mainNav = $('#mainNav');
+    var showNavBtn = $('#showNavBtn');
+
+    mainNav.show();
+
+    showNavBtn.on("click", function () {
+        if (mainNav.is(':visible')) {
+            mainNav.slideUp();
+            showNavBtn.text('Show');
+        } else {
+            mainNav.slideDown();
+            showNavBtn.text('Hide');
+        }
+    });
+
+</script>

@@ -1,0 +1,221 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;    
+/*    height: 100vh;*/
+}
+
+    body::after {
+        content: "";
+        background: url(/src/login_bckgd.png);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        opacity: 0.2;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+
+@media (max-width: 767.98px) {
+    .loginContainer {
+        width: 80%;
+    }
+}
+
+
+
+.h-nav > li:hover {
+    background: rgb(239, 237, 237);
+    border-radius: 5px;
+}
+
+.bg-nav {
+    background: rgb(239, 237, 237);
+    border-radius: 5px;
+}
+
+
+.nextBtn.category-A, .queueBtn-A {
+    color: #fff !important;
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+    .nextBtn.category-A:hover,
+    .queueBtn-A:hover {
+        color: #fff;
+        background-color: #157347d1;
+        border-color: #157347d1;
+    }
+
+.nextBtn.category-B, .queueBtn-B {
+    color: #000;
+    background-color: #ffca2c;
+    border-color: #ffca2c;
+}
+
+    .nextBtn.category-B:hover,
+    .queueBtn-B:hover {
+        color: #000;
+        background-color: #ffca2cbd;
+        border-color: #ffca2cbd;
+    }
+
+.nextBtn.category-C, .queueBtn-C {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+    .nextBtn.category-C:hover,
+    .queueBtn-C:hover {
+        color: #fff;
+        background-color: #dc3545cc;
+        border-color: #dc3545cc;
+    }
+
+.nextBtn.category-D, .queueBtn-D {
+    color: #fff;
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+}
+
+    .nextBtn.category-D:hover,
+    .queueBtn-D:hover {
+        color: #fff;
+        background-color: #0b5ed7c2;
+        border-color: #0b5ed7c2;
+    }
+
+.backQueue {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 10px;
+}
+
+.item-name {
+    color: #212529 !important;
+}
+
+    .item-name:hover {
+        color: green !important;
+    }
+
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+@media (max-width: 767.98px) {
+    .tableRel {
+        height: 200px !important;
+        overflow: auto !important;
+    }
+
+    .tableRes {
+        height: 130px !important;
+        overflow: auto !important;
+    }
+
+    .tableAction {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .tableAction button {
+            font-size: 12px;
+            padding: 3px;
+        }
+
+    .categoryName {
+        display: none;
+        font-size: 14px;
+    }
+
+    .categoryBtn, .nowServing {
+        font-size: 18px;
+    }
+
+    #servingDisplay {
+        font-size: 50px !important;
+    }
+
+    .mb-res, h2#ClerkNum {
+        font-size: 20px;
+    }
+
+    #reserveTable,
+    #fillingTable,
+    #releaseTable {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    th, td {
+        font-size: 12px;
+    }
+
+    #servingMenu {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 1366px) {
+    #servingMenu {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+}
+
+
+.blink-red {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        color: black;
+    }
+
+    50% {
+        color: red;
+    }
+
+    100% {
+        color: black;
+    }
+}
+
+@media (max-width: 992px) {
+
+    .h-nav li a i {
+        font-size: 18px;
+    }
+}

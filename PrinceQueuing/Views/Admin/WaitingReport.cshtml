@@ -1,0 +1,122 @@
+﻿@{
+    ViewData["Title"] = "Report / Waiting Time Report";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    select{
+        font-size: 12px!important;
+    }
+</style>
+
+<div class="px-5 mb-4">
+
+    <div class="row py-4">
+        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #4e73df !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-success text-uppercase mb-1" style="font-size: .8em;">
+                                Waiting Time Average
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0">
+                                1.5s
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-danger text-uppercase mb-1" style="font-size: .8em;">
+                                Waiting Time Lowest
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0">
+                                1mins
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded border shadow">
+        <div class="border-bottom">
+            <div class="d-flex align-items-center justify-content-between p-3 px-4">
+                <h6 class="fw-bold m-0">Average Waiting Time Statistics</h6> 
+                <button class="btn btn-sm btn-primary d-flex align-items-center gap-2" style="font-size: 12px;">
+                    See Detailed
+                    <i class="lni lni-arrow-right fw-bold" style="font-size:14px;"></i>
+                </button>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between p-2 px-5">
+          
+            <div>
+                <select id="selectedRange" class="form-select" onchange="LoadWaitingData( this.value, document.getElementById('selectedYear').value, document.getElementById('selectedMonth').value)">
+                    <option value="" selected disabled>Select Range</option>
+                    <option value="ff">ForFilling Start To ForFilling End</option>
+                    <option value="rr">Releasing Start To Releasing End</option>
+                    <option value="fr">ForFilling Start To Releasing End</option>
+
+                </select>
+            </div>
+
+            <div class="yearContainer d-flex gap-2">
+                <select id="selectedMonth" onchange="LoadWaitingData( document.getElementById('selectedRange').value, document.getElementById('selectedYear').value, this.value)" class="form-select">
+                    <option data-month="All" value="">All</option>
+                    <option data-month="January" value="01">January</option>
+                    <option data-month="February" value="02">February</option>
+                    <option data-month="March" value="03">March</option>
+                    <option data-month="April" value="04">April</option>
+                    <option data-month="May" value="05">May</option>
+                    <option data-month="June" value="06">June</option>
+                    <option data-month="July" value="07">July</option>
+                    <option data-month="August" value="08">August</option>
+                    <option data-month="September" value="09">September</option>
+                    <option data-month="October" value="10">October</option>
+                    <option data-month="November" value="11">November</option>
+                    <option data-month="December" value="12">December</option>
+                </select>
+
+                <select id="selectedYear" onchange="LoadWaitingData( document.getElementById('selectedRange').value, this.value,  document.getElementById('selectedMonth').value)" class="form-select">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                    <option value="2029">2029</option>
+                    <option value="2030">2030</option>
+                </select>
+            </div>
+
+
+        </div>
+
+        <div class="pb-5 mx-5">
+            <canvas id="waitingChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-tooltip"></script>
+<script src="/js/admin/WaitingReportScript.js"></script>
+
+

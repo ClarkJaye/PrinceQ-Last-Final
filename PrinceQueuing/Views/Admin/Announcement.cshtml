@@ -1,0 +1,165 @@
+﻿@model Announcement
+
+@using System.IO
+@{
+    ViewData["Title"] = "Announcement";
+    Layout = "_AdminLayout";
+}
+
+<div class="px-5 mb-4">
+
+    <div class="row py-4">
+        <div class="col-xl-3 col-md-4 col-sm-6 mb-2">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #4e73df !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-primary text-uppercase mb-1" style="font-size: .8em;">
+                                Total Announcement
+                            </div>
+                            <div class="h4 fw-bold text-secondary mb-0" id="announcementCount">
+                                0
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-layout" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 fw-bold text-dark">
+                Announcement List
+            </h6>
+        </div>
+
+        <div class="card-body pt-0">
+            <div class="table-responsive p-1">
+
+                <!-- Add New Announcement -->
+                <div class="py-3 float-end">
+                    <button type="button" class="btn btn-primary d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#announcementModal">
+                        <i class="lni lni-plus mr-2 fw-bold"></i>
+                        <span> Add New</span>
+                    </button>
+                </div>
+
+                <!-- Announcement Table -->
+                <table id="announcementTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
+                    <thead class="border-top">
+                        <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
+                            <th>Announcement Name</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <!-- Data will be populated here --> 
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Add Modal -->
+<div class="modal fade" id="announcementModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Announcement</h5>
+                <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAnnounceForm" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="Name" class="p-0"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="p-0"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4" cols="50"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 text-end">
+                        <button type="submit" class="btn btn-primary" id="addBtn">Add</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="announcementEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Announcement</h5>
+                <button type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateAnnounceForm" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <input id="editAnnounceId" name="Id" class="form-control" hidden />
+
+                    <div class="mb-3">
+                        <label for="editName" class="p-0">Announcement Name</label>
+                        <input id="editName" name="Name" class="form-control" />
+                        <span id="NameValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editMessage" class="p-0">Description</label>
+                        <textarea id="editMessage" name="Description" class="form-control" rows="4" cols="50"></textarea>
+                        <span for="MessageValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" hidden>
+                        <label for="editCreated_At" class="p-0">Created At</label>
+                        <input id="editCreated_At" name="Created_At" class="form-control" />
+                        <span id="Created_AtValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <select id="EditActive" name="IsActiveId" class="form-select p-3">
+                            <option value="1">Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                        <span id="ActiveValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 text-end">
+                        <button type="submit" class="btn btn-primary" id="updateBtn">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>         
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="/js/admin/AnnouncementScript.js"></script>
+
+

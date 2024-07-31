@@ -1,0 +1,82 @@
+﻿@using System.IO
+@{
+    ViewData["Title"] = "Manage Video";
+    Layout = "_AdminLayout";
+} 
+
+
+<style>
+    .videoInList {
+        position: relative;
+        display: inline-block;
+        border: 7px solid transparent;
+    }
+
+        .videoInList.selected-video {
+            border: 2px solid #007bff;
+            box-shadow: 0 0 10px 10px rgba(0, 123, 255, 0.5);
+        }
+
+        .videoInList:hover::after {
+            content: "\ea9e";
+            font-family: "LineIcons";
+            font-size: 50px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .videoInList:hover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+            cursor: pointer;
+        }
+
+</style>
+
+<div class="container-fluid p-3">
+    <div class="row">
+
+        <div class="col-4">
+            <h4 class="text-center">Videos</h4>
+            <div class="rounded-3 " style="background: rgb(0,0,0,0.5)">
+                <div class="videos" id="listVidsContainer" style="overflow:auto; max-height: 700px;">
+                </div>
+
+                <div class="mt-3 pb-3 px-3">
+                    <h4 class="text-white h5">Upload a Video </h4>
+                        <div class="d-flex align-items-center gap-2 flex-sm-row">
+                            <input type="file" name="videoFile" accept="video/*" class="form-control form-control-file" data-max-file-size="100mb" id="videoInput"/>
+                            <button type="button" class="btn btn-primary" id="addVideoBtn">Upload</button>
+                        </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-8">
+            <h4 class="text-center">Selected Video</h4>
+            <div class="video-player">
+                <video src="" id="selected-video" controls class="w-100 rounded-3" autoplay></video>
+            </div>
+
+            <div class="actions mt-3 d-flex align-items-center justify-content-center gap-3">
+                <button class="btn btn-danger" id="deleteBtn">Delete this video</button>
+                <button class="btn btn-success" id="playVideoBtn">Play in Monitor</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/admin/VideoScript.js"></script>

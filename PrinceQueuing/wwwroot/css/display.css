@@ -1,0 +1,265 @@
+﻿.customer-body {
+    display: flex;
+    flex-direction: row;
+    height: 90vh;
+    width: 100%;
+}
+
+.customer-left {
+    position: absolute;
+    left: 0;
+    width: 35%;
+    height: 100vh;
+    background: rgba(237, 237, 11, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.customer-left::after {
+    content: "";
+    background: url(/src/login_bckgd.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;
+
+}
+
+.customer-right {
+    position: absolute;
+    right: 0;
+    width: 65%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.customer-video img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+}
+
+.customer-video .time {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translate(-50%);
+    background: #dc3545cc;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.time h2 {
+    font-size: clamp(24px, 5vw, 42px);
+    color: white;
+}
+
+.time span {
+    color: white;
+    font-size: clamp(14px, 2vw, 22px);
+    font-weight: 500;
+}
+
+
+.customer-left .nowServing {
+    font-weight: bold;
+    font-size: clamp(1rem, 3vw, 3rem);
+}
+
+.customer-left .clerk1, .clerk2, .clerk3 {
+    width: 90%;
+    height: 25%;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+    .clerk1 .left,
+    .clerk2 .left,
+    .clerk3 .left {
+        height: 100%;
+        width: 45%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+        .clerk1 .left .number1 h1,
+        .clerk2 .left .number1 h1,
+        .clerk3 .left .number1 h1 {
+            font-size: clamp(1.5rem, 5vw, 4rem);
+            font-weight: bolder;
+        }
+
+        .clerk1 .left .number2 h1,
+        .clerk2 .left .number2 h1,
+        .clerk3 .left .number2 h1 {
+            font-size: clamp(1rem, 3vw, 2.5rem);
+            font-weight: bold;
+        }
+
+
+
+
+    .clerk1 .right,
+    .clerk2 .right,
+    .clerk3 .right {
+        display: flex;
+        height: 55%;
+        width: 55%;
+        justify-content: center;
+        align-items: center;
+        border-left: 5px solid #33DDD3;
+    }
+
+        .clerk1 .right h1,
+        .clerk2 .right h1,
+        .clerk3 .right h1 {
+            font-size: clamp(1.5rem, 5vw, 5rem);
+            font-weight: bold;
+        }
+
+
+.customer-right .customer-video {
+    height: 75%;
+}
+
+.customer-right .advertisement {
+    height: 25%;
+}
+
+.advertisement .top {
+    height: 80%;
+    background: #F1EFEF;
+    display: flex;
+}
+
+.advertisement .bottom {
+    height: 20%;
+    background: #DD3333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .advertisement .bottom h2 {
+        color: white;
+        font-size: clamp(.5rem, 2vw, 1.5rem);
+    }
+
+
+.top .prince-logo {
+    width: 20%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 30px 30px 0;
+}
+
+    .top .prince-logo .img-cont {
+        width: 100%;
+        height: 90%;
+    }
+
+
+.prince-logo .img-cont img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.advertisement .announcement {
+    width: 80%;
+    height: 100%;
+    padding-right: 3rem;
+}
+
+.announcement h2 {
+    margin-top: 2%;
+    text-align: center;
+    font-size: clamp(1rem, 2vw, 2.2rem);
+    font-style: italic;
+}
+
+.announcement .announcement-words {
+    height: 60%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .announcement .announcement-words p {
+        line-height: normal;
+        font-size: clamp(1rem, 2vw, 2rem);
+    }
+
+
+@media (max-width: 768px) {
+    .customer-left .clerk1, .clerk2, .clerk3 {    
+        border-radius: 5px;
+    }
+}
+
+@media (max-width: 520px) {
+    .clerk1 .right,
+    .clerk2 .right,
+    .clerk3 .right {
+
+        border-left: 2px solid #33DDD3;
+    }
+}
+
+#announcementWord {
+    word-break: break-all;
+}
+
+.blink-red {
+    animation: blink 1s infinite;
+}
+
+.logoAnimate {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0% {
+        color: black;
+    }
+
+    50% {
+        color: red;
+    }
+
+    100% {
+        color: black;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-30px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+

@@ -1,0 +1,291 @@
+﻿@using PrinceQ.Models.ViewModel
+@model RegisterVM
+
+@{
+    ViewData["Title"] = "Users";
+    Layout = "_AdminLayout";
+}
+
+
+<style>
+    table tbody tr:hover {
+        background-color: rgba(0, 0, 0, .05);
+    }
+
+    #multipleSelect {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .vscomp-toggle-button {
+        padding: 10px 30px 10px 10px;
+        border-radius: 5px;
+    }
+
+    .custom-btn-font {
+        font-size: 10px;
+        border-radius: 20px;
+    }
+</style>
+
+<div class="px-5 mb-4">
+
+    <div class="row py-4">
+        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #4e73df !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-primary text-uppercase mb-1" style="font-size: .8em;">
+                                Total Users
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0" id="countAllUsers">                               
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #198754 !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-success text-uppercase mb-1" style="font-size: .8em;">
+                                Total Active
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0" id="countActive">        
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-danger text-uppercase mb-1" style="font-size: .8em;">
+                                Total Inactive
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0" id="countInactive">                      
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 fw-bold text-dark">
+                User List
+            </h6>
+        </div>
+
+
+        <div class="card-body pt-0">
+            <div class="table-responsive p-1">
+
+                <!-- Add New Category -->
+                <div class="py-3 float-end">
+                    <button type="button" id="addUserBtn" class="btn btn-primary d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#userAddModal">
+                        <i class="lni lni-plus mr-2 fw-bold"></i>
+                        <span> Add New User</span>
+                    </button>
+                </div>
+
+                <!-- Category Table -->
+                <table id="categoryTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
+                    <thead class="border-top">
+                        <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
+                            <th>UserName</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Date Added</th>
+                            <th class="text-center" style="width: 10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <!-- Data will be populated here -->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="userAddModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                 <form id="AddUserForm" method="POST">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="UserName" class="form-control" placeholder="UserName" />
+                        <label asp-for="UserName">UserName</label>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" class="form-control" placeholder="Sample" />
+                        <label asp-for="Email">Email</label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Password" class="form-control" placeholder="Sample" />
+                        <label asp-for="Password" id="passwordLabel">Password</label>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Sample" />
+                        <label asp-for="ConfirmPassword" id="confirmPasswordLabel">Confirm Password</label>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <label for="AddRoleMultipleSelect" class="text-muted px-1">Assign Roles</label>
+                    <div>
+                        <select id="AddRoleMultipleSelect" asp-for="Role" multiple placeholder="Select roles" data-search="false">
+                            <option disabled selected>Select Roles</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-3 mb-3 text-end">
+                        <button type="submit" class="btn btn-primary" id="addBtn">Add</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="userEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="UpdateUserForm" method="POST">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <input id="EditUserId" name="Id" hidden/>
+
+                    <div class="form-floating mb-3">
+                        <input id="EditUserName" name="UserName" class="form-control" placeholder="Username" />
+                        <label for="EditUserName">Username</label>
+                        <span id="NameValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="email" id="EditEmail" name="Email" class="form-control" placeholder="Email" />
+                        <label for="EditEmail">Email</label>
+                        <span id="EmailValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <select id="EditActive" name="IsActiveId" class="form-select p-3">
+                            <option value="1">Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                        <span id="ActiveValid" class="text-danger"></span>
+                    </div>
+
+                    <label for="EditRoleMultipleSelect" class="text-muted px-1">Assign Roles</label>
+                    <!-- Select Roles -->
+                    <div class="mb-3 d-">
+                        <select id="EditRoleMultipleSelect" multiple placeholder="Select role" data-search="false" data-silent-initial-value-set="true">
+                        </select>
+                        <span id="RoleValid" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-3 mb-3 text-end">
+                        <button type="submit" class="btn btn-primary" id="updateBtn">Update</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- For Clerk Assign Modal -->
+<div class="modal fade" id="assignModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Clerk Assign - Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                    <input id="assignUserId" hidden />
+                    <div class="row">
+                        <div class="mb-3 col-6">
+                            <label>Username</label>
+                            <input id="assignUserName" class="form-control" disabled placeholder="Username" />
+                        </div>
+                        <div class=" mb-3 col-6">
+                            <label>Email</label>
+                            <input id="assignEmail" class="form-control" disabled placeholder="Email" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 d-flex align-items-center">
+                        <div class="d-flex align-items-center form-group gap-2 w-100">
+                            <!-- Select category -->
+                            <select id="multipleSelect" multiple name="native-select" placeholder="select category" data-search="false" data-silent-initial-value-set="true"></select>
+
+                            <input id="addAssignBtn" type="submit" class="btn btn-success" value="ADD" />
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <div class="border rounded">
+                            <ul class="list-group" id="categoryAssignContainer">
+                               
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeBtn">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+<script src="~/lib/dist//virtual-select.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="/js/admin/UserScript.js"></script>

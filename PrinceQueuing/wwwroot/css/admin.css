@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+::after,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+body {
+    font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+    body::after {
+        content: "";
+        background: url(/src/login_bckgd.png);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        opacity: 0.2;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        position: absolute;
+        z-index: -1;
+    }
+
+
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #8888;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #0e3c6f;
+    border-radius: 2px;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #0f2c4c;
+    }
+
+.main {
+/*    height: 100%;
+    min-height: 100vh;*/
+    width: 100%;
+    overflow: auto;
+}
+
+.custom-btn-font {
+    font-size: 12px;
+    border-radius: 20px;
+}
+
+.h-nav > li:hover {
+    background: rgb(239, 237, 237);
+    border-radius: 5px;
+}
+
+@media (max-width: 992px) {
+
+    .h-nav li a i {
+        font-size: 18px;
+    }
+}
+

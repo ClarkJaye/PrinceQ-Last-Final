@@ -1,0 +1,351 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+    
+<div class="px-5 mb-4">
+    <div class="row py-4">
+
+        <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #198754 !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-success text-uppercase mb-1" style="font-size: .8em;">
+                                Average Waiting time
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0">
+                  
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-danger text-uppercase mb-1" style="font-size: .8em;">
+                                Average Serving time
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0">
+               
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #4e73df !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-primary text-uppercase mb-1" style="font-size: .8em;">
+                                Total Generated Number
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0" id="totalClerk">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-3 col-sm-4 mb-4">
+            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #ffca2c !important;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col mr-2">
+                            <div class="fw-bold text-uppercase mb-1" style="font-size: .8em;">
+                                Total Serve Number
+                            </div>
+                            <div class="h5 fw-bold text-secondary mb-0" id="highestServed">                            
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="bg-white rounded border shadow">
+                <h6 class="p-3 fw-bold m-0 border-bottom">Total Serving</h6>
+                <div class="d-flex align-items-center justify-content-end pt-3 px-5">
+                    <div class="yearContainer d-flex gap-2">
+                        <select id="selectedMonth" onchange="LoadData(document.getElementById('selectedYear').value, this.value)" class="form-select">
+                            <option data-month="All" value="">All</option>
+                            <option data-month="January" value="01">January</option>
+                            <option data-month="February" value="02">February</option>
+                            <option data-month="March" value="03">March</option>
+                            <option data-month="April" value="04">April</option>
+                            <option data-month="May" value="05">May</option>
+                            <option data-month="June" value="06">June</option>
+                            <option data-month="July" value="07">July</option>
+                            <option data-month="August" value="08">August</option>
+                            <option data-month="September" value="09">September</option>
+                            <option data-month="October" value="10">October</option>
+                            <option data-month="November" value="11">November</option>
+                            <option data-month="December" value="12">December</option>
+                        </select>
+
+                        <select id="selectedYear" onchange="LoadData(this.value,  document.getElementById('selectedMonth').value)" class="form-select">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pb-5 mx-3">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="bg-white rounded border shadow">
+                <h6 class="p-3 fw-bold m-0 border-bottom"> Serving Statistics</h6>
+                <div class="d-flex align-items-center justify-content-between p-2 px-5">
+                    <canvas id="ServingPieChart"></canvas>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-tooltip"></script>
+
+<script>
+    $(document).ready(function () {
+        loadTotalServing();
+        loadPieChart();
+        TotalClerk();
+        highestServed();
+    });
+
+
+    //Load Pie Chart
+    function loadPieChart() {
+        const ctxPie = document.getElementById('ServingPieChart');
+
+        const myPieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Category A', 'Category B', 'Category C', 'Category D'],
+                datasets: [
+                    {
+                        data: [30, 20, 25, 25],
+                        backgroundColor: ['#157347', '#ffca2c', '#dc3545', '#0b5ed7'],
+                        borderWidth: 1,
+                    },
+                ],
+            },
+        });
+    }
+
+
+    //Load TotalServing
+    var ServingChart;
+    var ServingLabels = [];
+    var ServingDatasets = [];
+    function loadTotalServing() {
+        var yearDropdown = document.getElementById('selectedYear').value;
+        var monthDropdown = document.getElementById('selectedMonth').value;
+        const xValues = ["Months"];
+
+        ServingChart = new Chart("myChart", {
+            type: "line",
+            data: {
+                labels: xValues,
+                datasets: []
+            },
+            options: {
+                legend: {
+                    display: true
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false
+                },
+                elements: {
+                    line: {
+                        tension: 0.1
+                    }
+                },
+                scales: {
+                    x: {
+                        categorySpacing: 1,
+                        ticks: {
+                            autoSkip: true,
+                            maxRotation: 40,
+                            minRotation: 40
+                        }
+                    },
+                    y: {
+                        min: 0,
+                    },
+                },
+            },
+            plugins: [plugin]
+        });
+        LoadData(yearDropdown, monthDropdown);
+    }
+
+    // Load the Data
+    function LoadData(yearData, monthData) {
+
+        $.ajax({
+            type: 'GET',
+            url: '/Admin/GetDataByYearAndMonth',
+            dataType: 'json',
+            data: { year: yearData, month: monthData },
+            success: function (data) {
+                // console.log(data);
+
+                if (data && data.isMonth == true) {
+                    data = data.value.sort((a, b) => a.month - b.month);
+                    ServingLabels = data.map(item => {
+                        const monthIndex = parseInt(item.month) - 1;
+                        const monthName = new Date(0, monthIndex).toLocaleString('en-US', { month: 'long' });
+                        return monthName;
+                    });
+                }
+                else if (data && data.isMonth == false) {
+                    data = data.value.sort((a, b) => a.day - b.day);
+                    ServingLabels = data.map(item => {
+                        const year = item.generateDate.substring(0, 4);
+                        const month = item.generateDate.substring(4, 6);
+                        const day = item.generateDate.substring(6, 8);
+                        const formattedDate = `${day}\n${new Date(year, month - 1, day).toLocaleString('en-US', { weekday: 'long' })}`;
+                        return formattedDate;
+                    });
+                }
+
+                ServingDatasets = [
+                    {
+                        label: 'Category A',
+                        data: data.map(item => item.categoryASum),
+                        borderColor: "#157347",
+                        backgroundColor: "#157347",
+                        pointBackgroundColor: "#157347",
+                        pointRadius: 5,
+                        fill: false
+                    },
+                    {
+                        label: 'Category B',
+                        data: data.map(item => item.categoryBSum),
+                        borderColor: "#ffca2c",
+                        backgroundColor: "#ffca2c",
+                        pointBackgroundColor: "#ffca2c",
+                        pointRadius: 5,
+                        fill: false
+                    },
+                    {
+                        label: 'Category C',
+                        data: data.map(item => item.categoryCSum),
+                        borderColor: "#dc3545",
+                        backgroundColor: "#dc3545",
+                        pointBackgroundColor: "#dc3545",
+                        pointRadius: 5,
+                        fill: false
+                    },
+                    {
+                        label: 'Category D',
+                        data: data.map(item => item.categoryDSum),
+                        borderColor: "#0b5ed7",
+                        backgroundColor: "#0b5ed7",
+                        pointBackgroundColor: "#0b5ed7",
+                        pointRadius: 5,
+                        fill: false
+                    }
+                ];
+
+                ServingChart.data.labels = ServingLabels;
+                ServingChart.data.datasets = ServingDatasets;
+                ServingChart.update();
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    //Plugin
+    const plugin = {
+        beforeInit(chart) {
+            const originalFit = chart.legend.fit;
+            chart.legend.fit = function fit() {
+                originalFit.bind(chart.legend)();
+                this.height += 30;
+            }
+        }
+    }
+
+    //Total Clerk
+    function TotalClerk(){
+        $.ajax({
+            type: "GET",
+            url: "/admin/CountClerk",
+            success: function (response) {
+                var Clerk = document.getElementById("totalClerk");
+                if (response) {
+                    Clerk.textContent = response;
+                }
+                else{
+                    Clerk.textContent = 0;
+                }
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+    }
+
+    //Total Clerk
+    function highestServed() {
+        $.ajax({
+            type: "GET",
+            url: "/admin/HighestServePerDay",
+            success: function (response) {
+                var highestServed = document.getElementById("highestServed");
+                if (response && response.isSuccess == true) {
+                    highestServed.textContent = response.value.category.sum;
+                }
+                else {
+                    highestServed.textContent = 0;
+                }
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+    }
+
+
+
+</script>

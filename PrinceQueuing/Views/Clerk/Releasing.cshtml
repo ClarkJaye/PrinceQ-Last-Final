@@ -5,10 +5,12 @@
     ViewData["Title"] = "Releasing";
     Layout = "_CLayout";
 
+    var userIsDisabled = !(Model.Users?.IsActive ?? true);
 }
 
 <div class="container-fluid h-100">
     <div class="row h-100">
+        <input type="text" id="isDisabledUser" hidden value="@userIsDisabled" />
 
         <!--Left Side-->
         <div class="col-3 p-0 position-relative" style="background-color: #F0F1F4; border-right: 2px solid #DEE2E6">
@@ -38,9 +40,9 @@
 
             <!--Buttons-->
             <div class="d-grid gap-2 col-5 mx-auto py-5">
-                <button type="button" class="btn btn-success" id="callBtn" type="button">Call</button>
-                <button type="button" class="btn btn-warning" id="reserveBtn" type="button">Reserve</button>
-                <button type="button" class="btn btn-dark" id="cancelBtn" type="button">Cancel</button>
+                <button type="button" class="btn btn-success" id="callBtn" type="button" @(userIsDisabled ? "disabled" : "")>Call</button>
+                <button type="button" class="btn btn-warning" id="reserveBtn" type="button" @(userIsDisabled ? "disabled" : "")>Reserve</button>
+                <button type="button" class="btn btn-dark" id="cancelBtn" type="button" @(userIsDisabled ? "disabled" : "")>Cancel</button>
             </div>
 
             <!--Date & Time-->
@@ -58,44 +60,9 @@
                 </button>
             </div>
 
-         @*    <h4 class="text-center mb-3 mb-res fst-italic">Waiting</h4>
-            <div class="mb-4">
-
-                <!--Category count-->
-                <div class="d-flex justify-content-around align-items-center mt-4 waitingCont" id="WaitingCountNumber">
-                </div>
-
-            </div> *@
-
-
-            <!------PROCESS------->
-
-@*             <div class="row">
-                <div class="col-12 pt-4">
-                    <!------Releasing------->
-                    <div class=" pt-3">
-                        <h4 class="text-center mb-res fst-italic">RELEASING</h4>
-                        <div class="overflow-auto tableRel" style="max-height: 500px; height: 400px;">
-                            <table id="releaseTable" class="table table-striped text-center bg-white" style="border-radius: 8px;">
-                                <thead class="bg-danger text-white">
-                                    <tr>
-                                        <th class="w-50">No#</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="releasingQueues">
-                                </tbody>
-
-                            </table>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
- *@
             <div class="pt-4 px-3">
                 <h4 class="text-center mb-res fst-italic">RELEASING</h4>
-                <div class="overflow-auto tableRes" style="max-height:400px; height: 200px;">
+                <div class="overflow-auto tableRes" style="max-height:450px; height: 300px;">
                     <table id="releaseTable" class="table table-striped text-center bg-white" style="border-radius: 8px;">
                         <thead class="bg-danger text-white">
                             <tr>
@@ -173,23 +140,25 @@
     </div>
 </div>
 
+<!-- Notification Modal -->
+@if (userIsDisabled)
+{
+    <div class="modal fade" id="notificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="notificationModalLabel">Account Disabled</h5>
+                </div>
+                <div class="modal-body">
+                    Your account is currently disabled. Please contact the administrator for more details.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/clerk/ClerkScript.js"></script>
-
-<script>
-    var mainNav = $('#mainNav');
-    var showNavBtn = $('#showNavBtn');
-
-    mainNav.show();
-
-    showNavBtn.on("click", function () {
-        if (mainNav.is(':visible')) {
-            mainNav.slideUp();
-            showNavBtn.text('Show');
-        } else {
-            mainNav.slideDown();
-            showNavBtn.text('Hide');
-        }
-    });
-
-</script>

@@ -121,7 +121,7 @@ namespace PrinceQ.DataAccess.Services
             {
                 UserName = model.UserName,
                 Email = model.Email,
-                IsActiveId = 1
+                IsActive = true
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
@@ -162,7 +162,7 @@ namespace PrinceQ.DataAccess.Services
             // Update user details
             user.UserName = model.UserName;
             user.Email = model.Email;
-            user.IsActiveId = model.IsActiveId.GetValueOrDefault();
+            user.IsActive = model.IsActive;
 
             // Get the user's existing roles
             var existingRoles = await _userManager.GetRolesAsync(user);
@@ -345,14 +345,14 @@ namespace PrinceQ.DataAccess.Services
         }
 
         //-----Announcement-----//
-        public async Task<DualResponse> AnnouncementDetail(int? id)
+        public async Task<GeneralResponse> AnnouncementDetail(int? id)
         {
-            var active = await _unitOfWork.active.GetAll();
+            //var active = await _unitOfWork.active.GetAll();
             var announcement = await _unitOfWork.announcement.Get(u => u.Id == id);
 
-            if (announcement == null) return new DualResponse(false, announcement, null,"Get announcement failed." );
+            if (announcement == null) return new GeneralResponse(false, announcement,"Get announcement failed." );
 
-            return new DualResponse(true, announcement, active, "Get announcement successful" );
+            return new GeneralResponse(true, announcement, "Get announcement successful" );
         }
         public async Task<GeneralResponse> AllAnnouncement()
         {
@@ -370,7 +370,7 @@ namespace PrinceQ.DataAccess.Services
                 Name = model.Name,
                 Description = model.Description,
                 Created_At = DateTime.Now,
-                IsActiveId = 2
+                IsActive = false
             };
             _unitOfWork.announcement.Add(announce);
             await _unitOfWork.SaveAsync();
@@ -378,7 +378,7 @@ namespace PrinceQ.DataAccess.Services
         }
         public async Task<CommonResponse> UpdateAnnouncement(Announcement model)
         {
-            var prevAnnounceActive = await _unitOfWork.announcement.Get(a => a.IsActiveId == 1);
+            var prevAnnounceActive = await _unitOfWork.announcement.Get(a => a.IsActive == true);
             if (prevAnnounceActive != null && prevAnnounceActive.Id == model.Id)
             {
                 _unitOfWork.announcement.Update(model);
@@ -388,7 +388,7 @@ namespace PrinceQ.DataAccess.Services
             }
             if (prevAnnounceActive != null)
             {
-                prevAnnounceActive.IsActiveId = 2;
+                prevAnnounceActive.IsActive = false;
                 _unitOfWork.announcement.Update(prevAnnounceActive);
             }
             _unitOfWork.announcement.Update(model);

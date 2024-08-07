@@ -49,6 +49,9 @@ connectionQueueHub.on("cancelQueueInMenu", () => {
 connectionQueueHub.on("DisplayQueue", function () {
     DisplayCurrentServe();
 });
+connectionQueueHub.on("removeCheqBtn", function () {
+    $("#chequeBtn").remove();
+});
 
 //For Dashboard User
 connectionQueueHub.on("RecentServing", function () {

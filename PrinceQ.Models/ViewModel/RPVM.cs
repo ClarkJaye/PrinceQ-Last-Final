@@ -4,7 +4,7 @@ namespace PrinceQ.Models.ViewModel
 {
     public class RPVM
     {
-        public List<Queues>? QueueNumbers { get; set; }
+        public User? Users { get; set; }
         public IEnumerable<Category>? Categories { get; set; }
     }
 }

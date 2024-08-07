@@ -5,12 +5,12 @@
     ViewData["Title"] = "Filling Up";
     Layout = "_CLayout";
 
-    var users = Model.Users;
-    var userss = Model.Users;
+    var userIsDisabled = !(Model.Users?.IsActive ?? true);
 }
 
 <div class="container-fluid h-100">
     <div class="row h-100">
+        <input type="text" id="isDisabledUser" hidden value="@userIsDisabled"/>
 
         <!--Left Side-->
         <div class="col-3 p-0 position-relative" style="background-color: #F0F1F4; border-right: 2px solid #DEE2E6">
@@ -38,9 +38,9 @@
 
             <!--Buttons-->
             <div class="d-grid gap-2 col-5 mx-auto py-5">
-                <button type="button" class="btn btn-success" id="callBtn" type="button">Call</button>
-                <button type="button" class="btn btn-warning" id="reserveBtn" type="button">Reserve</button>
-                <button type="button" class="btn btn-dark" id="cancelBtn" type="button">Cancel</button>
+                <button type="button" class="btn btn-success" id="callBtn" type="button" @(userIsDisabled ? "disabled" : "")>Call</button>
+                <button type="button" class="btn btn-warning" id="reserveBtn" type="button" @(userIsDisabled ? "disabled" : "")>Reserve</button>
+                <button type="button" class="btn btn-dark" id="cancelBtn" type="button" @(userIsDisabled ? "disabled" : "")>Cancel</button>
             </div>
 
             <!--Date & Time-->
@@ -143,23 +143,26 @@
     </div>
 </div>
 
+
+<!-- Notification Modal -->
+@if (userIsDisabled)
+{
+    <div class="modal fade" id="notificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="notificationModalLabel">Account Disabled</h5>
+                </div>
+                <div class="modal-body">
+                    Your account is currently disabled. Please contact the administrator for more details.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/js/clerk/ClerkScript.js"></script>
-
-<script>
-    var mainNav = $('#mainNav');
-    var showNavBtn = $('#showNavBtn');
-
-    mainNav.show();
-
-    showNavBtn.on("click", function () {
-        if (mainNav.is(':visible')) {
-            mainNav.slideUp();
-            showNavBtn.text('Show');
-        } else {
-            mainNav.slideDown();
-            showNavBtn.text('Hide');
-        }
-    });
-
-</script>

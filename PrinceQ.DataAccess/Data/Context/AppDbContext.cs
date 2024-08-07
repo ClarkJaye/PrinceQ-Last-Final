@@ -54,7 +54,6 @@ namespace PrinceQ.DataAccess.Data.Context
                         PasswordHash = "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==",
                         SecurityStamp = "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM",
                         ConcurrencyStamp = "79681f10-0ee2-4127-9e9c-0eb73ded94fe",
-                        //IsActiveId = 1
                         IsActive = true
                     }                             
                 );
@@ -86,6 +85,11 @@ namespace PrinceQ.DataAccess.Data.Context
                 new Category { CategoryId = 3, CategoryName = "Category C", Description = "Special", IsActive = true },
                 new Category { CategoryId = 4, CategoryName = "Category D", Description = "Inquiry" , IsActive = true }
                 );
+            
+            
+            //modelBuilder.Entity<User_Category>().HasData(
+            //    new User_Category { UserId = "", CategoryId = 1 },
+            //    );
 
             modelBuilder.Entity<Queue_Status>().HasData(
                  new Queue_Status { StatusId = 1, StatusName = "waiting" },
@@ -94,11 +98,6 @@ namespace PrinceQ.DataAccess.Data.Context
                  new Queue_Status { StatusId = 4, StatusName = "cancel" },
                  new Queue_Status { StatusId = 5, StatusName = "serving" }
                  );
-
-            //modelBuilder.Entity<IsActive>().HasData(
-            //   new IsActive { IsActiveId = 1, Name = "Active" },
-            //   new IsActive { IsActiveId = 2, Name = "Inactive" }
-            //   );
 
             modelBuilder.Entity<Stage_Queue>().HasData(
                new Stage_Queue { StageId = 1, StageName = "Filling" },

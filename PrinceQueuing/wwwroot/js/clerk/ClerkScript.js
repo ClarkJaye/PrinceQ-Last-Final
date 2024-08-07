@@ -1,4 +1,23 @@
 ﻿$(document).ready(function () {
+    var userDbld = $("#isDisabledUser").val()
+    // Show User Disabled modal if userIsDisabled is true
+    if (userDbld) {
+        $('#notificationModal').modal('show');
+    }
+ 
+    var mainNav = $('#mainNav');
+    var showNavBtn = $('#showNavBtn');
+    mainNav.show();
+    showNavBtn.on("click", function () {
+        if (mainNav.is(':visible')) {
+            mainNav.slideUp();
+            showNavBtn.text('Show');
+        } else {
+            mainNav.slideDown();
+            showNavBtn.text('Hide');
+        }
+    });
+
     GetClerkNumber();
     //Display Current Serve
     DisplayCurrentServe();
@@ -16,6 +35,7 @@
     $("#UpdateQueueForm").on("submit", function (e) {
         UpdateQueueTotalCheques(e);
     });
+
 
     // Bind click event to the Next 
     $('#WaitingCountNumber').on("click", ".nextBtn", getNextQueueNumber);
@@ -90,7 +110,8 @@ function DisplayCurrentServe() {
                         chequeBtn.textContent = "Cheque";
                         chequeContainer.appendChild(chequeBtn);
                     }
-                } else if (existingChequeBtn) {
+                }
+                else if (existingChequeBtn) {
                     existingChequeBtn.remove();
                 }
 
@@ -137,6 +158,9 @@ function getNextQueueNumber() {
                 }, 1000);
             } else if (response.isSuccess === false && response.obj !== null) {
                 DisplayModalCheque(queue);
+            }
+            else if (response.isSuccess === true && response.obj === null) {
+                alert(response.message)
             }
             else{
                 button.prop('disabled', true);
@@ -573,7 +597,7 @@ function ServeQueueInTable() {
         dataType: "json",
         success: function (response) {
             var queueItem = response.obj;
-            if (response && response.isSuccess == true) {
+            if (response.isSuccess == true && response.obj !== null) {
                 playBackgroundMusic();
                 DisplayCurrentServe();
                 callBtn.prop('disabled', true);
@@ -588,9 +612,11 @@ function ServeQueueInTable() {
                     var speechText = queue + " Please Proceed to " + clerkNumber
                     speak(speechText);
                 }, 1000);
+            } else if (response.isSuccess == false && response.obj !== null) {
+                DisplayModalCheque(queueItem);
             }
             else {
-                DisplayModalCheque(queueItem);
+                alert(response.message)
             }
         },
         error: function (error) {
@@ -617,10 +643,10 @@ function CancelQueueFromTable() {
         },
         dataType: "json",
         success: function (response) {
-            if (response) {
+            if (response.isSuccess === true) {
                 // 
             } else {
-               //
+               alert(response.message)
             }
         },
         error: function (error) {

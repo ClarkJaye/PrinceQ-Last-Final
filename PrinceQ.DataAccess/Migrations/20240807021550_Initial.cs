@@ -14,6 +14,22 @@ namespace PrinceQ.DataAccess.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Announcement",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Announcement", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -28,16 +44,46 @@ namespace PrinceQ.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IsActive",
+                name: "AspNetUsers",
                 columns: table => new
                 {
-                    IsActiveId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IsActive", x => x.IsActiveId);
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: true),
+                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -86,81 +132,6 @@ namespace PrinceQ.DataAccess.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Announcement",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActiveId = table.Column<int>(type: "int", nullable: true),
-                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValueSql: "GETDATE()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Announcement", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Announcement_IsActive_IsActiveId",
-                        column: x => x.IsActiveId,
-                        principalTable: "IsActive",
-                        principalColumn: "IsActiveId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IsActiveId = table.Column<int>(type: "int", nullable: false),
-                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_IsActive_IsActiveId",
-                        column: x => x.IsActiveId,
-                        principalTable: "IsActive",
-                        principalColumn: "IsActiveId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Categories",
-                columns: table => new
-                {
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActiveId = table.Column<int>(type: "int", nullable: true),
-                    Created_At = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
-                    table.ForeignKey(
-                        name: "FK_Categories_IsActive_IsActiveId",
-                        column: x => x.IsActiveId,
-                        principalTable: "IsActive",
-                        principalColumn: "IsActiveId");
                 });
 
             migrationBuilder.CreateTable(
@@ -264,51 +235,6 @@ namespace PrinceQ.DataAccess.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "QueueNumbers",
-                columns: table => new
-                {
-                    QueueId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    QueueNumber = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
-                    Total_Cheques = table.Column<int>(type: "int", nullable: true),
-                    ForFilling_start = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ForFilling_end = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Releasing_start = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Releasing_end = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Reserve_At = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Cancelled_At = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    StageId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_QueueNumbers", x => new { x.QueueId, x.CategoryId, x.QueueNumber });
-                    table.ForeignKey(
-                        name: "FK_QueueNumbers_AspNetUsers_ClerkId",
-                        column: x => x.ClerkId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_QueueNumbers_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_QueueNumbers_Queue_Statuses_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Queue_Statuses",
-                        principalColumn: "StatusId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_QueueNumbers_Stage_StageId",
-                        column: x => x.StageId,
-                        principalTable: "Stage",
-                        principalColumn: "StageId");
                 });
 
             migrationBuilder.CreateTable(
@@ -418,6 +344,51 @@ namespace PrinceQ.DataAccess.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "QueueNumbers",
+                columns: table => new
+                {
+                    QueueId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    QueueNumber = table.Column<int>(type: "int", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    Total_Cheques = table.Column<int>(type: "int", nullable: true),
+                    ForFilling_start = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ForFilling_end = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Releasing_start = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Releasing_end = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Reserve_At = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Cancelled_At = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    StageId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QueueNumbers", x => new { x.QueueId, x.CategoryId, x.QueueNumber });
+                    table.ForeignKey(
+                        name: "FK_QueueNumbers_AspNetUsers_ClerkId",
+                        column: x => x.ClerkId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_QueueNumbers_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_QueueNumbers_Queue_Statuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "Queue_Statuses",
+                        principalColumn: "StatusId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_QueueNumbers_Stage_StageId",
+                        column: x => x.StageId,
+                        principalTable: "Stage",
+                        principalColumn: "StageId");
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
@@ -433,18 +404,25 @@ namespace PrinceQ.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsActive", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "f626b751-35a0-43df-8173-76cb5b4886fd", 0, "79681f10-0ee2-4127-9e9c-0eb73ded94fe", "clarky@princeretail.com", false, true, true, null, "CLARKY@PRINCERETAIL.COM", "CLARKY", "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==", null, false, "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM", false, "clarky" });
+
+            migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "CategoryId", "CategoryName", "Description", "IsActive" },
+                values: new object[,]
+                {
+                    { 1, "Category A", "Trade", true },
+                    { 2, "Category B", "Non-Trade", true },
+                    { 3, "Category C", "Special", true },
+                    { 4, "Category D", "Inquiry", true }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Device",
                 columns: new[] { "IPAddress", "ClerkNumber", "UserId" },
                 values: new object[] { "10.64.14.50", "Clerk 1", null });
-
-            migrationBuilder.InsertData(
-                table: "IsActive",
-                columns: new[] { "IsActiveId", "Name" },
-                values: new object[,]
-                {
-                    { 1, "Active" },
-                    { 2, "Inactive" }
-                });
 
             migrationBuilder.InsertData(
                 table: "Queue_Statuses",
@@ -468,22 +446,6 @@ namespace PrinceQ.DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsActiveId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "f626b751-35a0-43df-8173-76cb5b4886fd", 0, "79681f10-0ee2-4127-9e9c-0eb73ded94fe", "clarky@princeretail.com", false, 1, true, null, "CLARKY@PRINCERETAIL.COM", "CLARKY", "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==", null, false, "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM", false, "clarky" });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "CategoryId", "CategoryName", "Description", "IsActiveId" },
-                values: new object[,]
-                {
-                    { 1, "Category A", "Trade", 1 },
-                    { 2, "Category B", "Non-Trade", 1 },
-                    { 3, "Category C", "Special", 1 },
-                    { 4, "Category D", "Inquiry", 1 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
@@ -496,11 +458,6 @@ namespace PrinceQ.DataAccess.Migrations
                     { "b9eb12b9-d840-472d-9620-790a9f0aa125", "f626b751-35a0-43df-8173-76cb5b4886fd" },
                     { "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6", "f626b751-35a0-43df-8173-76cb5b4886fd" }
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Announcement_IsActiveId",
-                table: "Announcement",
-                column: "IsActiveId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -535,21 +492,11 @@ namespace PrinceQ.DataAccess.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_IsActiveId",
-                table: "AspNetUsers",
-                column: "IsActiveId");
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Categories_IsActiveId",
-                table: "Categories",
-                column: "IsActiveId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Device_UserId",
@@ -665,9 +612,6 @@ namespace PrinceQ.DataAccess.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "IsActive");
         }
     }
 }

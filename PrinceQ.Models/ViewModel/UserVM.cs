@@ -8,8 +8,7 @@ namespace PrinceQ.Models.ViewModel
     {
         public string? Id { get; set; }
 
-        [ValidateNever]
-        public int? IsActiveId { get; set; }
+        public bool IsActive { get; set; }
         [Required]
         public string UserName { get; set; } = string.Empty;
         [Required]

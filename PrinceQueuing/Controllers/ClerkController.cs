@@ -25,7 +25,8 @@ namespace PrinceQueuing.Controllers
         {
             try
             {
-                var response = await _clerk.GenerateVM();
+                var userId = GetCurrentUserId();
+                var response = await _clerk.GenerateVM(userId);
 
                 if (response.IsSuccess)
                 {

@@ -35,7 +35,17 @@
                             @if (roles.Contains(SD.Role_Reports))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle d-flex align-items-center  gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "text-danger" : "text-dark")" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" && (
+                                        ViewContext.RouteData.Values["action"]?.ToString() == "WaitingReport" ||
+                                        ViewContext.RouteData.Values["action"]?.ToString() == "ServingReport" ||
+                                        ViewContext.RouteData.Values["action"]?.ToString() == "WaitingReport_Details" ||
+                                        ViewContext.RouteData.Values["action"]?.ToString() == "ServingReport_Details"
+                                    ) ? "text-danger" : "text-dark")"
+                                       href="#"
+                                       id="navbarDarkDropdownMenuLink"
+                                       role="button"
+                                       data-bs-toggle="dropdown"
+                                       aria-expanded="false">
                                         <i class="lni lni-stats-up"></i>
                                         <p class="m-0 d-lg-block d-none">Reports</p>
                                     </a>
@@ -50,6 +60,7 @@
                                         </li>
                                     </ul>
                                 </li>
+
                             }
 
                             @if (roles.Contains(SD.Role_Users))

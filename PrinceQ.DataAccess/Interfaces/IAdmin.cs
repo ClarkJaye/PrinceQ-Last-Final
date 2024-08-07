@@ -34,7 +34,7 @@ namespace PrinceQ.DataAccess.Interfaces
 
 
         //-----Announcement-----//
-        Task<DualResponse> AnnouncementDetail(int? id);
+        Task<GeneralResponse> AnnouncementDetail(int? id);
         Task<GeneralResponse> AllAnnouncement();
         Task<CommonResponse> AddAnnouncement(Announcement model);
         Task<CommonResponse> UpdateAnnouncement(Announcement model);

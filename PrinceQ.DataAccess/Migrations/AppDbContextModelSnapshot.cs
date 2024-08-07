@@ -253,16 +253,14 @@ namespace PrinceQ.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("IsActiveId")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IsActiveId");
 
                     b.ToTable("Announcement");
                 });
@@ -288,12 +286,10 @@ namespace PrinceQ.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("IsActiveId")
-                        .HasColumnType("int");
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
 
                     b.HasKey("CategoryId");
-
-                    b.HasIndex("IsActiveId");
 
                     b.ToTable("Categories");
 
@@ -304,7 +300,7 @@ namespace PrinceQ.DataAccess.Migrations
                             CategoryName = "Category A",
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Trade",
-                            IsActiveId = 1
+                            IsActive = true
                         },
                         new
                         {
@@ -312,7 +308,7 @@ namespace PrinceQ.DataAccess.Migrations
                             CategoryName = "Category B",
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Non-Trade",
-                            IsActiveId = 1
+                            IsActive = true
                         },
                         new
                         {
@@ -320,7 +316,7 @@ namespace PrinceQ.DataAccess.Migrations
                             CategoryName = "Category C",
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Special",
-                            IsActiveId = 1
+                            IsActive = true
                         },
                         new
                         {
@@ -328,7 +324,7 @@ namespace PrinceQ.DataAccess.Migrations
                             CategoryName = "Category D",
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Inquiry",
-                            IsActiveId = 1
+                            IsActive = true
                         });
                 });
 
@@ -354,34 +350,6 @@ namespace PrinceQ.DataAccess.Migrations
                         {
                             IPAddress = "10.64.14.50",
                             ClerkNumber = "Clerk 1"
-                        });
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.IsActive", b =>
-                {
-                    b.Property<int>("IsActiveId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IsActiveId"));
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("IsActiveId");
-
-                    b.ToTable("IsActive");
-
-                    b.HasData(
-                        new
-                        {
-                            IsActiveId = 1,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            IsActiveId = 2,
-                            Name = "Inactive"
                         });
                 });
 
@@ -634,8 +602,8 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("IsActiveId")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -672,8 +640,6 @@ namespace PrinceQ.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActiveId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -693,7 +659,7 @@ namespace PrinceQ.DataAccess.Migrations
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "clarky@princeretail.com",
                             EmailConfirmed = false,
-                            IsActiveId = 1,
+                            IsActive = true,
                             LockoutEnabled = true,
                             NormalizedEmail = "CLARKY@PRINCERETAIL.COM",
                             NormalizedUserName = "CLARKY",
@@ -769,24 +735,6 @@ namespace PrinceQ.DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.Announcement", b =>
-                {
-                    b.HasOne("PrinceQ.Models.Entities.IsActive", "IsActive")
-                        .WithMany()
-                        .HasForeignKey("IsActiveId");
-
-                    b.Navigation("IsActive");
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.Category", b =>
-                {
-                    b.HasOne("PrinceQ.Models.Entities.IsActive", "IsActive")
-                        .WithMany()
-                        .HasForeignKey("IsActiveId");
-
-                    b.Navigation("IsActive");
                 });
 
             modelBuilder.Entity("PrinceQ.Models.Entities.ClerkIPAddress", b =>
@@ -882,17 +830,6 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.User", b =>
-                {
-                    b.HasOne("PrinceQ.Models.Entities.IsActive", "IsActive")
-                        .WithMany()
-                        .HasForeignKey("IsActiveId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("IsActive");
                 });
 
             modelBuilder.Entity("PrinceQ.Models.Entities.User_Category", b =>

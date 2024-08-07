@@ -28,6 +28,7 @@
     }
 </style>
 
+
 <div class="px-5 mb-4">
 
     <div class="row pt-4">
@@ -108,8 +109,7 @@
                     </button>
                 </div>
 
-                <!-- Category Table -->
-                <table id="categoryTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
+                <table id="usersTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
                     <thead class="border-top">
                         <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
                             <th>UserName</th>
@@ -125,6 +125,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <!-- Add Modal -->
@@ -207,9 +208,9 @@
                     </div>
 
                     <div class="form-floating mb-3">
-                        <select id="EditActive" name="IsActiveId" class="form-select p-3">
-                            <option value="1">Active</option>
-                            <option value="2">Inactive</option>
+                        <select id="EditActive" name="IsActive" class="form-select p-3">
+                            <option value="true">Enable</option>
+                            <option value="false">Disable</option>
                         </select>
                         <span id="ActiveValid" class="text-danger"></span>
                     </div>

@@ -83,7 +83,6 @@ function loadAllUsers() {
         type: 'GET',
         async: false,
         success: function (response) {
-            console.log(response)
             var categoryData = response.obj.map(function (value) {
                 var formattedDateTime = formatDate(new Date(value.created_At));
 
@@ -106,7 +105,6 @@ function loadAllUsers() {
 
                 buttonsContainer.append(assignButton, editButton, removeButton);
 
-                // Determine the roles display
                 var rolesDisplay;
                 if (Array.isArray(value.roles)) {
                     //if (value.roles.length > 3) {
@@ -123,7 +121,7 @@ function loadAllUsers() {
                     value.userName,
                     value.email,
                     rolesDisplay,
-                    `<a class=" btn-sm ${value.isActiveId === 1 ? 'btn-success' : 'btn-danger'} custom-btn-font">${value.isActiveId === 1 ? 'Active' : 'Inactive'}</a>`,
+                    `<a class=" btn-sm ${value.isActive === true ? 'btn-success' : 'btn-danger'} custom-btn-font">${value.isActive === true ? 'Enable' : 'Disabled'}</a>`,
                     formattedDateTime,
                     buttonsContainer.prop('outerHTML')
                 ];
@@ -133,7 +131,7 @@ function loadAllUsers() {
             if (dataTable) {
                 dataTable.clear().rows.add(categoryData).draw();
             } else {
-                dataTable = new DataTable("#categoryTable", {
+                dataTable = new DataTable("#usersTable", {
                     data: categoryData
                 });
             }
@@ -192,15 +190,11 @@ function editUser(id) {
                 var roleSelect = $('#EditRoleMultipleSelect');
                 var activeSelect = $('#EditActive');
                 roleSelect.empty();
-                activeSelect.empty();
 
-                var activeText = user.isActive == 1 ? "Active" : "Inactive";
-                activeSelect.append('<option selected value=' + user.isActive + '>' + activeText + '</option>');
-                $.each(user.active, function (i, data) {
-                    if (data.name.toLowerCase() !== activeText.toLowerCase()) {
-                        activeSelect.append('<option value=' + data.isActiveId + '>' + data.name + '</option>');
-                    }
-                });
+
+                var activeText = user.isActive == true ? "Enable" : "Disable";
+                activeSelect.append('<option selected disabled value=' + user.isActive + '>' + activeText + '</option>');
+                
 
                 $("#EditUserId").val(user.id);
                 $("#EditUserName").val(user.userName);

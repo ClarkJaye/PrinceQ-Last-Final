@@ -11,81 +11,17 @@
 
 <div class="px-5 mb-4">
 
-@*     <div class="row py-4">
-        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
-            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #4e73df !important;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col mr-2">
-                            <div class="fw-bold text-primary text-uppercase mb-1" style="font-size: .8em;">
-                                Total Clerk
-                            </div>
-                            <div class="h5 fw-bold text-secondary mb-0" id="totalClerk">                               
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
-            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #198754 !important;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col mr-2">
-                            <div class="fw-bold text-success text-uppercase mb-1" style="font-size: .8em;">
-                                Total Clerk
-                            </div>
-                            <div class="h5 fw-bold text-secondary mb-0">
-                                1500
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4 col-md-6 col-sm-6 mb-4">
-            <div class="card shadow h-100 py-2" style="border-left: .25rem solid #dc3545 !important;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col mr-2">
-                            <div class="fw-bold text-danger text-uppercase mb-1" style="font-size: .8em;">
-                                Total Clerk
-                            </div>
-                            <div class="h5 fw-bold text-secondary mb-0">
-                                1500
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="lni lni-user" style="font-size: 2em; font-weight: 800; color: #dddfeb"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> *@
-
-
     <div class="bg-white rounded border shadow mt-5">
         <div class="border-bottom">
             <div class="d-flex align-items-center justify-content-between p-3 px-4">
                 <h6 class="fw-bold m-0">Serving Statistics</h6>
 
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-sm btn-warning" style="font-size: 12px;">
-                        Line Chart
-                    </button>
-                    <button class="btn btn-sm btn-success" style="font-size: 12px;">
+                    <a class="btn btn-success" style="font-size: 12px;" asp-controller="Admin" asp-action="ServingReport_Details">
                         See Detailed
-                    </button>
+                    </a>
                 </div>
+
 
             </div>
         </div>
@@ -149,3 +85,5 @@
 <script src="/js/admin/ServingReportScript.js"></script>
 
 
+@* <partial name="_Notification" />
+ TempData["success"] = "Employee added successfully"; *@

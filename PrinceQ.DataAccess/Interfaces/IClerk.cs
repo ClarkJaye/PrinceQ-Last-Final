@@ -5,7 +5,7 @@ namespace PrinceQ.DataAccess.Interfaces
     public interface IClerk
     {
         Task<GeneralResponse> ServingVM(string userId, string ipAddress);
-        Task<GeneralResponse> GenerateVM();
+        Task<GeneralResponse> GenerateVM(string userId);
         Task<DualResponse> GenerateQueue(int categoryId);
         Task<GeneralResponse> GetQueue(string date, int categoryId, int queueNumber);
 

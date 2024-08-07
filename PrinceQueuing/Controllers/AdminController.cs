@@ -6,10 +6,12 @@ using PrinceQ.DataAccess.Extensions;
 using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Interfaces;
 using PrinceQ.DataAccess.Repository;
+using PrinceQ.Models.DTOs;
 using PrinceQ.Models.Entities;
 using PrinceQ.Models.ViewModel;
 using PrinceQ.Utility;
 using System.Data;
+using System.Linq;
 
 namespace PrinceQueuing.Controllers
 {
@@ -386,9 +388,9 @@ namespace PrinceQueuing.Controllers
         {
             try
             {
-                int totalUsers = await _unitOfWork.users.Count();
-                int activeUsers = await _unitOfWork.users.Count(u => u.IsActive == true);
-                int inactiveUsers = await _unitOfWork.users.Count(u => u.IsActive == false);
+                int totalUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd");
+                int activeUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd" && u.IsActive == true);
+                int inactiveUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd" && u.IsActive == false);
 
                 var response = new
                 {
@@ -445,6 +447,68 @@ namespace PrinceQueuing.Controllers
         {
             return View();
         }
+
+        [Authorize(Roles = SD.Role_Reports)]
+        public IActionResult ServingReport_Details()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Serving_GetAllServedData()
+        {
+            try
+            {
+                var currentDate = DateTime.Today.ToString("yyyyMMdd");
+                var forFillingData = await _unitOfWork.forFilling.GetAll(f => f.GenerateDate == currentDate);
+                var releasingData = await _unitOfWork.releasing.GetAll(r => r.GenerateDate == currentDate);
+
+                // Map forFillingData to ServeDataDTO
+                var forFillingMapped = forFillingData.Select(f => new ServeDataDTO
+                {
+                    GenerateDate = f.GenerateDate,
+                    ClerkId = f.ClerkId,
+                    CategoryId = (int)f.CategoryId,
+                    QueueNumber = (int)f.QueueNumber,
+                    ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                });
+
+                // Map releasingData to ServeData
+                var releasingMapped = releasingData.Select(r => new ServeDataDTO
+                {
+                    GenerateDate = r.GenerateDate,
+                    ClerkId = r.ClerkId,
+                    CategoryId = (int)r.CategoryId,
+                    QueueNumber = (int)r.QueueNumber,
+                    ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                });
+
+                // Combine the data
+                var combinedData = forFillingMapped.Concat(releasingMapped)
+                                    .GroupBy(x => x.ClerkId)
+                                    .Select(g => new
+                                    {
+                                        Username = g.Key,
+                                        TotalNumberServed = g.Count(),
+                                        HighestAverageServedTime = g.Max(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                        LowestServedTime = g.Min(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                        Date = currentDate
+                                    });
+
+                return Json(new { IsSuccess = true, data = combinedData });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Serving_GetAllServedData action");
+                return Json(new { IsSuccess = false, message = "An error occurred in Serving_GetAllServedData." });
+            }
+        }
+
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetClerks_Categories()
         {
@@ -465,7 +529,7 @@ namespace PrinceQueuing.Controllers
                         user.Email,
                         user.PhoneNumber,
                         user.Created_At,
-                        user.IsActiveId,
+                        user.IsActive,
                     });
                 }
 
@@ -574,6 +638,12 @@ namespace PrinceQueuing.Controllers
         //-----Waiting time RESPORT-----//
         [Authorize(Roles = SD.Role_Reports)]
         public IActionResult WaitingReport()
+        {
+            return View();
+        }
+        //-----Waiting time RESPORT-----//
+        [Authorize(Roles = SD.Role_Reports)]
+        public IActionResult WaitingReport_Details()
         {
             return View();
         }

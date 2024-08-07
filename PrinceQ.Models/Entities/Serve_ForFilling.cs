@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PrinceQ.Models.Entities
 {
-    public class Clerk_Serve_ForFilling
+    public class Serve_ForFilling
     {
         [Required]
         public string? GenerateDate { get; set; }

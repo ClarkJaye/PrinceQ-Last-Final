@@ -55,7 +55,7 @@ namespace PrinceQ.DataAccess.Services
         }
         public async Task<GeneralResponse> AllUsers(string userId)
         {
-            var users = await _unitOfWork.users.GetAll();
+            var users = await _unitOfWork.users.GetAll(u=>u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd");
             if (users is null) return new GeneralResponse(false, null, "Retrieved users failed." );
             var usersWithRole = users.Select(async user =>
             {
@@ -67,7 +67,7 @@ namespace PrinceQ.DataAccess.Services
                     user.Email,
                     user.PhoneNumber,
                     user.Created_At,
-                    user.IsActiveId,
+                    user.IsActive,
                     Roles = roles
                 };
             }).Select(t => t.Result).ToList();
@@ -90,7 +90,7 @@ namespace PrinceQ.DataAccess.Services
         public async Task<UserRolesResponse> UserDetail(string? id)
         {
             var userToBeEdit = await _unitOfWork.users.Get(u => u.Id == id);
-            var activeList = await _unitOfWork.active.GetAll();
+            //var activeList = await _unitOfWork.active.GetAll();
             if (userToBeEdit == null) return new UserRolesResponse(false, null, null, "Get user detail failed.");
             var userRole = await _userManager.GetRolesAsync(userToBeEdit);
             var user = new
@@ -99,8 +99,8 @@ namespace PrinceQ.DataAccess.Services
                 userName = userToBeEdit.UserName,
                 email = userToBeEdit.Email,
                 role = userRole,
-                isActive = userToBeEdit.IsActiveId,
-                active = activeList,
+                isActive = userToBeEdit.IsActive,
+                //active = activeList,
             };
             var roles = await _roleManager.Roles.ToListAsync();
             return new UserRolesResponse(true, user, roles, "User get successful");
@@ -194,6 +194,7 @@ namespace PrinceQ.DataAccess.Services
                     await _userManager.AddToRoleAsync(user, role.Name);
                 }
             }
+
             // Update user information
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -201,9 +202,30 @@ namespace PrinceQ.DataAccess.Services
                 return new CommonResponse(false, "Failed to update user information");
             }
 
+            // Update security stamp to refresh claims
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            // Refresh claims based on updated roles
+            var currentClaims = await _userManager.GetClaimsAsync(user);
+            foreach (var claim in currentClaims)
+            {
+                await _userManager.RemoveClaimAsync(user, claim);
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                var roleClaims = await _roleManager.GetClaimsAsync(await _roleManager.FindByNameAsync(role));
+                foreach (var roleClaim in roleClaims)
+                {
+                    await _userManager.AddClaimAsync(user, roleClaim);
+                }
+            }
+            var currentClaiasms = await _userManager.GetClaimsAsync(user);
             await _unitOfWork.SaveAsync();
             return new CommonResponse(true, "User updated successfully");
         }
+
         public async Task<UserCategoryResponse> UserCategory(string? userId)
         {
             var user = await _unitOfWork.users.Get(u => u.Id == userId);

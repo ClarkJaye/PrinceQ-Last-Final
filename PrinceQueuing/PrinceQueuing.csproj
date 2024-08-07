@@ -35,5 +35,9 @@
       <HintPath>External\ExternalLogin.dll</HintPath>
     </Reference>
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="logs\" />
+  </ItemGroup>
 
 </Project>

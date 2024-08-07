@@ -44,18 +44,6 @@ namespace PrinceQueuing.Controllers
                     {
                         var roles = await _userManager.GetRolesAsync(user);
 
-                        //if (roles.Contains(SD.Role_Personnel))
-                        //{
-                        //    return RedirectToAction("Home", "RegisterPersonnel");
-                        //}
-                        //else if (roles.Contains(SD.Role_Clerk))
-                        //{
-                        //    return RedirectToAction("Serving", "Clerk");
-                        //}
-                        //else if (roles.Contains(SD.Role_Admin))
-                        //{
-                        //    return RedirectToAction("Dashboard", "Admin");
-                        //}
                         return RedirectToAction("Dashboard", "Admin");
                     }
                 }
@@ -94,22 +82,7 @@ namespace PrinceQueuing.Controllers
                         await _unitOfWork.SaveAsync();
                     }
 
-
                     return RedirectToAction("Dashboard", "Admin");
-
-                    //if (roles.Contains(SD.Role_Personnel))
-                    //{
-                    //    return RedirectToAction("Home", "RegisterPersonnel");
-                    //}
-
-                    //else if (roles.Contains(SD.Role_Clerk))
-                    //{
-                    //    return RedirectToAction("Serving", "Clerk");
-                    //}
-                    //else if (roles.Contains(SD.Role_Admin))
-                    //{
-                    //    return RedirectToAction("Dashboard", "Admin");
-                    //}
                 }
 
                 ModelState.AddModelError("", "Invalid login attempt");
@@ -122,16 +95,15 @@ namespace PrinceQueuing.Controllers
 
         public IActionResult Register()
         {
-
             // Create roles if they are not created
             if (!_roleManager.RoleExistsAsync(SD.Role_GenerateNumber).GetAwaiter().GetResult())
             {
+                _roleManager.CreateAsync(new IdentityRole(SD.Role_GenerateNumber)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Filling)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Releasing)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Reports)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Users)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Videos)).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole(SD.Role_Roles)).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole(SD.Role_Announcement)).GetAwaiter().GetResult();
             }
 

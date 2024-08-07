@@ -15,12 +15,12 @@ namespace PrinceQ.Models.Entities
         [Required(ErrorMessage = "Description is required.")]
         public string? Description { get; set; }
 
-        [Range(1, 2, ErrorMessage = "IsActive is required.")]
+        public bool? IsActive { get; set; }
 
-        public int? IsActiveId { get; set; }
-        [ForeignKey("IsActiveId")]
-        [ValidateNever]
-        public IsActive? IsActive { get; set; }
+        //public int? IsActiveId { get; set; }
+        //[ForeignKey("IsActiveId")]
+        //[ValidateNever]
+        //public IsActive? IsActive { get; set; }
 
         public DateTime Created_At { get; set; }
     }

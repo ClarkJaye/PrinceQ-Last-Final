@@ -37,6 +37,10 @@
     $('#releasingQueues').on("click", ".serveReleasingBtn", ServeQueueInTable);
     // Bind click event to the Cancel Queue in  Release Table
     $('#releasingQueues').on("click", ".cancelReleaseBtn", CancelQueueFromTable);
+    // Bind click event to display the Cheque Modal 
+    $('#chequeContainer').on("click", "#chequeBtn", function () {
+        getQueueForModalCheque()
+    });
 });
 
 //Date and Time
@@ -53,28 +57,46 @@ const displayDateTime = () => {
 // Initial display
 displayDateTime();
 setInterval(displayDateTime, 1000);
-//Display Current Serve
+// Display Current Serve
 function DisplayCurrentServe() {
     var servingDisplay = document.getElementById("servingDisplay");
+    var chequeContainer = document.getElementById("chequeContainer");
+
     $.ajax({
         type: 'GET',
         url: "/Clerk/GetServings",
         dataType: "json",
         success: function (response) {
-            var categoryId = response.categoryId;
-            var queueNumber = response.queueNumber;
-            if (response != null) {
-                if (categoryId === 1) {
-                    servingDisplay.innerText = "A - " + queueNumber;
-                } else if (categoryId === 2) {
-                    servingDisplay.innerText = "B - " + queueNumber;
-                } else if (categoryId === 3) {
-                    servingDisplay.innerText = "C - " + queueNumber;
-                } else if (categoryId === 4) {
-                    servingDisplay.innerText = "D - " + queueNumber;
-                } else {
-                    servingDisplay.innerText = "----";
-                }       
+            if (response && response.queue) {
+                var queue = response.queue;
+                var categoryId = queue.categoryId;
+                var queueNumber = queue.queueNumber;
+                var stageId = queue.stageId;
+                var totalCheques = queue.total_Cheques;
+
+                // Update the serving display using getCategoryLetter
+                var categoryLetter = getCategoryLetter(categoryId);
+                var displayText = categoryLetter ? `${categoryLetter} - ${queueNumber}` : "----";
+                servingDisplay.innerText = displayText;
+
+                // Manage the Cheque button display
+                var existingChequeBtn = document.getElementById("chequeBtn");
+
+                if (stageId === 2 && totalCheques === null) {
+                    if (!existingChequeBtn) {
+                        var chequeBtn = document.createElement("button");
+                        chequeBtn.classList.add("btn", "btn-sm", "btn-primary");
+                        chequeBtn.id = "chequeBtn";
+                        chequeBtn.textContent = "Cheque";
+                        chequeContainer.appendChild(chequeBtn);
+                    }
+                } else if (existingChequeBtn) {
+                    existingChequeBtn.remove();
+                }
+
+
+            } else {
+                servingDisplay.innerText = "----";
             }
         },
         error: function (error) {
@@ -82,6 +104,7 @@ function DisplayCurrentServe() {
         }
     });
 }
+
 
 // Function to get the next queue number
 function getNextQueueNumber() {
@@ -116,10 +139,10 @@ function getNextQueueNumber() {
                 DisplayModalCheque(queue);
             }
             else{
-                //button.prop('disabled', true);
-                //setTimeout(function () {
-                //    button.prop('disabled', false);
-                //}, 1000)
+                button.prop('disabled', true);
+                setTimeout(function () {
+                    button.prop('disabled', false);
+                }, 1000)
             }
         },
         error: function (error) {
@@ -158,10 +181,10 @@ function CallQueue() {
 
 
             } else {
-                //button.prop('disabled', true);
-                //setTimeout(function () {
-                //    button.prop('disabled', false);
-                //}, 1000);
+                button.prop('disabled', true);
+                setTimeout(function () {
+                    button.prop('disabled', false);
+                }, 1000);
             }
         },
         error: function (error) {
@@ -191,11 +214,10 @@ function CancelQueue() {
                 }, 1000)
             }
             else {
-                //alert(response.message)
-                //button.prop('disabled', true);
-                //setTimeout(function () {
-                //    button.prop('disabled', false);
-                //}, 1000)
+                button.prop('disabled', true);
+                setTimeout(function () {
+                    button.prop('disabled', false);
+                }, 1000)
             }
         },
         error: function (error) {
@@ -222,10 +244,10 @@ function ReserveQueue() {
                 }, 1000)
             }
             else {
-                //button.prop('disabled', true);
-                //setTimeout(function () {
-                //    button.prop('disabled', false);
-                //}, 1000)
+                button.prop('disabled', true);
+                setTimeout(function () {
+                    button.prop('disabled', false);
+                }, 1000)
             }
         },
         error: function (error) {
@@ -354,6 +376,13 @@ function GetAllQueueCountNumbers(id) {
 
                     container.append(div);
                 });
+
+                //// Disable if Admin
+                //var btns = document.querySelectorAll('.nextBtn');
+                //btns.forEach(function (b) {
+                //    b.disabled = true;
+                //});
+
             } else {
                 container.append('<p>There are no category assign yet.</p>');
             }
@@ -616,20 +645,28 @@ function getCategoryLetter(categoryId) {
     }
 }
 
-//Display the Modal of Cheque
+// Display the Modal of Cheque
 function DisplayModalCheque(queue) {
-    $('#Cheques').val('');
-    $("#qNum").attr("data-genDate", queue.queueId).attr("data-category", queue.categoryId).attr("data-qnumber", queue.queueNumber)
+    // Reset and clear the form
+    $('#UpdateQueueForm')[0].reset(); 
+    $('#Cheques').val(''); 
+    $("#QueueNumber").val(''); 
+
+    $("#generateDateCheq").val(queue.queueId)
+    $("#categoryIdCheq").val(queue.categoryId)
+    $("#qNumberCheq").val(queue.queueNumber)
     var qNumber = getCategoryLetter(queue.categoryId) + " - " + queue.queueNumber;
     $("#QueueNumber").val(qNumber);
+
+    // Show the modal
     $('#chequeCountModal').modal('show');
 }
 
 function UpdateQueueTotalCheques(e) {
     e.preventDefault();
-    var generateDate = $('#qNum').data("gendate");
-    var categoryId = $('#qNum').data("category");
-    var qNumber = $('#qNum').data("qnumber");
+    var generateDate = $("#generateDateCheq").val();
+    var categoryId = $("#categoryIdCheq").val();
+    var qNumber = $("#qNumberCheq").val();
     var chequeValue = $("#Cheques").val();
     if (chequeValue) {
         $.ajax({
@@ -662,6 +699,23 @@ function UpdateQueueTotalCheques(e) {
         alert("Please enter the total cheque.")
     }
    
+}
+
+//Show for Cheque Modal
+function getQueueForModalCheque() {
+    $.ajax({
+        type: 'GET',
+        url: "/Clerk/GetServings",
+        dataType: "json",
+        success: function (response) {
+            if (response) {
+                DisplayModalCheque(response.queue)
+            }
+        },
+        error: function (error) {
+            console.log("Error:", error);
+        }
+    });
 }
 
 //Display Designated Clerk

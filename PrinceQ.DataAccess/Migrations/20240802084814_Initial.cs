@@ -267,62 +267,6 @@ namespace PrinceQ.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clerk_Serve_ForFilling",
-                columns: table => new
-                {
-                    GenerateDate = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    QueueNumber = table.Column<int>(type: "int", nullable: false),
-                    Serve_start = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Serve_end = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clerk_Serve_ForFilling", x => new { x.GenerateDate, x.ClerkId, x.CategoryId, x.QueueNumber });
-                    table.ForeignKey(
-                        name: "FK_Clerk_Serve_ForFilling_AspNetUsers_ClerkId",
-                        column: x => x.ClerkId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Clerk_Serve_ForFilling_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Clerk_Serve_Releasing",
-                columns: table => new
-                {
-                    GenerateDate = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    QueueNumber = table.Column<int>(type: "int", nullable: false),
-                    Serve_start = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Serve_end = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clerk_Serve_Releasing", x => new { x.GenerateDate, x.ClerkId, x.CategoryId, x.QueueNumber });
-                    table.ForeignKey(
-                        name: "FK_Clerk_Serve_Releasing_AspNetUsers_ClerkId",
-                        column: x => x.ClerkId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Clerk_Serve_Releasing_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "QueueNumbers",
                 columns: table => new
                 {
@@ -365,6 +309,62 @@ namespace PrinceQ.DataAccess.Migrations
                         column: x => x.StageId,
                         principalTable: "Stage",
                         principalColumn: "StageId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Serve_ForFilling",
+                columns: table => new
+                {
+                    GenerateDate = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    QueueNumber = table.Column<int>(type: "int", nullable: false),
+                    Serve_start = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Serve_end = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Serve_ForFilling", x => new { x.GenerateDate, x.ClerkId, x.CategoryId, x.QueueNumber });
+                    table.ForeignKey(
+                        name: "FK_Serve_ForFilling_AspNetUsers_ClerkId",
+                        column: x => x.ClerkId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Serve_ForFilling_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Serve_Releasing",
+                columns: table => new
+                {
+                    GenerateDate = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    QueueNumber = table.Column<int>(type: "int", nullable: false),
+                    Serve_start = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Serve_end = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Serve_Releasing", x => new { x.GenerateDate, x.ClerkId, x.CategoryId, x.QueueNumber });
+                    table.ForeignKey(
+                        name: "FK_Serve_Releasing_AspNetUsers_ClerkId",
+                        column: x => x.ClerkId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Serve_Releasing_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -423,14 +423,13 @@ namespace PrinceQ.DataAccess.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "18ab63db-22b1-4656-93e8-6240c08c988c", null, "GenerateNumber", "ADMIN" },
-                    { "3462t34c-64b4-2341-6532-c3b7f7b72477", null, "Filling", "FILLING" },
-                    { "Bbc43974-ddf4-4fed-8a0b-42e6897f2581", null, "Videos", "VIDEOS" },
-                    { "fbc43974-ddf4-4fed-8a0b-42e6897f259f", null, "Releasing", "REALEASING" },
-                    { "Nbc43974-ddf4-4fed-8a0b-42e6897f2584", null, "Roles", "ROLES" },
-                    { "Qbc43974-ddf4-4fed-8a0b-42e6897f348Q", null, "Announcement", "ANNOUNCEMENT" },
-                    { "Vbc43974-ddf4-4fed-8a0b-42e6897f2583", null, "Users", "USERS" },
-                    { "wbc43974-ddf4-4fed-8a0b-42e6897f2585", null, "Reports", "REPORTS" }
+                    { "45f6d676-0e09-4ebe-8731-e45fde97b9ef", null, "Users", "USERS" },
+                    { "7143ddd4-7854-4161-b1a1-730fb6185965", null, "Filling", "FILLING" },
+                    { "9609ba67-ae84-46cd-916e-23f45a765b4a", null, "Releasing", "RELEASING" },
+                    { "9804c22d-cafe-4c03-9af8-210908ee7042", null, "Videos", "VIDEOS" },
+                    { "b8b558cb-8f42-40a8-97f8-2f86d69d5b43", null, "GenerateNumber", "GENERATENUMBER" },
+                    { "b9eb12b9-d840-472d-9620-790a9f0aa125", null, "Reports", "REPORTS" },
+                    { "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6", null, "Announcement", "ANNOUNCEMENT" }
                 });
 
             migrationBuilder.InsertData(
@@ -471,11 +470,7 @@ namespace PrinceQ.DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsActiveId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { "3386761a-6384-4e97-9eb3-d2d09e6bfec5", 0, "79681f10-0ee2-4127-9e9c-0eb73ded94fe", "user1@princeretail.com", false, 1, true, null, "USER1@PRINCERETAIL.COM", "USER1", "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==", null, false, "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM", false, "user1" },
-                    { "f626b751-35a0-43df-8173-76cb5b4886fd", 0, "68094bf9-de7e-4b21-a651-b741ae57c6aa", "admin@princeretail.com", false, 1, true, null, "ADMIN@PRINCERETAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAEJpB1HfJeqVp4SjIDJMOHVIEmfY55M/N7YsXHENkNlge5P6k15rYKenBWVNTobCO0Q==", null, false, "N36KZ2J262FG2K5NWBB3WESIUXPLZ5WH", false, "Admin" }
-                });
+                values: new object[] { "f626b751-35a0-43df-8173-76cb5b4886fd", 0, "79681f10-0ee2-4127-9e9c-0eb73ded94fe", "clarky@princeretail.com", false, 1, true, null, "CLARKY@PRINCERETAIL.COM", "CLARKY", "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==", null, false, "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM", false, "clarky" });
 
             migrationBuilder.InsertData(
                 table: "Categories",
@@ -493,26 +488,13 @@ namespace PrinceQ.DataAccess.Migrations
                 columns: new[] { "RoleId", "UserId" },
                 values: new object[,]
                 {
-                    { "fbc43974-ddf4-4fed-8a0b-42e6897f259f", "3386761a-6384-4e97-9eb3-d2d09e6bfec5" },
-                    { "18ab63db-22b1-4656-93e8-6240c08c988c", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "3462t34c-64b4-2341-6532-c3b7f7b72477", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "Bbc43974-ddf4-4fed-8a0b-42e6897f2581", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "fbc43974-ddf4-4fed-8a0b-42e6897f259f", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "Nbc43974-ddf4-4fed-8a0b-42e6897f2584", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "Qbc43974-ddf4-4fed-8a0b-42e6897f348Q", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "Vbc43974-ddf4-4fed-8a0b-42e6897f2583", "f626b751-35a0-43df-8173-76cb5b4886fd" },
-                    { "wbc43974-ddf4-4fed-8a0b-42e6897f2585", "f626b751-35a0-43df-8173-76cb5b4886fd" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "User_Category",
-                columns: new[] { "CategoryId", "UserId" },
-                values: new object[,]
-                {
-                    { 1, "3386761a-6384-4e97-9eb3-d2d09e6bfec5" },
-                    { 2, "3386761a-6384-4e97-9eb3-d2d09e6bfec5" },
-                    { 3, "3386761a-6384-4e97-9eb3-d2d09e6bfec5" },
-                    { 4, "3386761a-6384-4e97-9eb3-d2d09e6bfec5" }
+                    { "45f6d676-0e09-4ebe-8731-e45fde97b9ef", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "7143ddd4-7854-4161-b1a1-730fb6185965", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "9609ba67-ae84-46cd-916e-23f45a765b4a", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "9804c22d-cafe-4c03-9af8-210908ee7042", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "b8b558cb-8f42-40a8-97f8-2f86d69d5b43", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "b9eb12b9-d840-472d-9620-790a9f0aa125", "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6", "f626b751-35a0-43df-8173-76cb5b4886fd" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -570,26 +552,6 @@ namespace PrinceQ.DataAccess.Migrations
                 column: "IsActiveId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Clerk_Serve_ForFilling_CategoryId",
-                table: "Clerk_Serve_ForFilling",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clerk_Serve_ForFilling_ClerkId",
-                table: "Clerk_Serve_ForFilling",
-                column: "ClerkId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clerk_Serve_Releasing_CategoryId",
-                table: "Clerk_Serve_Releasing",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clerk_Serve_Releasing_ClerkId",
-                table: "Clerk_Serve_Releasing",
-                column: "ClerkId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Device_UserId",
                 table: "Device",
                 column: "UserId");
@@ -613,6 +575,26 @@ namespace PrinceQ.DataAccess.Migrations
                 name: "IX_QueueNumbers_StatusId",
                 table: "QueueNumbers",
                 column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Serve_ForFilling_CategoryId",
+                table: "Serve_ForFilling",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Serve_ForFilling_ClerkId",
+                table: "Serve_ForFilling",
+                column: "ClerkId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Serve_Releasing_CategoryId",
+                table: "Serve_Releasing",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Serve_Releasing_ClerkId",
+                table: "Serve_Releasing",
+                column: "ClerkId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Serving_CategoryId",
@@ -652,16 +634,16 @@ namespace PrinceQ.DataAccess.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Clerk_Serve_ForFilling");
-
-            migrationBuilder.DropTable(
-                name: "Clerk_Serve_Releasing");
-
-            migrationBuilder.DropTable(
                 name: "Device");
 
             migrationBuilder.DropTable(
                 name: "QueueNumbers");
+
+            migrationBuilder.DropTable(
+                name: "Serve_ForFilling");
+
+            migrationBuilder.DropTable(
+                name: "Serve_Releasing");
 
             migrationBuilder.DropTable(
                 name: "Serving");

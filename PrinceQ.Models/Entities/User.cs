@@ -8,11 +8,14 @@ namespace PrinceQ.Models.Entities
 {
     public class User : IdentityUser
     {
-        [Range(1, 2, ErrorMessage = "IsActive is required.")]
-        public int IsActiveId { get; set; }
-        [ForeignKey("IsActiveId")]
-        [ValidateNever]
-        public IsActive? IsActive { get; set; }
+        [Required]
+        public bool? IsActive { get; set; }
+
+        //[Range(1, 2, ErrorMessage = "IsActive is required.")]
+        //public int IsActiveId { get; set; }
+        //[ForeignKey("IsActiveId")]
+        //[ValidateNever]
+        //public IsActive? IsActive { get; set; }
 
         public DateTime Created_At { get; set; }
 

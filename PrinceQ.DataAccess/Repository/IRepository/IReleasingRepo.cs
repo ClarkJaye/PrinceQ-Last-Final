@@ -2,7 +2,7 @@
 
 namespace PrinceQ.DataAccess.Repository.IRepository
 {
-    public interface IClerkForFillingRepo : IRepository<Clerk_Serve_ForFilling>
+    public interface IReleasingRepo : IRepository<Serve_Releasing>
     {
     }
 }

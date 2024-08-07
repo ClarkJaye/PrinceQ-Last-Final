@@ -13,7 +13,7 @@ using System.Data;
 
 namespace PrinceQueuing.Controllers
 {
-    [Authorize(Policy = SD.Policy_Staff_Admin)]
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -132,10 +132,117 @@ namespace PrinceQueuing.Controllers
         //    }
         //}
 
+        [HttpGet]
+        public async Task<IActionResult> TotalQueueNumber()
+        {
+            try
+            {
+                var currentDate = DateTime.Today.ToString("yyyyMMdd");
+                var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate);
+
+                var totalGenerate = data.Count();
+
+                if (totalGenerate <= 0) return Json(new { IsSuccess = false, value = totalGenerate });
+
+                return Json(new { IsSuccess = true, value = totalGenerate });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in HighestServePerDay action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetQueueServed()
+        {
+            try
+            {
+                // Fetch servings for the current day
+                var servings = await _unitOfWork.servings.GetAll(g => g.Served_At.Date == DateTime.Now.Date);
+
+                if (servings == null || !servings.Any())
+                    return Json(new { IsSuccess = false, Message = "No data available." });
+
+                // Get relevant queue numbers and users for these servings
+                var queueNumbers = await _unitOfWork.queueNumbers.GetAll();
+                var userIds = servings.Select(s => s.UserId).Distinct();
+                var users = await _unitOfWork.users.GetAll(u => userIds.Contains(u.Id));
+
+                // Prepare result data
+                var result = servings.Select(serving =>
+                {
+                    var user = users.FirstOrDefault(u => u.Id == serving.UserId);
+                    var queueNumber = queueNumbers.FirstOrDefault(q =>
+                        q.QueueId == serving.Served_At.ToString("yyyyMMdd") &&
+                        q.CategoryId == serving.CategoryId &&
+                        q.QueueNumber == serving.QueueNumberServe);
+
+                    return new
+                    {
+                        category = serving.CategoryId,
+                        qNumber = serving.QueueNumberServe,
+                        servingBy = user?.UserName ?? "Unknown",
+                        stage = queueNumber?.StageId,
+                        dateTime = serving.Served_At.ToString("MM/dd/yyyy, hh:mm:ss tt")
+                    };
+                }).ToList();
+
+                return Json(new { IsSuccess = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetQueueServed action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in GetQueueServed." });
+            }
+        }
 
 
+        [HttpGet]
+        public async Task<IActionResult> totalServed()
+        {
+            try
+            {
+                var currentDate = DateTime.Today.ToString("yyyyMMdd");
+                var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StageId == 2);
+
+                var totalQ = data.Count();
+
+                if (totalQ <= 0) return Json(new { IsSuccess = false, value = totalQ });
+
+                return Json(new { IsSuccess = true, value = totalQ });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in HighestServePerDay action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> RecentlyServed()
+        {
+            try
+            {
+                var currentDate = DateTime.Today.ToString("yyyyMMdd");
+                var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StageId == 2);
+
+                var totalQ = data.Count();
+
+                if (totalQ <= 0) return Json(new { IsSuccess = false, value = totalQ });
+
+                return Json(new { IsSuccess = true, value = totalQ });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in HighestServePerDay action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
+            }
+        }
 
         //-----USERS-----//
+        [Authorize(Roles = SD.Role_Users)]
         public async Task<IActionResult> Users()
         {
             var response = await _admin.UserPage();
@@ -250,8 +357,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "An error occurred while updating the user." });
             }
         }
-
-
         [HttpGet]
         public async Task<IActionResult> UserCategories(string? userId)
         {
@@ -282,8 +387,8 @@ namespace PrinceQueuing.Controllers
             try
             {
                 int totalUsers = await _unitOfWork.users.Count();
-                int activeUsers = await _unitOfWork.users.Count(u => u.IsActiveId == 1);
-                int inactiveUsers = await _unitOfWork.users.Count(u => u.IsActiveId == 2);
+                int activeUsers = await _unitOfWork.users.Count(u => u.IsActive == true);
+                int inactiveUsers = await _unitOfWork.users.Count(u => u.IsActive == false);
 
                 var response = new
                 {
@@ -303,6 +408,7 @@ namespace PrinceQueuing.Controllers
 
 
         //-----MANAGE VIDEO-----//
+        [Authorize(Roles = SD.Role_Videos)]
         public IActionResult ManageVideo()
         {
             return View();
@@ -333,8 +439,8 @@ namespace PrinceQueuing.Controllers
         }
 
 
-
         //-----SERVING RESPORT-----//
+        [Authorize(Roles = SD.Role_Reports)]
         public IActionResult ServingReport()
         {
             return View();
@@ -347,32 +453,28 @@ namespace PrinceQueuing.Controllers
                 var categ = await _unitOfWork.category.GetAll();
                 var categories = categ.OrderBy(c => c.Created_At).ToList();
                 var users = await _unitOfWork.users.GetAll();
-                var clerks = new List<dynamic>();
+                var ListUsers = new List<dynamic>();
 
                 foreach (var user in users)
                 {
-                    var roles = await _unitOfWork.auth.GetUserRolesAsync(user);
-                    if (roles.Contains("Clerk") || roles.Contains("clerk"))
+
+                    ListUsers.Add(new
                     {
-                        clerks.Add(new
-                        {
-                            user.Id,
-                            user.UserName,
-                            user.Email,
-                            user.PhoneNumber,
-                            user.Created_At,
-                            user.IsActiveId,
-                            Roles = roles
-                        });
-                    }
+                        user.Id,
+                        user.UserName,
+                        user.Email,
+                        user.PhoneNumber,
+                        user.Created_At,
+                        user.IsActiveId,
+                    });
                 }
 
-                if (clerks == null) return Json(new { IsSuccess = false, Message = "Retrieved clerks failed." });
+                if (ListUsers == null) return Json(new { IsSuccess = false, Message = "Retrieved clerks failed." });
 
                 // Sort the clerks based on their Created_At
-                var sortedClerks = clerks.OrderBy(c => c.Created_At).ToList();
+                var sortedUsers = ListUsers.OrderBy(c => c.Created_At).ToList();
 
-                return Json(new { IsSuccess = true, clerks = sortedClerks, categories });
+                return Json(new { IsSuccess = true, users = sortedUsers, categories });
             }
             catch (Exception ex)
             {
@@ -387,7 +489,7 @@ namespace PrinceQueuing.Controllers
             {
                 if (clerkId != null && year != null && month == null)
                 {
-                    var data = await _unitOfWork.clerkForFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 4) == year);
+                    var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 4) == year);
                     var monthlyData = data
                         .GroupBy(item => item.GenerateDate!.Substring(4, 2))
                         .Select(g => new
@@ -403,7 +505,7 @@ namespace PrinceQueuing.Controllers
                 }
                 else if (clerkId == null && year != null && month == null)
                 {
-                    var data = await _unitOfWork.clerkForFilling.GetAll(d => d.GenerateDate!.Substring(0, 4) == year);
+                    var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 4) == year);
                     var monthlyData = data
                         .GroupBy(item => item.GenerateDate!.Substring(4, 2))
                         .Select(g => new
@@ -419,7 +521,7 @@ namespace PrinceQueuing.Controllers
                 }
                 else if (clerkId != null && year != null && month != null)
                 {
-                    var data = await _unitOfWork.clerkForFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 6) == year + month);
+                    var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 6) == year + month);
                     var dailyData = data
                         .GroupBy(item => item.GenerateDate!.Substring(6, 2))
                         .Select(g => new
@@ -437,7 +539,7 @@ namespace PrinceQueuing.Controllers
                 else if (clerkId == null && year != null && month != null)
                 {
                     // example data of generateDate = "20240626"
-                    var data = await _unitOfWork.clerkForFilling.GetAll(d => d.GenerateDate!.Substring(0, 6) == year + month);
+                    var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 6) == year + month);
                     var dailyData = data
                         .GroupBy(item => item.GenerateDate!.Substring(6, 2))
                         .Select(g => new
@@ -467,7 +569,10 @@ namespace PrinceQueuing.Controllers
         }
 
 
+
+
         //-----Waiting time RESPORT-----//
+        [Authorize(Roles = SD.Role_Reports)]
         public IActionResult WaitingReport()
         {
             return View();
@@ -646,7 +751,12 @@ namespace PrinceQueuing.Controllers
             return $"{(int)timeSpan.TotalMinutes}.{timeSpan.Seconds}";
         }
 
+
+
+
+
         //-----Announcement-----//
+        [Authorize(Roles = SD.Role_Announcement)]
         public IActionResult Announcement()
         {
             return View();

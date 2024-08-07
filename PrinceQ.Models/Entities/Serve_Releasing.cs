@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PrinceQ.Models.Entities
 {
-    public class Clerk_Serve_Releasing
+    public class Serve_Releasing
     {
 
         [Required]

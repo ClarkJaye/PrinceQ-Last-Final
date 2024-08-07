@@ -7,7 +7,7 @@ using System.Net;
 
 namespace PrinceQueuing.Controllers
 {
-    [Authorize(Policy = SD.Policy_Staff_Admin)]
+    [Authorize]
     public class ClerkController : Controller
     {
         private readonly IClerk _clerk;
@@ -20,28 +20,26 @@ namespace PrinceQueuing.Controllers
         }
 
         //--------------- Views  -------------//
-        public async Task<IActionResult> Serving()
+        [Authorize(Roles = SD.Role_GenerateNumber)]
+        public async Task<IActionResult> Generate()
         {
             try
             {
-                var userId = GetCurrentUserId();
-                var ipAddress = GetUserIpAddress(); 
-                var response = await _clerk.ServingVM(userId, ipAddress);
+                var response = await _clerk.GenerateVM();
 
                 if (response.IsSuccess)
                 {
                     return View(response.Obj);
                 }
-                return RedirectToAction("Login", "Account");
-                //return NotFound(response);
+                return NotFound(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in NextQueue action");
-                return Json(new { IsSuccess = false, message = "An error occurred in NextQueue." });
+                _logger.LogError(ex, "Error in Home action");
+                return Json(new { IsSuccess = false, Message = "There is an error!" });
             }
         }
-
+        [Authorize(Roles = SD.Role_Filling)]
         public async Task<IActionResult> Filling()
         {
             try
@@ -63,7 +61,7 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in NextQueue." });
             }
         }
-
+        [Authorize(Roles = SD.Role_Releasing)]
         public async Task<IActionResult> Releasing()
         {
             try
@@ -87,32 +85,6 @@ namespace PrinceQueuing.Controllers
         }
 
 
-        //Dashboard
-        public async Task<IActionResult> Generate()
-        {
-            try
-            {
-                var response = await _clerk.GenerateVM();
-
-                if (response.IsSuccess)
-                {
-                    return View(response.Obj);
-                }
-                return NotFound(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in Home action");
-                return Json(new { IsSuccess = false, Message = "There is an error!" });
-            }
-        }
-
-
-
-
-        //--------------- Functionalities -------------//
-
-        // ------------ PRINTT ----------- //
 
         //FOr Printing the Queue
         public async Task<IActionResult> Print_Form(string date, int categoryId, int queueNumber)
@@ -174,10 +146,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "There is an error!" });
             }
         }
-
-
-
-        //Get the designated Clerk Number
         public async Task<IActionResult> DesignatedDeviceId()
         {
             var ipAddress = GetUserIpAddress();
@@ -187,8 +155,6 @@ namespace PrinceQueuing.Controllers
             return Json(response);
         }
 
-
-        //Get All Categories
         public async Task<IActionResult> GetCategories()
         {
             try
@@ -205,7 +171,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        //Get Clerk Serving
         public async Task<IActionResult> GetServings()
         {
             try
@@ -223,7 +188,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        //Get All Reserve Queue 
         public async Task<IActionResult> GetReservedQueues()
         {
             try
@@ -241,7 +205,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        //Get All Filling Queue 
         public async Task<IActionResult> GetAllFillingUpQueues()
         {
             try
@@ -259,7 +222,6 @@ namespace PrinceQueuing.Controllers
             }
         }
         
-        //Get All Releasing Queue 
         public async Task<IActionResult> GetAllReleasingQueues()
         {
             try
@@ -277,8 +239,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-
-        //NEXT QUEUE
         public async Task<IActionResult> NextQueue(int id)
         {
             try
@@ -295,7 +255,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        //RESERVE QUEUE
         public async Task<IActionResult> ReserveQueue()
         {
             try
@@ -313,8 +272,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-
-        //CANCEL QUEUE
         public async Task<IActionResult> CancelQueue()
         {
             try
@@ -332,11 +289,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-
-        ////// -------------QUEUE RESERVED-------------- //////
-
-
-        //Serve IN RESERVE QUEUE
         public async Task<JsonResult> ServeQueueFromTable(string generateDate, int categoryId, int qNumber )
         {
             try
@@ -354,8 +306,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-
-        //CANCEL IN RESERVE QUEUE
         public async Task<JsonResult> CancelQueueNumber(string generateDate, int categoryId, int qNumber)
         {
             try
@@ -372,9 +322,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-
-
-        //QUEUE FROM FILLING TRANSFER TO RELEASING TABLE
         public async Task<JsonResult> FillingToReleaseQueue(string generateDate, int categoryId, int qNumber)
         {
             try
@@ -391,7 +338,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        // Update QueueNumber
         public async Task <IActionResult> UpdateQueueNumber(string generateDate, int categoryId, int qNumber, int cheque)
         {
             try

@@ -4,10 +4,11 @@ using PrinceQ.Models.Entities;
 
 namespace PrinceQ.DataAccess.Repository
 {
-    public class ActiveRepo : Repository<IsActive>, IActiveRepo
+    public class ReleasingRepo : Repository<Serve_Releasing>, IReleasingRepo
     {
-        public ActiveRepo(AppDbContext db) : base(db)
+        public ReleasingRepo(AppDbContext db) : base(db)
         {
         }
+
     }
 }

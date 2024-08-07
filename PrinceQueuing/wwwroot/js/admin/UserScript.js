@@ -109,11 +109,12 @@ function loadAllUsers() {
                 // Determine the roles display
                 var rolesDisplay;
                 if (Array.isArray(value.roles)) {
-                    if (value.roles.length > 3) {
-                        rolesDisplay = value.roles.slice(0, 3).join(', ') + '...';
-                    } else {
-                        rolesDisplay = value.roles.join(', ');
-                    }
+                    //if (value.roles.length > 3) {
+                    //    rolesDisplay = value.roles.slice(0, 3).join(', ') + '...';
+                    //} else {
+                    //    rolesDisplay = value.roles.join(', ');
+                    //}
+                    rolesDisplay = value.roles.join(', ');
                 } else {
                     rolesDisplay = '';
                 }

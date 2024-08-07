@@ -1,6 +1,5 @@
 ﻿$(document).ready(function () {
     loadServingReport();
-    TotalClerk();
     load_Clerks();
 });
 
@@ -61,7 +60,6 @@ function LoadServeData(clerkData, yearData, monthData) {
         dataType: 'json',
         data: { clerkId: clerkData, year: yearData, month: monthData },
         success: function (data) {
-            // console.log(data);
             var month = $('#selectedMonth option:selected').data("month");
             $('#monthSelect').text(month);
 
@@ -122,8 +120,6 @@ function LoadServeData(clerkData, yearData, monthData) {
                 }
             ];
 
-            console.log(servedDatasets)
-
             servedChart.data.labels = servedLabels;
             servedChart.data.datasets = servedDatasets;
             servedChart.update();
@@ -145,27 +141,6 @@ const plugin = {
     }
 }
 
-//Total Clerk
-function TotalClerk() {
-    $.ajax({
-        type: "GET",
-        url: "/admin/CountClerk",
-        success: function (response) {
-            var Clerk = document.getElementById("totalClerk");
-            if (response) {
-                Clerk.textContent = response;
-            }
-            else {
-                Clerk.textContent = 0;
-            }
-        },
-        error: function (error) {
-            console.log(error)
-        }
-    })
-}
-
-
 //Load Clerks
 function load_Clerks() {
     $.ajax({
@@ -173,8 +148,7 @@ function load_Clerks() {
         url: '/Admin/GetClerks_Categories',
         dataType: 'json',
         success: function (response) {
-            // Set selected clerks
-            $.each(response.clerks, function (i, data) {
+            $.each(response.users, function (i, data) {
                 $('#selectedClerk').append('<option value=' + data.id + '>' + data.userName + '</option>');
             });
         },

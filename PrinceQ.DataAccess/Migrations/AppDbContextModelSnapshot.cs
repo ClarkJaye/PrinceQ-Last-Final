@@ -51,49 +51,43 @@ namespace PrinceQ.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "18ab63db-22b1-4656-93e8-6240c08c988c",
+                            Id = "b8b558cb-8f42-40a8-97f8-2f86d69d5b43",
                             Name = "GenerateNumber",
-                            NormalizedName = "ADMIN"
+                            NormalizedName = "GENERATENUMBER"
                         },
                         new
                         {
-                            Id = "3462t34c-64b4-2341-6532-c3b7f7b72477",
+                            Id = "7143ddd4-7854-4161-b1a1-730fb6185965",
                             Name = "Filling",
                             NormalizedName = "FILLING"
                         },
                         new
                         {
-                            Id = "fbc43974-ddf4-4fed-8a0b-42e6897f259f",
+                            Id = "9609ba67-ae84-46cd-916e-23f45a765b4a",
                             Name = "Releasing",
-                            NormalizedName = "REALEASING"
+                            NormalizedName = "RELEASING"
                         },
                         new
                         {
-                            Id = "Qbc43974-ddf4-4fed-8a0b-42e6897f348Q",
+                            Id = "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6",
                             Name = "Announcement",
                             NormalizedName = "ANNOUNCEMENT"
                         },
                         new
                         {
-                            Id = "Bbc43974-ddf4-4fed-8a0b-42e6897f2581",
+                            Id = "9804c22d-cafe-4c03-9af8-210908ee7042",
                             Name = "Videos",
                             NormalizedName = "VIDEOS"
                         },
                         new
                         {
-                            Id = "Vbc43974-ddf4-4fed-8a0b-42e6897f2583",
+                            Id = "45f6d676-0e09-4ebe-8731-e45fde97b9ef",
                             Name = "Users",
                             NormalizedName = "USERS"
                         },
                         new
                         {
-                            Id = "Nbc43974-ddf4-4fed-8a0b-42e6897f2584",
-                            Name = "Roles",
-                            NormalizedName = "ROLES"
-                        },
-                        new
-                        {
-                            Id = "wbc43974-ddf4-4fed-8a0b-42e6897f2585",
+                            Id = "b9eb12b9-d840-472d-9620-790a9f0aa125",
                             Name = "Reports",
                             NormalizedName = "REPORTS"
                         });
@@ -189,47 +183,37 @@ namespace PrinceQ.DataAccess.Migrations
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "18ab63db-22b1-4656-93e8-6240c08c988c"
+                            RoleId = "b8b558cb-8f42-40a8-97f8-2f86d69d5b43"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "3462t34c-64b4-2341-6532-c3b7f7b72477"
+                            RoleId = "7143ddd4-7854-4161-b1a1-730fb6185965"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "fbc43974-ddf4-4fed-8a0b-42e6897f259f"
+                            RoleId = "9609ba67-ae84-46cd-916e-23f45a765b4a"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "Qbc43974-ddf4-4fed-8a0b-42e6897f348Q"
+                            RoleId = "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "Bbc43974-ddf4-4fed-8a0b-42e6897f2581"
+                            RoleId = "9804c22d-cafe-4c03-9af8-210908ee7042"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "Vbc43974-ddf4-4fed-8a0b-42e6897f2583"
+                            RoleId = "45f6d676-0e09-4ebe-8731-e45fde97b9ef"
                         },
                         new
                         {
                             UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "Nbc43974-ddf4-4fed-8a0b-42e6897f2584"
-                        },
-                        new
-                        {
-                            UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            RoleId = "wbc43974-ddf4-4fed-8a0b-42e6897f2585"
-                        },
-                        new
-                        {
-                            UserId = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
-                            RoleId = "fbc43974-ddf4-4fed-8a0b-42e6897f259f"
+                            RoleId = "b9eb12b9-d840-472d-9620-790a9f0aa125"
                         });
                 });
 
@@ -373,64 +357,6 @@ namespace PrinceQ.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("PrinceQ.Models.Entities.Clerk_Serve_ForFilling", b =>
-                {
-                    b.Property<string>("GenerateDate")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClerkId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QueueNumber")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Serve_end")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Serve_start")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GenerateDate", "ClerkId", "CategoryId", "QueueNumber");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ClerkId");
-
-                    b.ToTable("Clerk_Serve_ForFilling");
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.Clerk_Serve_Releasing", b =>
-                {
-                    b.Property<string>("GenerateDate")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ClerkId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QueueNumber")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("Serve_end")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Serve_start")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("GenerateDate", "ClerkId", "CategoryId", "QueueNumber");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("ClerkId");
-
-                    b.ToTable("Clerk_Serve_Releasing");
-                });
-
             modelBuilder.Entity("PrinceQ.Models.Entities.IsActive", b =>
                 {
                     b.Property<int>("IsActiveId")
@@ -564,6 +490,64 @@ namespace PrinceQ.DataAccess.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("QueueNumbers");
+                });
+
+            modelBuilder.Entity("PrinceQ.Models.Entities.Serve_ForFilling", b =>
+                {
+                    b.Property<string>("GenerateDate")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ClerkId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QueueNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Serve_end")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Serve_start")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("GenerateDate", "ClerkId", "CategoryId", "QueueNumber");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ClerkId");
+
+                    b.ToTable("Serve_ForFilling");
+                });
+
+            modelBuilder.Entity("PrinceQ.Models.Entities.Serve_Releasing", b =>
+                {
+                    b.Property<string>("GenerateDate")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ClerkId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QueueNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("Serve_end")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Serve_start")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("GenerateDate", "ClerkId", "CategoryId", "QueueNumber");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ClerkId");
+
+                    b.ToTable("Serve_Releasing");
                 });
 
             modelBuilder.Entity("PrinceQ.Models.Entities.Serving", b =>
@@ -703,39 +687,21 @@ namespace PrinceQ.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
+                            Id = "f626b751-35a0-43df-8173-76cb5b4886fd",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "79681f10-0ee2-4127-9e9c-0eb73ded94fe",
                             Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "user1@princeretail.com",
+                            Email = "clarky@princeretail.com",
                             EmailConfirmed = false,
                             IsActiveId = 1,
                             LockoutEnabled = true,
-                            NormalizedEmail = "USER1@PRINCERETAIL.COM",
-                            NormalizedUserName = "USER1",
+                            NormalizedEmail = "CLARKY@PRINCERETAIL.COM",
+                            NormalizedUserName = "CLARKY",
                             PasswordHash = "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM",
                             TwoFactorEnabled = false,
-                            UserName = "user1"
-                        },
-                        new
-                        {
-                            Id = "f626b751-35a0-43df-8173-76cb5b4886fd",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "68094bf9-de7e-4b21-a651-b741ae57c6aa",
-                            Created_At = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "admin@princeretail.com",
-                            EmailConfirmed = false,
-                            IsActiveId = 1,
-                            LockoutEnabled = true,
-                            NormalizedEmail = "ADMIN@PRINCERETAIL.COM",
-                            NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJpB1HfJeqVp4SjIDJMOHVIEmfY55M/N7YsXHENkNlge5P6k15rYKenBWVNTobCO0Q==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "N36KZ2J262FG2K5NWBB3WESIUXPLZ5WH",
-                            TwoFactorEnabled = false,
-                            UserName = "Admin"
+                            UserName = "clarky"
                         });
                 });
 
@@ -752,28 +718,6 @@ namespace PrinceQ.DataAccess.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("User_Category");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
-                            CategoryId = 1
-                        },
-                        new
-                        {
-                            UserId = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
-                            CategoryId = 2
-                        },
-                        new
-                        {
-                            UserId = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
-                            CategoryId = 3
-                        },
-                        new
-                        {
-                            UserId = "3386761a-6384-4e97-9eb3-d2d09e6bfec5",
-                            CategoryId = 4
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -854,44 +798,6 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("PrinceQ.Models.Entities.Clerk_Serve_ForFilling", b =>
-                {
-                    b.HasOne("PrinceQ.Models.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PrinceQ.Models.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("ClerkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PrinceQ.Models.Entities.Clerk_Serve_Releasing", b =>
-                {
-                    b.HasOne("PrinceQ.Models.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PrinceQ.Models.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("ClerkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PrinceQ.Models.Entities.Queues", b =>
                 {
                     b.HasOne("PrinceQ.Models.Entities.Category", "Category")
@@ -919,6 +825,44 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Navigation("QueueStatus");
 
                     b.Navigation("Stage");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PrinceQ.Models.Entities.Serve_ForFilling", b =>
+                {
+                    b.HasOne("PrinceQ.Models.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrinceQ.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("ClerkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PrinceQ.Models.Entities.Serve_Releasing", b =>
+                {
+                    b.HasOne("PrinceQ.Models.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PrinceQ.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("ClerkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("User");
                 });

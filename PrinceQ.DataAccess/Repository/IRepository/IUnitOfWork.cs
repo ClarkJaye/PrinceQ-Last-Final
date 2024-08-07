@@ -9,13 +9,13 @@ namespace PrinceQ.DataAccess.Repository
         IAnnounceRepo announcement { get; }
         IDeviceRepo device { get; }
         ICategoryRepo category { get; }
-        IClerkForFillingRepo clerkForFilling { get; }
-        IClerkReleasingRepo clerkReleasing { get; }
+        IForFillingRepo forFilling { get; }
+        IReleasingRepo releasing { get; }
         IQueueNumberRepo queueNumbers { get; }
         IServingRepo servings { get; }
         IUserCategoryRepo userCategories { get; }
         IUsersRepo users { get; }
-        IActiveRepo active { get; }
+        //IActiveRepo active { get; }
 
         Task SaveAsync();
 

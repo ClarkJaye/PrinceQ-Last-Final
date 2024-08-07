@@ -26,7 +26,7 @@ var CentralLoginConnectionString = builder.Configuration.GetConnectionString("Ce
 builder.Services.AddDbContext<ExternalDbContext>(options =>
     options.UseSqlServer(CentralLoginConnectionString));
 
-//external login
+//external login => AD Login
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IExternalLoginService, ExternalLoginService>();
 
@@ -43,7 +43,6 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 })
     .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
-builder.Services.AddDetection();
 // Register the repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IClerk, ClerkService>();
@@ -62,28 +61,28 @@ builder.Services.AddAuthorization(options =>
         .RequireAuthenticatedUser()
         .Build();
 
-    options.AddPolicy(SD.DynamicRolePolicy, policy => policy.RequireAssertion(context =>
-    {
-        var user = context.User;
-        var roleClaim = user.FindFirst("role");
-        return roleClaim != null && !string.IsNullOrEmpty(roleClaim.Value);
-    }));
-
-    options.AddPolicy(SD.Policy_Staff_Admin, policy => policy.RequireAssertion(context =>
+    options.AddPolicy(SD.Policy_UserPolicy, policy => policy.RequireAssertion(context =>
         context.User.IsInRole(SD.Role_GenerateNumber)
         || context.User.IsInRole(SD.Role_Filling)
         || context.User.IsInRole(SD.Role_Releasing)
         || context.User.IsInRole(SD.Role_Reports)
         || context.User.IsInRole(SD.Role_Users)
         || context.User.IsInRole(SD.Role_Videos)
-        || context.User.IsInRole(SD.Role_Roles)
         || context.User.IsInRole(SD.Role_Announcement)
+    ));
+    
+    
+    options.AddPolicy(SD.Policy_GenerateNumber, policy => policy.RequireAssertion(context =>
+        context.User.IsInRole(SD.Role_GenerateNumber)
+    ));
+    
+    options.AddPolicy(SD.Policy_Filling, policy => policy.RequireAssertion(context =>
+        context.User.IsInRole(SD.Role_Filling)
     ));
 
 
+
 });
-
-
 
 var app = builder.Build();
 
@@ -101,6 +100,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseMiddleware<RefreshClaimsMiddleware>();
 app.UseAuthorization();
 
 app.MapControllerRoute(

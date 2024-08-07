@@ -49,6 +49,13 @@ connectionQueueHub.on("cancelQueueInMenu", () => {
 connectionQueueHub.on("DisplayQueue", function () {
     DisplayCurrentServe();
 });
+
+//For Dashboard User
+connectionQueueHub.on("RecentServing", function () {
+    GetAllRecentQueue();
+});
+
+
 //For TV Display
 connectionQueueHub.on("DisplayTVQueue", () => {
     DisplayServeTV();

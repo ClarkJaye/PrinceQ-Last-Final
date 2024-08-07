@@ -57,7 +57,7 @@ namespace PrinceQueuing.Controllers
         //GET Announcement
         public async Task<IActionResult> GetAnnouncement()
         {
-            var announce = await _unitOfWork.announcement.Get(a => a.IsActiveId == 1);
+            var announce = await _unitOfWork.announcement.Get(a => a.IsActive == true);
 
             if (announce == null) return Json(new { IsSuccess = false });
 

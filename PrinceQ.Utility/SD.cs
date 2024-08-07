@@ -9,12 +9,12 @@ namespace PrinceQ.Utility
         public const string Role_Reports = "Reports";
         public const string Role_Users = "Users";
         public const string Role_Videos = "Videos";
-        public const string Role_Roles = "Roles";
         public const string Role_Announcement = "Announcement";
 
+        public const string Policy_UserPolicy = "UserPolicy";
 
-        public const string Policy_Staff_Admin = "AdminPolicy";
-        public const string DynamicRolePolicy = "DynamicRolePolicy";
+        public const string Policy_GenerateNumber = "Policy_GenerateNumber";
+        public const string Policy_Filling = "Policy_Filling";
 
 
 

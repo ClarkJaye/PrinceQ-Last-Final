@@ -3,6 +3,11 @@
     Layout = "_AdminLayout";
 }
 
+<style>
+    .text-leftt {
+        text-align: left !important;
+    }
+</style>
 
 <div class="p-5 mb-4">
     <div class="card shadow mb-4">
@@ -19,12 +24,12 @@
 
         <div class="card-body pt-0">
             <div class="table-responsive py-3">
-                <table id="waitingReportTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
+                <table id="servingReportTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
                     <thead class="border-top">
                         <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
                             <th>Username</th>
                             <th>Total Number Served</th>
-                            <th>Highest Average Served Time</th>
+                            <th>Longest Served Time</th>
                             <th>Lowest Served Time</th>
                             <th>Date</th>
                             <th>Actions</th>
@@ -38,6 +43,42 @@
         </div>
 
 
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div id="detailsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="max-width: 1000px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="detailsTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Generate Date</th>
+                            <th>UserName</th>
+                            <th>Queue Number</th>
+                            <th>Total Cheque</th>
+                            <th>Serve Start</th>
+                            <th>Serve End</th>
+                            <th>Serving Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Detailed data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="toExcelBtn">Convert to Excel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 

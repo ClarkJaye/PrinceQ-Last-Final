@@ -459,11 +459,12 @@ namespace PrinceQueuing.Controllers
         {
             try
             {
-                var currentDate = DateTime.Today.ToString("yyyyMMdd");
-                var forFillingData = await _unitOfWork.forFilling.GetAll(f => f.GenerateDate == currentDate);
-                var releasingData = await _unitOfWork.releasing.GetAll(r => r.GenerateDate == currentDate);
+                var forFillingData = await _unitOfWork.forFilling.GetAll();
+                var releasingData = await _unitOfWork.releasing.GetAll();
+                var users = await _unitOfWork.users.GetAll(); 
+                // Create a dictionary for quick username lookup
+                var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
 
-                // Map forFillingData to ServeDataDTO
                 var forFillingMapped = forFillingData.Select(f => new ServeDataDTO
                 {
                     GenerateDate = f.GenerateDate,
@@ -473,8 +474,6 @@ namespace PrinceQueuing.Controllers
                     ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
                     ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
                 });
-
-                // Map releasingData to ServeData
                 var releasingMapped = releasingData.Select(r => new ServeDataDTO
                 {
                     GenerateDate = r.GenerateDate,
@@ -484,19 +483,17 @@ namespace PrinceQueuing.Controllers
                     ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
                     ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
                 });
-
-                // Combine the data
                 var combinedData = forFillingMapped.Concat(releasingMapped)
-                                    .GroupBy(x => x.ClerkId)
+                                    .GroupBy(x => new { x.ClerkId, x.GenerateDate })
                                     .Select(g => new
                                     {
-                                        Username = g.Key,
+                                        user = g.Key,
+                                        Username = userDictionary.ContainsKey(g.Key.ClerkId) ? userDictionary[g.Key.ClerkId] : "Unknown",
                                         TotalNumberServed = g.Count(),
-                                        HighestAverageServedTime = g.Max(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
-                                        LowestServedTime = g.Min(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
-                                        Date = currentDate
+                                        LongestServedTime = g.Max(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                        ShortestServedTime = g.Min(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                        Date = g.Key.GenerateDate
                                     });
-
                 return Json(new { IsSuccess = true, data = combinedData });
             }
             catch (Exception ex)
@@ -505,6 +502,72 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in Serving_GetAllServedData." });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDetailedData(string clerkId, string generateDate)
+        {
+            try
+            {
+                // Fetch forFilling and releasing data
+                var forFillingData = await _unitOfWork.forFilling.GetAll();
+                var releasingData = await _unitOfWork.releasing.GetAll();
+
+                // Fetch queue data
+                var queuesData = await _unitOfWork.queueNumbers.GetAll();
+
+                // Create a dictionary for quick username lookup
+                var users = await _unitOfWork.users.GetAll();
+                var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
+                // Map data to ServeDataDTO
+                var forFillingMapped = forFillingData.Select(f => new ServeDataDTO
+                {
+                    GenerateDate = f.GenerateDate,
+                    ClerkId = f.ClerkId,
+                    CategoryId = (int)f.CategoryId,
+                    QueueNumber = (int)f.QueueNumber,
+                    Total_Cheque = queuesData.FirstOrDefault(q => q.QueueNumber == f.QueueNumber)?.Total_Cheques ?? 0,
+                    ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                });
+
+                var releasingMapped = releasingData.Select(r => new ServeDataDTO
+                {
+                    GenerateDate = r.GenerateDate,
+                    ClerkId = r.ClerkId,
+                    CategoryId = (int)r.CategoryId,
+                    QueueNumber = (int)r.QueueNumber,
+                    Total_Cheque = queuesData.FirstOrDefault(q => q.QueueNumber == r.QueueNumber)?.Total_Cheques ?? 0,
+                    ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                });
+
+                // Combine data from both sources and filter by ClerkId and GenerateDate
+                var combinedData = forFillingMapped.Concat(releasingMapped)
+                                      .Where(x => x.ClerkId == clerkId && x.GenerateDate == generateDate)
+                                      .Select(x => new
+                                      {
+                                          GenerateDate = x.GenerateDate,
+                                          Username = userDictionary.ContainsKey(x.ClerkId) ? userDictionary[x.ClerkId] : "Unknown",
+                                          CategoryId = x.CategoryId,
+                                          QueueNumber = x.QueueNumber,
+                                          Total_Cheque = x.Total_Cheque,
+                                          ServeStart = x.ServeStart,
+                                          ServeEnd = x.ServeEnd
+                                      });
+
+                return Json(new { IsSuccess = true, data = combinedData });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetDetailedData action");
+                return Json(new { IsSuccess = false, message = "An error occurred in GetDetailedData." });
+            }
+        }
+
+
+
+
 
 
 
@@ -516,7 +579,7 @@ namespace PrinceQueuing.Controllers
             {
                 var categ = await _unitOfWork.category.GetAll();
                 var categories = categ.OrderBy(c => c.Created_At).ToList();
-                var users = await _unitOfWork.users.GetAll();
+                var users = await _unitOfWork.users.GetAll(u=> u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd");
                 var ListUsers = new List<dynamic>();
 
                 foreach (var user in users)

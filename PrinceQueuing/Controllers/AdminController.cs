@@ -901,12 +901,12 @@ namespace PrinceQueuing.Controllers
 
             if (q.Releasing_end.HasValue && forFillingStart.HasValue && releasingStart.HasValue && q.Generate_At.HasValue)
             {
-                double totalSeconds = (
-                    (forFillingStart.Value - q.Generate_At.Value) +
-                    (q.ForFilling_end.Value - forFillingStart.Value) +
-                    (releasingStart.Value - q.ForFilling_end.Value) +
-                    (q.Releasing_end.Value - releasingStart.Value)
-                ).TotalSeconds;
+                var one = q.ForFilling_start.Value - q.Generate_At.Value;
+                var two = q.ForFilling_end.HasValue ? q.ForFilling_end.Value - forFillingStart.Value : TimeSpan.Zero;
+                var three = q.Releasing_start.HasValue ? q.Releasing_start.Value - q.ForFilling_end.Value : TimeSpan.Zero;
+                var four = q.Releasing_end.Value - releasingStart.Value;
+
+                double totalSeconds = (one + two + three + four).TotalSeconds;
 
                 return waiting_FormatSeconds(totalSeconds);
             }
@@ -915,7 +915,6 @@ namespace PrinceQueuing.Controllers
                 return "N/A";
             }
         }
-
 
         private string waiting_FormatSeconds(double totalSeconds)
         {

@@ -353,6 +353,7 @@ namespace PrinceQ.DataAccess.Migrations
                     QueueNumber = table.Column<int>(type: "int", nullable: false),
                     StatusId = table.Column<int>(type: "int", nullable: false),
                     Total_Cheques = table.Column<int>(type: "int", nullable: true),
+                    Generate_At = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ForFilling_start = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ForFilling_end = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Releasing_start = table.Column<DateTime>(type: "datetime2", nullable: true),

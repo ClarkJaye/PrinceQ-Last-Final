@@ -31,8 +31,10 @@
                     <h3 class="nowServing fst-italic">NOW SERVING</h3>
                 </div>
                
-                <div class="text-center py-5" id="servingMenu">
+                <div class="text-center py-5 position-relative" id="servingMenu">
                     <h1 id="servingDisplay" style="font-size: 80px;">----</h1>
+
+                    <div class="position-absolute" id="chequeContainer" style="right: 10px; bottom: 0;"></div>
                 </div>
             </div>
 
@@ -119,8 +121,10 @@
             <div class="modal-body">
                 <form id="UpdateQueueForm" method="POST">
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    <div id="qNum" hidden>
-                    </div>
+
+                    <input id="generateDateCheq" hidden />
+                    <input id="categoryIdCheq" hidden />
+                    <input id="qNumberCheq" hidden />
 
                     <div class="form-floating mb-3">
                         <input id="QueueNumber" class="form-control p-2 text-center" disabled style="font-size: 2rem;" />
@@ -142,6 +146,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Notification Modal -->

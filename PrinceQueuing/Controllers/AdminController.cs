@@ -91,49 +91,6 @@ namespace PrinceQueuing.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> HighestServePerDay()
-        //{
-        //    try
-        //    {
-        //        var year = DateTime.Now.Year.ToString();
-        //        var data = await _unitOfWork.queueNumbers.GetAll(d => d.StageId != null && d.QueueId!.Substring(0, 4) == year);
-
-        //        var highestServed = data
-        //            .GroupBy(item => item.QueueId!.Substring(0, 8)) // Group by year-month-day (YYYYMMDD)
-        //            .Select(g => new
-        //            {
-        //                Date = g.Key,
-        //                CategoryASum = g.Count(i => i.CategoryId == 1),
-        //                CategoryBSum = g.Count(i => i.CategoryId == 2),
-        //                CategoryCSum = g.Count(i => i.CategoryId == 3),
-        //                CategoryDSum = g.Count(i => i.CategoryId == 4)
-        //            })
-        //            .Select(g => new
-        //            {
-        //                g.Date,
-        //                Category = new[]
-        //                {
-        //            new { Name = "Category A", Sum = g.CategoryASum },
-        //            new { Name = "Category B", Sum = g.CategoryBSum },
-        //            new { Name = "Category C", Sum = g.CategoryCSum },
-        //            new { Name = "Category D", Sum = g.CategoryDSum }
-        //                }.OrderByDescending(c => c.Sum).FirstOrDefault()
-        //            })
-        //            .OrderByDescending(x => x.Category!.Sum) 
-        //            .FirstOrDefault();
-
-        //        if(highestServed == null) return Json(new { IsSuccess = false, value = highestServed });
-
-        //        return Json(new { IsSuccess = true, value = highestServed });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error in HighestServePerDay action");
-        //        return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
-        //    }
-        //}
-
         [HttpGet]
         public async Task<IActionResult> TotalQueueNumber()
         {
@@ -198,8 +155,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "An error occurred in GetQueueServed." });
             }
         }
-
-
         [HttpGet]
         public async Task<IActionResult> totalServed()
         {
@@ -220,8 +175,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
             }
         }
-
-
         [HttpGet]
         public async Task<IActionResult> RecentlyServed()
         {
@@ -242,6 +195,7 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
             }
         }
+
 
         //-----USERS-----//
         [Authorize(Roles = SD.Role_Users)]
@@ -461,28 +415,35 @@ namespace PrinceQueuing.Controllers
             {
                 var forFillingData = await _unitOfWork.forFilling.GetAll();
                 var releasingData = await _unitOfWork.releasing.GetAll();
-                var users = await _unitOfWork.users.GetAll(); 
+                var users = await _unitOfWork.users.GetAll();
+
                 // Create a dictionary for quick username lookup
                 var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
 
-                var forFillingMapped = forFillingData.Select(f => new ServeDataDTO
-                {
-                    GenerateDate = f.GenerateDate,
-                    ClerkId = f.ClerkId,
-                    CategoryId = (int)f.CategoryId,
-                    QueueNumber = (int)f.QueueNumber,
-                    ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
-                    ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
-                });
-                var releasingMapped = releasingData.Select(r => new ServeDataDTO
-                {
-                    GenerateDate = r.GenerateDate,
-                    ClerkId = r.ClerkId,
-                    CategoryId = (int)r.CategoryId,
-                    QueueNumber = (int)r.QueueNumber,
-                    ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
-                    ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
-                });
+                var forFillingMapped = forFillingData
+                    .Where(f => f.Serve_start.HasValue && f.Serve_end.HasValue)
+                    .Select(f => new ServeDataDTO
+                    {
+                        GenerateDate = f.GenerateDate,
+                        ClerkId = f.ClerkId,
+                        CategoryId = (int)f.CategoryId,
+                        QueueNumber = (int)f.QueueNumber,
+                        ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                        ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                    });
+
+                var releasingMapped = releasingData
+                    .Where(r => r.Serve_start.HasValue && r.Serve_end.HasValue)
+                    .Select(r => new ServeDataDTO
+                    {
+                        GenerateDate = r.GenerateDate,
+                        ClerkId = r.ClerkId,
+                        CategoryId = (int)r.CategoryId,
+                        QueueNumber = (int)r.QueueNumber,
+                        ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                        ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                    });
+
                 var combinedData = forFillingMapped.Concat(releasingMapped)
                                     .GroupBy(x => new { x.ClerkId, x.GenerateDate })
                                     .Select(g => new
@@ -494,6 +455,7 @@ namespace PrinceQueuing.Controllers
                                         ShortestServedTime = g.Min(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
                                         Date = g.Key.GenerateDate
                                     });
+
                 return Json(new { IsSuccess = true, data = combinedData });
             }
             catch (Exception ex)
@@ -502,7 +464,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in Serving_GetAllServedData." });
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> GetDetailedData(string clerkId, string generateDate)
         {
@@ -520,15 +481,17 @@ namespace PrinceQueuing.Controllers
                 var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
 
                 // Map data to ServeDataDTO
-                var forFillingMapped = forFillingData.Select(f => new ServeDataDTO
+                var forFillingMapped = forFillingData
+                    .Select(f => new ServeDataDTO
                 {
                     GenerateDate = f.GenerateDate,
                     ClerkId = f.ClerkId,
                     CategoryId = (int)f.CategoryId,
                     QueueNumber = (int)f.QueueNumber,
-                    Total_Cheque = queuesData.FirstOrDefault(q => q.QueueNumber == f.QueueNumber)?.Total_Cheques ?? 0,
+                    Total_Cheque = queuesData.FirstOrDefault(q => q.QueueId == f.GenerateDate && q.CategoryId == f.CategoryId && q.QueueNumber == f.QueueNumber)?.Total_Cheques ?? 0,
                     ServeStart = f.Serve_start.HasValue ? TimeSpan.Parse(f.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
-                    ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                    ServeEnd = f.Serve_end.HasValue ? TimeSpan.Parse(f.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    stageId =  1,
                 });
 
                 var releasingMapped = releasingData.Select(r => new ServeDataDTO
@@ -539,7 +502,8 @@ namespace PrinceQueuing.Controllers
                     QueueNumber = (int)r.QueueNumber,
                     Total_Cheque = queuesData.FirstOrDefault(q => q.QueueNumber == r.QueueNumber)?.Total_Cheques ?? 0,
                     ServeStart = r.Serve_start.HasValue ? TimeSpan.Parse(r.Serve_start.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
-                    ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero
+                    ServeEnd = r.Serve_end.HasValue ? TimeSpan.Parse(r.Serve_end.Value.ToString("hh\\:mm\\:ss")) : TimeSpan.Zero,
+                    stageId = 2,
                 });
 
                 // Combine data from both sources and filter by ClerkId and GenerateDate
@@ -553,7 +517,8 @@ namespace PrinceQueuing.Controllers
                                           QueueNumber = x.QueueNumber,
                                           Total_Cheque = x.Total_Cheque,
                                           ServeStart = x.ServeStart,
-                                          ServeEnd = x.ServeEnd
+                                          ServeEnd = x.ServeEnd,
+                                          StageId = x.stageId,
                                       });
 
                 return Json(new { IsSuccess = true, data = combinedData });
@@ -564,11 +529,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in GetDetailedData." });
             }
         }
-
-
-
-
-
 
 
 
@@ -714,24 +674,25 @@ namespace PrinceQueuing.Controllers
         {
             try
             {
-                if (range is null || range == "fr")
+                if (range != null && range == "gf")
                 {
                     if (year != null && month == null)
                     {
                         var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                            d.StatusId == 2 &&
+                            d.StatusId == 5 &&
                             d.QueueId!.Substring(0, 4) == year &&
-                            d.ForFilling_start.HasValue &&
-                            d.ForFilling_end.HasValue);
+                            d.Generate_At.HasValue &&
+                            d.ForFilling_start.HasValue);
 
                         var monthlyData = data
                             .GroupBy(item => item.QueueId!.Substring(4, 2))
                             .Select(g => new
                             {
                                 Month = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryDAvg = g.Where(i => i.CategoryId == 4).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 4).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
                             })
                             .ToList();
 
@@ -740,19 +701,20 @@ namespace PrinceQueuing.Controllers
                     else if (year != null && month != null)
                     {
                         var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                           d.StatusId == 2 &&
+                           d.StatusId == 5 &&
                            d.QueueId!.Substring(0, 6) == year + month &&
-                           d.ForFilling_start.HasValue &&
-                           d.ForFilling_end.HasValue);
+                           d.Generate_At.HasValue &&
+                           d.ForFilling_start.HasValue);
 
                         var dailyData = data
                             .GroupBy(item => item.QueueId!.Substring(6, 2))
                             .Select(g => new
                             {
                                 Day = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryDAvg = g.Where(i => i.CategoryId == 4).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 4).Average(i => (i.ForFilling_start!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
                                 GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
                             })
                             .ToList();
@@ -764,25 +726,24 @@ namespace PrinceQueuing.Controllers
                         return Json(null);
                     }
                 }
-                else if (range != null && range == "ff")
+                else if (range != null && range == "fr")
                 {
                     if (year != null && month == null)
                     {
                         var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                            d.StatusId == 2 &&
+                            d.StatusId == 5 &&
                             d.QueueId!.Substring(0, 4) == year &&
-                            d.ForFilling_start.HasValue &&
-                            d.ForFilling_end.HasValue);
+                            d.ForFilling_end.HasValue &&
+                            d.Releasing_end.HasValue);
 
                         var monthlyData = data
                             .GroupBy(item => item.QueueId!.Substring(4, 2))
                             .Select(g => new
                             {
                                 Month = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryDAvg = g.Where(i => i.CategoryId == 4).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 4).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
                             })
                             .ToList();
 
@@ -791,7 +752,7 @@ namespace PrinceQueuing.Controllers
                     else if (year != null && month != null)
                     {
                         var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                           d.StatusId == 2 &&
+                           d.StatusId == 5 &&
                            d.QueueId!.Substring(0, 6) == year + month &&
                            d.ForFilling_start.HasValue &&
                            d.ForFilling_end.HasValue);
@@ -801,60 +762,9 @@ namespace PrinceQueuing.Controllers
                             .Select(g => new
                             {
                                 Day = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                CategoryDAvg = g.Where(i => i.CategoryId == 4).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 4).Average(i => (i.ForFilling_end!.Value - i.ForFilling_start!.Value).TotalSeconds)) : "00",
-                                GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
-                            })
-                            .ToList();
-
-                        return Json(new { ByMonth = false, value = dailyData });
-                    }
-                    else
-                    {
-                        return Json(null);
-                    }
-                }
-                else if (range != null && range == "rr")
-                {
-                    if (year != null && month == null)
-                    {
-                        var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                            d.StatusId == 2 &&
-                            d.QueueId!.Substring(0, 4) == year &&
-                            d.ForFilling_start.HasValue &&
-                            d.ForFilling_end.HasValue);
-
-                        var monthlyData = data
-                            .GroupBy(item => item.QueueId!.Substring(4, 2))
-                            .Select(g => new
-                            {
-                                Month = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
-                            })
-                            .ToList();
-
-                        return Json(new { ByMonth = true, value = monthlyData });
-                    }
-                    else if (year != null && month != null)
-                    {
-                        var data = await _unitOfWork.queueNumbers.GetAll(d =>
-                           d.StatusId == 2 &&
-                           d.QueueId!.Substring(0, 6) == year + month &&
-                           d.ForFilling_start.HasValue &&
-                           d.ForFilling_end.HasValue);
-
-                        var dailyData = data
-                            .GroupBy(item => item.QueueId!.Substring(6, 2))
-                            .Select(g => new
-                            {
-                                Day = g.Key,
-                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
-                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
-                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.Releasing_start!.Value).TotalSeconds)) : "00",
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.ForFilling_end!.Value).TotalSeconds)) : "00",
                                 GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
                             })
                             .ToList();
@@ -868,7 +778,53 @@ namespace PrinceQueuing.Controllers
                 }
                 else
                 {
-                    return Json(null);
+                    if (year != null && month == null)
+                    {
+                        var data = await _unitOfWork.queueNumbers.GetAll(d =>
+                            d.StatusId == 5 &&
+                            d.QueueId!.Substring(0, 4) == year &&
+                            d.Generate_At.HasValue &&
+                            d.Releasing_end.HasValue);
+
+                        var monthlyData = data
+                            .GroupBy(item => item.QueueId!.Substring(4, 2))
+                            .Select(g => new
+                            {
+                                Month = g.Key,
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                            })
+                            .ToList();
+
+                        return Json(new { ByMonth = true, value = monthlyData });
+                    }
+                    else if (year != null && month != null)
+                    {
+                        var data = await _unitOfWork.queueNumbers.GetAll(d =>
+                           d.StatusId == 5 &&
+                           d.QueueId!.Substring(0, 6) == year + month &&
+                           d.ForFilling_start.HasValue &&
+                           d.Releasing_end.HasValue);
+
+                        var dailyData = data
+                            .GroupBy(item => item.QueueId!.Substring(6, 2))
+                            .Select(g => new
+                            {
+                                Day = g.Key,
+                                CategoryAAvg = g.Where(i => i.CategoryId == 1).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryBAvg = g.Where(i => i.CategoryId == 2).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                CategoryCAvg = g.Where(i => i.CategoryId == 3).Any() ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => (i.Releasing_end!.Value - i.Generate_At!.Value).TotalSeconds)) : "00",
+                                GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
+                            })
+                            .ToList();
+
+                        return Json(new { ByMonth = false, value = dailyData });
+                    }
+                    else
+                    {
+                        return Json(null);
+                    }
                 }
             }
             catch (Exception ex)
@@ -878,11 +834,115 @@ namespace PrinceQueuing.Controllers
             }
         }
 
+
+        //[HttpGet]
+        //public async Task<IActionResult> Waiting_GetAllServedData()
+        //{
+        //    try
+        //    {
+        //        var data = await _unitOfWork.queueNumbers.GetAll();
+
+        //        var result = data.Select(q => new
+        //        {
+        //            GenerateDate = q.QueueId,
+        //            CategoryId = q.CategoryId,
+        //            QueueNumber = q.QueueNumber,
+        //            GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
+        //            CallForFilling = q.ForFilling_start.HasValue ? q.ForFilling_start.Value.ToString("hh:mm tt") : "N/A",
+        //            CallForReleasing = q.Releasing_start.HasValue ? q.Releasing_start.Value.ToString("hh:mm tt") : "N/A",
+        //            ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
+        //            AverageTime = q.Releasing_end.HasValue && q.Generate_At.HasValue
+        //                ? waiting_FormatSeconds((q.Releasing_end.Value - q.Generate_At.Value).TotalSeconds)
+        //                : "N/A"
+        //        });
+
+        //        return Json(new { IsSuccess = true, data = result });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error in Waiting_GetAllServedData action");
+        //        return Json(new { IsSuccess = false, message = "An error occurred in Waiting_GetAllServedData." });
+        //    }
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> Waiting_GetAllServedData()
+        {
+            try
+            {
+                var data = await _unitOfWork.queueNumbers.GetAll();
+
+                var result = data.Select(q => new
+                {
+                    GenerateDate = q.QueueId,
+                    CategoryId = q.CategoryId,
+                    QueueNumber = q.QueueNumber,
+                    GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
+                    CallForFilling = (q.ForFilling_start_Backup ?? q.ForFilling_start)?.ToString("hh:mm tt") ?? "N/A",
+                    CallForReleasing = (q.Releasing_start_Backup ?? q.Releasing_start)?.ToString("hh:mm tt") ?? "N/A",
+                    ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
+
+                    AverageTime = CalculateAverageTime(q)
+                });
+
+                return Json(new { IsSuccess = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Waiting_GetAllServedData action");
+                return Json(new { IsSuccess = false, message = "An error occurred in Waiting_GetAllServedData." });
+            }
+        }
+
+        private string CalculateAverageTime(Queues q)
+        {
+            var forFillingStart = q.ForFilling_start_Backup ?? q.ForFilling_start;
+            var releasingStart = q.Releasing_start_Backup ?? q.Releasing_start;
+
+            if (q.Releasing_end.HasValue && forFillingStart.HasValue && releasingStart.HasValue && q.Generate_At.HasValue)
+            {
+                double totalSeconds = (
+                    (forFillingStart.Value - q.Generate_At.Value) +
+                    (q.ForFilling_end.Value - forFillingStart.Value) +
+                    (releasingStart.Value - q.ForFilling_end.Value) +
+                    (q.Releasing_end.Value - releasingStart.Value)
+                ).TotalSeconds;
+
+                return waiting_FormatSeconds(totalSeconds);
+            }
+            else
+            {
+                return "N/A";
+            }
+        }
+
+
+        private string waiting_FormatSeconds(double totalSeconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(totalSeconds);
+            if (timeSpan.TotalMinutes >= 60)
+            {
+                return $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m";
+            }
+            else
+            {
+                return $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
+            }
+        }
+
         private string FormatSeconds(double totalSeconds)
         {
             var timeSpan = TimeSpan.FromSeconds(totalSeconds);
-            return $"{(int)timeSpan.TotalMinutes}.{timeSpan.Seconds}";
+            if (timeSpan.TotalMinutes >= 60)
+            {
+                return $"{(int)timeSpan.TotalHours}.{timeSpan.Minutes}";
+            }
+            else
+            {
+                return $"{(int)timeSpan.TotalMinutes}.{timeSpan.Seconds}";
+            }
         }
+
 
 
 

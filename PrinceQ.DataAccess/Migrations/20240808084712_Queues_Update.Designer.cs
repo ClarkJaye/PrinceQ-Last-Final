@@ -12,8 +12,8 @@ using PrinceQ.DataAccess.Data.Context;
 namespace PrinceQ.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240807021550_Initial")]
-    partial class Initial
+    [Migration("20240808084712_Queues_Update")]
+    partial class Queues_Update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -432,10 +432,19 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<DateTime?>("ForFilling_start")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("ForFilling_start_Backup")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Generate_At")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("Releasing_end")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("Releasing_start")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Releasing_start_Backup")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("Reserve_At")

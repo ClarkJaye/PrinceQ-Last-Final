@@ -26,6 +26,7 @@ namespace PrinceQ.Models.Entities
 
         public int? Total_Cheques { get; set; }
 
+        public DateTime? Generate_At { get; set; }
         public DateTime? ForFilling_start { get; set; }
         public DateTime? ForFilling_end { get; set; }
         public DateTime? Releasing_start { get; set; }
@@ -43,5 +44,11 @@ namespace PrinceQ.Models.Entities
         [ForeignKey("StageId")]
         [ValidateNever]
         public Stage_Queue? Stage { get; set; }
+
+        public DateTime? ForFilling_start_Backup { get; set; }
+        public DateTime? Releasing_start_Backup { get; set; }
+
+
+
     }
 }

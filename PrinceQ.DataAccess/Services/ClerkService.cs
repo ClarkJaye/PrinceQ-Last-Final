@@ -62,6 +62,7 @@ namespace PrinceQ.DataAccess.Services
                 CategoryId = categoryId,
                 StatusId = 1,
                 QueueNumber = queueCount,
+                Generate_At = DateTime.Now,
                 //StageId = 1,
             };
 
@@ -426,14 +427,14 @@ namespace PrinceQ.DataAccess.Services
 
                     if (queueItem.StageId == 1)
                     {
+                        queueItem.ForFilling_start_Backup = null;
                         queueItem.ForFilling_end = null;
-                        //Remove For Filling Serve 
                         await RemoveClerkServeForFilling(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
                     else if (queueItem.StageId == 2)
                     {
+                        queueItem.Releasing_start_Backup = null;
                         queueItem.Releasing_end = null;
-                        //Remove For Filling Serve 
                         await RemoveClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
 
@@ -444,7 +445,6 @@ namespace PrinceQ.DataAccess.Services
                     var clerkNum = device?.ClerkNumber;
                     await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
 
-                    //signalr method
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("reservedQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
@@ -513,8 +513,8 @@ namespace PrinceQ.DataAccess.Services
 
         ////// -------------QUEUE IN TABLES-------------- //////
 
-        //Serve QUEUENUMBER From Reserve Table
-         public async Task<GeneralResponse> ServeQueueFromTable(string generateDate, int categoryId, int qNumber, string userId)
+        //Serve QUEUENUMBER From Releasing Table
+        public async Task<GeneralResponse> ServeQueueFromTable(string generateDate, int categoryId, int qNumber, string userId)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
             if (userAccess.IsActive == true)
@@ -530,13 +530,15 @@ namespace PrinceQ.DataAccess.Services
 
                     if (queueItem.StageId == 1)
                     {
-                        queueItem.ForFilling_end = DateTime.Now;
+                        queueItem.ForFilling_start = DateTime.Now;
+
                         //For Filling Serve Start 
                         await UpdateClerkServeForFilling(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
                     else if (queueItem.StageId == 2)
                     {
-                        queueItem.Releasing_end = DateTime.Now;
+                        queueItem.Releasing_start = DateTime.Now;
+
                         //For Releasing Serve Start 
                         await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
@@ -560,14 +562,118 @@ namespace PrinceQ.DataAccess.Services
                             }
                             _unitOfWork.queueNumbers.Update(prevQ);
                         }
-                        //For Filling Start End
+                        //For Filling Served End
                         var prevQForForFilling = await _unitOfWork.forFilling.Get(q => q.ClerkId == servingData.UserId && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe && q.GenerateDate == currentDate);
                         if (prevQForForFilling is not null)
                         {
                             prevQForForFilling.Serve_end = DateTime.Now;
                             _unitOfWork.forFilling.Update(prevQForForFilling);
                         }
-                        //For Releasing Start End
+                        //For Releasing Served End
+                        var prevQForForReleasing = await _unitOfWork.releasing.Get(q => q.ClerkId == servingData.UserId && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe && q.GenerateDate == currentDate);
+                        if (prevQForForReleasing is not null)
+                        {
+                            prevQForForReleasing.Serve_end = DateTime.Now;
+                            _unitOfWork.releasing.Update(prevQForForReleasing);
+                        }
+                        servingData.CategoryId = (int)queueItem.CategoryId!;
+                        servingData.QueueNumberServe = (int)queueItem.QueueNumber!;
+                        servingData.Served_At = DateTime.Now;
+                        _unitOfWork.servings.Update(servingData);
+                    }
+                    else
+                    {
+                        var serving = new Serving
+                        {
+                            UserId = userId,
+                            CategoryId = (int)queueItem.CategoryId!,
+                            QueueNumberServe = (int)queueItem.QueueNumber!,
+                            Served_At = DateTime.Now,
+                        };
+                        _unitOfWork.servings.Add(serving);
+                    }
+                    _unitOfWork.queueNumbers.Update(queueItem);
+                    await _unitOfWork.SaveAsync();
+
+                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
+                    await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
+                    await _hubContext.Clients.All.SendAsync("ServeInReservedQueue", queueItem);
+                    await _hubContext.Clients.All.SendAsync("fillingQueue");
+                    await _hubContext.Clients.All.SendAsync("releasingQueue");
+                    await _hubContext.Clients.All.SendAsync("RecentServing");
+                    return new GeneralResponse(true, queueItem, "Served from reserve table success.");
+                }
+                else
+                {
+                    return new GeneralResponse(false, null, "There is no Queue Number.");
+                }
+            }
+            else
+            {
+                return new GeneralResponse(false, null, "Your account is disabled.");
+            }
+        }
+
+
+
+
+        //Serve QUEUENUMBER From Reserve Table
+        public async Task<GeneralResponse> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber, string userId)
+        {
+            var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
+            if (userAccess.IsActive == true)
+            {
+                var currentDate = DateTime.Today.ToString("yyyyMMdd");
+                var queueItem = await _unitOfWork.queueNumbers.Get(q => q.QueueId == generateDate && q.CategoryId == categoryId && q.QueueNumber == qNumber);
+
+                if (queueItem != null)
+                {
+                    queueItem.StatusId = 5;
+                    queueItem.ClerkId = null;
+                    queueItem.Reserve_At = null;
+
+                    if (queueItem.StageId == 1)
+                    {
+                        queueItem.ForFilling_start_Backup = DateTime.Now;
+
+                        //For Filling Serve Start 
+                        await UpdateClerkServeForFilling(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
+                    }
+                    else if (queueItem.StageId == 2)
+                    {
+                        queueItem.Releasing_start_Backup = DateTime.Now;
+
+                        //For Releasing Serve Start 
+                        await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
+                    }
+
+                    var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
+                    //For Serving the QueueNumbers
+                    if (servingData != null && servingData.Served_At.Date == DateTime.Today)
+                    {
+                        //var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == servingData.Served_At.ToString("yyyyMMdd") && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
+                        var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
+                        if (prevQ is not null)
+                        {
+                            if (prevQ.StageId == 2 && prevQ.Total_Cheques == null)
+                            {
+                                return new GeneralResponse(false, new { prevQ.Total_Cheques, prevQ.QueueId, prevQ.CategoryId, prevQ.QueueNumber }, "Input the number of cheque first");
+                            }
+                            prevQ.StatusId = 2;
+                            if (prevQ.CategoryId == 4)
+                            {
+                                prevQ.ForFilling_end = DateTime.Now;
+                            }
+                            _unitOfWork.queueNumbers.Update(prevQ);
+                        }
+                        //For Filling Served End
+                        var prevQForForFilling = await _unitOfWork.forFilling.Get(q => q.ClerkId == servingData.UserId && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe && q.GenerateDate == currentDate);
+                        if (prevQForForFilling is not null)
+                        {
+                            prevQForForFilling.Serve_end = DateTime.Now;
+                            _unitOfWork.forFilling.Update(prevQForForFilling);
+                        }
+                        //For Releasing Served End
                         var prevQForForReleasing = await _unitOfWork.releasing.Get(q => q.ClerkId == servingData.UserId && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe && q.GenerateDate == currentDate);
                         if (prevQForForReleasing is not null)
                         {
@@ -698,12 +804,9 @@ namespace PrinceQ.DataAccess.Services
                     queueItem.StatusId = 2;
                     queueItem.StageId = 2;
                     queueItem.ForFilling_end = DateTime.Now;
-                    queueItem.Releasing_start = DateTime.Now;
 
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
-                    //signalr method
-                    //Update the Display of that User
                     await _hubContext.Clients.All.SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
@@ -749,6 +852,7 @@ namespace PrinceQ.DataAccess.Services
                     _unitOfWork.servings.Remove(servingData);
                 }
                 queueItem.Total_Cheques = cheque;
+                queueItem.Releasing_end = DateTime.Now;
                 _unitOfWork.queueNumbers.Update(queueItem);
                 await _unitOfWork.SaveAsync();
                 await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");

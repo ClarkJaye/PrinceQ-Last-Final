@@ -8,7 +8,6 @@ function load_Data() {
         url: '/Admin/Serving_GetAllServedData',
         dataType: 'json',
         success: function (response) {
-            console.log(response);
 
             if (response.isSuccess) {
                 populateTable(response.data);
@@ -91,23 +90,29 @@ function populateTable(data) {
 
 //creating the Table inside the Modal 
 function populateModalViewDetails(data) {
+    console.log(data);
+
     var tableBody = $("#detailsTable tbody");
     tableBody.empty();
 
     data.forEach(item => {
-        var serveStart = new Date(`1970-01-01T${item.serveStart}Z`);
-        var serveEnd = new Date(`1970-01-01T${item.serveEnd}Z`);
-        var servingTime = (serveEnd - serveStart) / 1000;
+        var serveStart = item.serveStart && item.serveStart !== '00:00:00' ? new Date(`1970-01-01T${item.serveStart}Z`) : null;
+        var serveEnd = item.serveEnd && item.serveEnd !== '00:00:00' ? new Date(`1970-01-01T${item.serveEnd}Z`) : null;
+        var servingTime = (serveEnd && serveStart) ? (serveEnd - serveStart) / 1000 : "N/A";
+
+        var stage = item.stageId === 1 ? "Filling" : "Releasing";
 
         var category = getCategoryLetter(item.categoryId);
+        var generateDate = item.generateDate ? formatDate(item.generateDate) : 'N/A';
         var row = `<tr>
-            <td>${formatDate(item.generateDate)}</td>
+            <td>${generateDate}</td>
             <td>${item.username}</td>
             <td>${category}-${item.queueNumber}</td>
-             <td>${item.total_Cheque} pcs</td>
-            <td>${formatTime(serveStart)}</td>
-            <td>${formatTime(serveEnd)}</td>
-            <td>${formatTime(servingTime)}</td>
+            <td>${stage}</td>
+            <td>${item.total_Cheque} pcs</td>
+            <td>${serveStart ? formatTime(serveStart) : 'N/A'}</td>
+            <td>${serveEnd ? formatTime(serveEnd) : 'N/A'}</td>
+            <td>${typeof servingTime === 'number' ? formatTime(servingTime) : 'N/A'}</td>
         </tr>`;
         tableBody.append(row);
     });
@@ -131,11 +136,13 @@ function formatTime(secondsOrDate) {
 }
 
 function formatDate(date) {
+    if (!date) return 'N/A'; 
     var year = date.slice(0, 4);
     var month = date.slice(4, 6);
     var day = date.slice(6, 8);
     return `${month}/${day}/${year}`;
 }
+
 function getCategoryLetter(categoryId) {
     switch (categoryId) {
         case 1:

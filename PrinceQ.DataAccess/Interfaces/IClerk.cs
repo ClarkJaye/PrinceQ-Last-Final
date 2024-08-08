@@ -19,6 +19,7 @@ namespace PrinceQ.DataAccess.Interfaces
         Task<GeneralResponse> ReserveQueueNumber(string userId, string ipAddress);
         Task<GeneralResponse> CancelQueueNumber(string userId, string ipAddress);
         Task<GeneralResponse> ServeQueueFromTable(string generateDate, int categoryId, int qNumber, string userId);
+        Task<GeneralResponse> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber, string userId);
         Task<GeneralResponse> CancelQueueFromTable(string generateDate, int categoryId, int qNumber, string userId);
         Task<GeneralResponse> ToReleaseQueue(string generateDate, int categoryId, int qNumber, string userId);
         Task<CommonResponse> ToUpdateQueue(string generateDate, int categoryId, int qNumber, string userId, int cheque);

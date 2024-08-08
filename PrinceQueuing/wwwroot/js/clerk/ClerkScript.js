@@ -46,7 +46,7 @@
     // Bind click event to the Cancel
     $('#cancelBtn').on("click", CancelQueue);
     // Bind click event to the Serve Queue in  Reserve Table
-    $('#resQueues').on("click", ".serveReserveQueueBtn", ServeQueueInTable);
+    $('#resQueues').on("click", ".serveReserveQueueBtn", ServeQueueInReserveTable);
     // Bind click event to the Cancel Queue in  Reserve Table
     $('#resQueues').on("click", ".cancelReserveQueueBtn", CancelQueueFromTable);
     // Bind click event to Transfer the Queue from filling up table to releasing table
@@ -184,6 +184,7 @@ function CallQueue() {
         dataType: "json",
         success: function (response) {
             if (response && response.isSuccess == true) {
+                console.log(response)
                 var servingDisplay = document.getElementById("servingDisplay");
                 // Play background music
                 playBackgroundMusic();
@@ -195,8 +196,8 @@ function CallQueue() {
                 button.prop('disabled', true);
                 setTimeout(function () {
                     button.prop('disabled', false);
-                    var getQ = getCategoryLetter(response.categoryId);
-                    var queue = getQ + "-- " + response.queueNumber;
+                    var getQ = getCategoryLetter(response.queue.categoryId);
+                    var queue = getQ + "-- " + response.queue.queueNumber;
 
                     var clerk = document.getElementById("ClerkNum").textContent;
                     var speechText = queue + " Please Proceed to " + clerk
@@ -567,6 +568,7 @@ function ToReleasingQueue() {
 function speak(text) {
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.6;
 
     synth.speak(utterance);
 }
@@ -579,7 +581,7 @@ function playBackgroundMusic() {
 
 ///////////////////////////////
 
-//SERVE =>  RESERVE QUEUE
+//SERVE =>  Releasing Table
 function ServeQueueInTable() {
     var generateDate = $(this).data("gendate");
     var categoryId = $(this).data("category");
@@ -589,6 +591,53 @@ function ServeQueueInTable() {
     $.ajax({
         type: 'GET',
         url: "/Clerk/ServeQueueFromTable",
+        data: {
+            generateDate: generateDate,
+            categoryId: categoryId,
+            qNumber: qNumber,
+        },
+        dataType: "json",
+        success: function (response) {
+            var queueItem = response.obj;
+            if (response.isSuccess == true && response.obj !== null) {
+                playBackgroundMusic();
+                DisplayCurrentServe();
+                callBtn.prop('disabled', true);
+                setTimeout(function () {
+                    callBtn.prop('disabled', false);
+
+                    // Speak the category and queue number
+                    var getQ = getCategoryLetter(queueItem.categoryId);
+                    var queue = getQ + "-- " + queueItem.queueNumber;
+
+                    const clerkNumber = document.getElementById("ClerkNum").textContent;
+                    var speechText = queue + " Please Proceed to " + clerkNumber
+                    speak(speechText);
+                }, 1000);
+            } else if (response.isSuccess == false && response.obj !== null) {
+                DisplayModalCheque(queueItem);
+            }
+            else {
+                alert(response.message)
+            }
+        },
+        error: function (error) {
+            console.log("Error:", error);
+        }
+    });
+
+};
+
+//SERVE =>  RESERVE Table
+function ServeQueueInReserveTable() {
+    var generateDate = $(this).data("gendate");
+    var categoryId = $(this).data("category");
+    var qNumber = $(this).data("qnumber");
+    var callBtn = $('#callBtn');
+
+    $.ajax({
+        type: 'GET',
+        url: "/Clerk/ServeQueueFromReserveTable",
         data: {
             generateDate: generateDate,
             categoryId: categoryId,
@@ -706,15 +755,16 @@ function UpdateQueueTotalCheques(e) {
             },
             dataType: 'json',
             success: function (response) {
+                console.log(response)
                 if (response && response.isSuccess) {
 
                     toastr.success(response.message)
+                    $('#chequeCountModal').modal('hide');
                 }
                 else {
                     alert(response.message)
                 }
 
-                $('#chequeCountModal').modal('hide');
             },
             error: function (err) {
                 console.log('Unable to fetch the data.', err);

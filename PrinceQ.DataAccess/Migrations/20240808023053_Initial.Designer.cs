@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrinceQ.DataAccess.Data.Context;
 
@@ -11,9 +12,11 @@ using PrinceQ.DataAccess.Data.Context;
 namespace PrinceQ.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240808023053_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -429,9 +432,6 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<DateTime?>("ForFilling_start")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ForFilling_start_Backup")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("Generate_At")
                         .HasColumnType("datetime2");
 
@@ -439,9 +439,6 @@ namespace PrinceQ.DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("Releasing_start")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Releasing_start_Backup")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("Reserve_At")

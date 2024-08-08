@@ -289,7 +289,7 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in CancelQueue." });
             }
         }
-
+        //Serve QUEUENUMBER From Releasing Table
         public async Task<JsonResult> ServeQueueFromTable(string generateDate, int categoryId, int qNumber )
         {
             try
@@ -297,6 +297,23 @@ namespace PrinceQueuing.Controllers
                 //User ID
                 var userId = GetCurrentUserId();
                 var response = await _clerk.ServeQueueFromTable(generateDate, categoryId, qNumber, userId);
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ServeInReserve action");
+                return Json(new { IsSuccess = false, message = "An error occurred while processing the ServeInReserve." });
+            }
+        }
+        //Serve QUEUENUMBER From Reserve Table
+        public async Task<JsonResult> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber)
+        {
+            try
+            {
+                //User ID
+                var userId = GetCurrentUserId();
+                var response = await _clerk.ServeQueueFromReserveTable(generateDate, categoryId, qNumber, userId);
 
                 return Json(response);
             }

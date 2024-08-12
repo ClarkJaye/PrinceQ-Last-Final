@@ -842,6 +842,7 @@ namespace PrinceQueuing.Controllers
                     GenerateDate = q.QueueId,
                     CategoryId = q.CategoryId,
                     QueueNumber = q.QueueNumber,
+                    Total_Cheque = q.Total_Cheques,
                     GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
                     CallForFilling = q.ForFilling_start.HasValue ? q.ForFilling_start.Value.ToString("hh:mm tt") : "N/A",
                     CallForReleasing = q.Releasing_start.HasValue ? q.Releasing_start.Value.ToString("hh:mm tt") : "N/A",

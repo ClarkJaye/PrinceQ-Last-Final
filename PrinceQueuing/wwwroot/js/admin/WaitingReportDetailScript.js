@@ -65,6 +65,12 @@ function populateTable(data) {
                     return getCategoryLetter(data.categoryId) + '-' + data.queueNumber;
                 }
             },
+            {
+                data: 'total_Cheque',
+                render: function (data) {
+                    return data ? data + " pcs" : 0; 
+                }
+            },
             { data: 'generatedStart' },
             { data: 'callForFilling' },
             { data: 'callForFilling_Reserved' },

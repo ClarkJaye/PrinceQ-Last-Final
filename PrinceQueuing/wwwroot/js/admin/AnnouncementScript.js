@@ -29,7 +29,6 @@ function loadAllAnnouncement() {
         type: 'GET',
         async: false,
         success: function (response) {
-            console.log(response)
             var announceData = response.obj.map(function (value) {
                 var createdAt = formatDate(new Date(value.created_At));
 

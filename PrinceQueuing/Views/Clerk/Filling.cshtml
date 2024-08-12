@@ -19,39 +19,33 @@
                     <h2 class="fst-italic" id="ClerkNum">
                     </h2>
                 </div>
-
                 <a class="navbar-brand text-dark d-none d-md-block">
                     <img src="~/src/logo-prince.png" style="width: 60px;height: 50px;object-fit: contain;" alt="Queuing" />
                 </a>
             </div>
-
             <!-- Serving-->
             <div class="py-3" style="border-bottom: 1px solid rgba(0, 0, 0, 0.5);">
                 <div class="px-2">
                     <h3 class="nowServing fst-italic">NOW SERVING</h3>
                 </div>
-               
                 <div class="text-center py-5 position-relative" id="servingMenu">
                     <h1 id="servingDisplay" style="font-size: 80px;">----</h1>
 
                     <div class="position-absolute" id="chequeContainer" style="right: 10px; bottom: 0;"></div>
                 </div>
             </div>
-
             <!--Buttons-->
             <div class="d-grid gap-2 col-5 mx-auto py-5">
                 <button type="button" class="btn btn-success" id="callBtn" type="button" @(userIsDisabled ? "disabled" : "")>Call</button>
                 <button type="button" class="btn btn-warning" id="reserveBtn" type="button" @(userIsDisabled ? "disabled" : "")>Reserve</button>
                 <button type="button" class="btn btn-dark" id="cancelBtn" type="button" @(userIsDisabled ? "disabled" : "")>Cancel</button>
             </div>
-
             <!--Date & Time-->
             <div class="time position-absolute d-flex flex-column text-center w-100" style="bottom: 10px;">
                 <h2 class="m-0" id="time"></h2>
                 <span id="date"></span>
             </div>
         </div>
-
         <!--Right Side-->
         <div class="col-9 p-1 border">
             <div class="d-flex justify-content-end">
@@ -59,16 +53,12 @@
                     Hide
                 </button>
             </div>
-
             <h4 class="text-center mb-3 mb-res fst-italic">Waiting</h4>
             <div class="mb-4">
-
                 <!--Category count-->
                 <div class="d-flex justify-content-around align-items-center mt-4 waitingCont" id="WaitingCountNumber">
                 </div>
-
             </div>
-
             <!------PROCESS------->
             <div class="p-3" style="border-top: 1px solid #5c636a">
                 <h4 class="text-center mb-res fst-italic">FILLING UP</h4>
@@ -82,11 +72,9 @@
                         </thead>
                         <tbody id="fillingQueues">
                         </tbody>
-
                     </table>
                 </div>
             </div>
-
             <!------RESERVE------->
             <div class="p-3" style="border-top: 1px solid #5c636a">
                 <h4 class="text-center mb-res fst-italic">RESERVED</h4>
@@ -101,7 +89,6 @@
                             </tr>
                         </thead>
                         <tbody id="resQueues">
-
                         </tbody>
                     </table>
                 </div>
@@ -146,8 +133,6 @@
         </div>
     </div>
 </div>
-
-
 
 <!-- Notification Modal -->
 @if (userIsDisabled)

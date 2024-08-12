@@ -468,7 +468,8 @@ function createTableFilling(queue) {
 
 
     actionCell.addClass("tableAction d-flex justify-content-center gap-3");
-    actionCell.append(toReleaseButton, cancelButton);
+    //actionCell.append(toReleaseButton, cancelButton);
+    actionCell.append(toReleaseButton);
 
     var tableRow = $("<tr>").append(queueNumber, actionCell);
     return tableRow;

@@ -70,17 +70,6 @@ builder.Services.AddAuthorization(options =>
         || context.User.IsInRole(SD.Role_Videos)
         || context.User.IsInRole(SD.Role_Announcement)
     ));
-    
-    
-    options.AddPolicy(SD.Policy_GenerateNumber, policy => policy.RequireAssertion(context =>
-        context.User.IsInRole(SD.Role_GenerateNumber)
-    ));
-    
-    options.AddPolicy(SD.Policy_Filling, policy => policy.RequireAssertion(context =>
-        context.User.IsInRole(SD.Role_Filling)
-    ));
-
-
 
 });
 

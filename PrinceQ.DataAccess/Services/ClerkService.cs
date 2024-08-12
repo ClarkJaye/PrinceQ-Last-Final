@@ -19,7 +19,7 @@ namespace PrinceQ.DataAccess.Services
             _hubContext = hubContext;
         }
 
-        //DASHBOARD
+        //Filling AND Releasing VIEW
         public async Task<GeneralResponse> ServingVM(string userId, string ipAddress)
         {
             var clerkVM = new ClerkVM
@@ -30,7 +30,7 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse(true, clerkVM, "Success");
         }
-
+        //Generate Queue Number VIEW
         public async Task<GeneralResponse> GenerateVM(string userId)
         {
             var viewModel = new RPVM
@@ -42,8 +42,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse(true, viewModel, "Success");
         }
-
-        //Generate Qeuue Temporary
         public async Task<DualResponse> GenerateQueue(int categoryId)
         {
             if (categoryId == 0) return new DualResponse(false, null, null, "there is no an error!");
@@ -63,7 +61,6 @@ namespace PrinceQ.DataAccess.Services
                 StatusId = 1,
                 QueueNumber = queueCount,
                 Generate_At = DateTime.Now,
-                //StageId = 1,
             };
 
             _unitOfWork.queueNumbers.Add(queueNumber);
@@ -72,7 +69,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new DualResponse(true, queueNumber, selectedCategory, "Generation successful");
         }
-
         //Get Queue
         public async Task<GeneralResponse> GetQueue(string date, int categoryId, int queueNumber)
         {
@@ -201,104 +197,6 @@ namespace PrinceQ.DataAccess.Services
            })
            .ToList();
             return new GeneralResponse(true, fillingQueue, "Get all filling up queues Success.");
-        }
-
-        //HELPER
-
-        //Helper for Reserve
-        private string GetCategoryString(int categoryId)
-        {
-            string category;
-            switch (categoryId)
-            {
-                case 1:
-                    category = "A";
-                    break;
-                case 2:
-                    category = "B";
-                    break;
-                case 3:
-                    category = "C";
-                    break;
-                case 4:
-                    category = "D";
-                    break;
-                default:
-                    category = "";
-                    break;
-            }
-            return category;
-        }
-        private async Task UpdateClerkServeForFilling(string userId, int categoryId, int queueNumber)
-        {
-            var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var forFillingData = await _unitOfWork.forFilling.Get(f => f.ClerkId == userId && f.CategoryId == categoryId && f.QueueNumber == queueNumber && f.GenerateDate == currentDate);
-            if (forFillingData != null)
-            {
-                forFillingData.Serve_start = DateTime.Now;
-                _unitOfWork.forFilling.Update(forFillingData);
-            }
-            else
-            {
-                var fillingUp = new Serve_ForFilling
-                {
-                    GenerateDate = currentDate,
-                    ClerkId = userId,
-                    CategoryId = categoryId,
-                    QueueNumber = queueNumber,
-                    Serve_start = DateTime.Now,
-                };
-                _unitOfWork.forFilling.Add(fillingUp);
-            }
-        }
-
-        private async Task UpdateClerkServeReleasing(string userId, int categoryId, int queueNumber)
-        {
-            var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var releasingData = await _unitOfWork.releasing.Get(r => r.ClerkId == userId && r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
-
-            if (releasingData != null)
-            {
-                releasingData.Serve_start = DateTime.Now;
-                _unitOfWork.releasing.Update(releasingData);
-            }
-            else
-            {
-                var releasing = new Serve_Releasing
-                {
-                    GenerateDate = currentDate,
-                    ClerkId = userId,
-                    CategoryId = categoryId,
-                    QueueNumber = queueNumber,
-                    Serve_start = DateTime.Now,
-                };
-                _unitOfWork.releasing.Add(releasing);
-            }
-        }
-
-        private async Task RemoveClerkServeForFilling(string userId, int categoryId, int queueNumber)
-        {
-            var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var forFillingData = await _unitOfWork.forFilling.Get(r => r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
-
-            if (forFillingData != null)
-            {
-                forFillingData.Serve_start = DateTime.Now;
-                _unitOfWork.forFilling.Remove(forFillingData);
-            }
-        }
-
-        private async Task RemoveClerkServeReleasing(string userId, int categoryId, int queueNumber)
-        {
-            var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var releasingData = await _unitOfWork.releasing.Get(r => r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
-
-            if (releasingData != null)
-            {
-                releasingData.Serve_start = DateTime.Now;
-                _unitOfWork.releasing.Remove(releasingData);
-            }
-
         }
 
         //NEXT QUEUENUMBER
@@ -457,7 +355,7 @@ namespace PrinceQ.DataAccess.Services
             }
 
         }
-
+        //Cancel QUEUENUMBER
         public async Task<GeneralResponse> CancelQueueNumber(string userId, string deviceId)
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
@@ -613,10 +511,6 @@ namespace PrinceQ.DataAccess.Services
                 return new GeneralResponse(false, null, "Your account is disabled.");
             }
         }
-
-
-
-
         //Serve QUEUENUMBER From Reserve Table
         public async Task<GeneralResponse> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber, string userId)
         {
@@ -717,7 +611,7 @@ namespace PrinceQ.DataAccess.Services
                 return new GeneralResponse(false, null, "Your account is disabled.");
             }
         }
-
+        //Cancel QUEUENUMBER From Table
         public async Task<GeneralResponse> CancelQueueFromTable(string generateDate, int categoryId, int qNumber, string userId)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
@@ -773,8 +667,6 @@ namespace PrinceQ.DataAccess.Services
             }
 
         }
-
-
         //Queue From Filling up to Releasing 
         public async Task<GeneralResponse> ToReleaseQueue(string generateDate, int categoryId, int qNumber, string userId)
         {
@@ -827,7 +719,6 @@ namespace PrinceQ.DataAccess.Services
 
 
         }
-
         public async Task<CommonResponse> ToUpdateQueue(string generateDate, int categoryId, int qNumber, string userId, int cheque)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
@@ -865,6 +756,97 @@ namespace PrinceQ.DataAccess.Services
             }
         }
 
+        //HELPER
+        private string GetCategoryString(int categoryId)
+        {
+            string category;
+            switch (categoryId)
+            {
+                case 1:
+                    category = "A";
+                    break;
+                case 2:
+                    category = "B";
+                    break;
+                case 3:
+                    category = "C";
+                    break;
+                case 4:
+                    category = "D";
+                    break;
+                default:
+                    category = "";
+                    break;
+            }
+            return category;
+        }
+        private async Task UpdateClerkServeForFilling(string userId, int categoryId, int queueNumber)
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var forFillingData = await _unitOfWork.forFilling.Get(f => f.ClerkId == userId && f.CategoryId == categoryId && f.QueueNumber == queueNumber && f.GenerateDate == currentDate);
+            if (forFillingData != null)
+            {
+                forFillingData.Serve_start = DateTime.Now;
+                _unitOfWork.forFilling.Update(forFillingData);
+            }
+            else
+            {
+                var fillingUp = new Serve_ForFilling
+                {
+                    GenerateDate = currentDate,
+                    ClerkId = userId,
+                    CategoryId = categoryId,
+                    QueueNumber = queueNumber,
+                    Serve_start = DateTime.Now,
+                };
+                _unitOfWork.forFilling.Add(fillingUp);
+            }
+        }
+        private async Task UpdateClerkServeReleasing(string userId, int categoryId, int queueNumber)
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var releasingData = await _unitOfWork.releasing.Get(r => r.ClerkId == userId && r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
 
+            if (releasingData != null)
+            {
+                releasingData.Serve_start = DateTime.Now;
+                _unitOfWork.releasing.Update(releasingData);
+            }
+            else
+            {
+                var releasing = new Serve_Releasing
+                {
+                    GenerateDate = currentDate,
+                    ClerkId = userId,
+                    CategoryId = categoryId,
+                    QueueNumber = queueNumber,
+                    Serve_start = DateTime.Now,
+                };
+                _unitOfWork.releasing.Add(releasing);
+            }
+        }
+        private async Task RemoveClerkServeForFilling(string userId, int categoryId, int queueNumber)
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var forFillingData = await _unitOfWork.forFilling.Get(r => r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
+
+            if (forFillingData != null)
+            {
+                forFillingData.Serve_start = DateTime.Now;
+                _unitOfWork.forFilling.Remove(forFillingData);
+            }
+        }
+        private async Task RemoveClerkServeReleasing(string userId, int categoryId, int queueNumber)
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var releasingData = await _unitOfWork.releasing.Get(r => r.CategoryId == categoryId && r.QueueNumber == queueNumber && r.GenerateDate == currentDate);
+
+            if (releasingData != null)
+            {
+                releasingData.Serve_start = DateTime.Now;
+                _unitOfWork.releasing.Remove(releasingData);
+            }
+
+        }
     }
 }

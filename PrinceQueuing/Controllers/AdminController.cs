@@ -473,14 +473,11 @@ namespace PrinceQueuing.Controllers
                 var forFillingData = await _unitOfWork.forFilling.GetAll();
                 var releasingData = await _unitOfWork.releasing.GetAll();
 
-                // Fetch queue data
                 var queuesData = await _unitOfWork.queueNumbers.GetAll();
 
-                // Create a dictionary for quick username lookup
                 var users = await _unitOfWork.users.GetAll();
                 var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
 
-                // Map data to ServeDataDTO
                 var forFillingMapped = forFillingData
                     .Select(f => new ServeDataDTO
                 {
@@ -833,38 +830,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in GetUser." });
             }
         }
-
-
-        //[HttpGet]
-        //public async Task<IActionResult> Waiting_GetAllServedData()
-        //{
-        //    try
-        //    {
-        //        var data = await _unitOfWork.queueNumbers.GetAll();
-
-        //        var result = data.Select(q => new
-        //        {
-        //            GenerateDate = q.QueueId,
-        //            CategoryId = q.CategoryId,
-        //            QueueNumber = q.QueueNumber,
-        //            GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
-        //            CallForFilling = q.ForFilling_start.HasValue ? q.ForFilling_start.Value.ToString("hh:mm tt") : "N/A",
-        //            CallForReleasing = q.Releasing_start.HasValue ? q.Releasing_start.Value.ToString("hh:mm tt") : "N/A",
-        //            ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
-        //            AverageTime = q.Releasing_end.HasValue && q.Generate_At.HasValue
-        //                ? waiting_FormatSeconds((q.Releasing_end.Value - q.Generate_At.Value).TotalSeconds)
-        //                : "N/A"
-        //        });
-
-        //        return Json(new { IsSuccess = true, data = result });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error in Waiting_GetAllServedData action");
-        //        return Json(new { IsSuccess = false, message = "An error occurred in Waiting_GetAllServedData." });
-        //    }
-        //}
-
         [HttpGet]
         public async Task<IActionResult> Waiting_GetAllServedData()
         {
@@ -878,10 +843,13 @@ namespace PrinceQueuing.Controllers
                     CategoryId = q.CategoryId,
                     QueueNumber = q.QueueNumber,
                     GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
-                    CallForFilling = (q.ForFilling_start_Backup ?? q.ForFilling_start)?.ToString("hh:mm tt") ?? "N/A",
-                    CallForReleasing = (q.Releasing_start_Backup ?? q.Releasing_start)?.ToString("hh:mm tt") ?? "N/A",
-                    ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
+                    CallForFilling = q.ForFilling_start.HasValue ? q.ForFilling_start.Value.ToString("hh:mm tt") : "N/A",
+                    CallForReleasing = q.Releasing_start.HasValue ? q.Releasing_start.Value.ToString("hh:mm tt") : "N/A",
 
+                    CallForFilling_Reserved = q.ForFilling_start_Backup.HasValue ? q.ForFilling_start_Backup.Value.ToString("hh:mm tt") : "N/A",
+                    CallForReleasing_Reserved = q.Releasing_start_Backup.HasValue ? q.Releasing_start_Backup.Value.ToString("hh:mm tt") : "N/A",
+
+                    ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
                     AverageTime = CalculateAverageTime(q)
                 });
 
@@ -915,7 +883,6 @@ namespace PrinceQueuing.Controllers
                 return "N/A";
             }
         }
-
         private string waiting_FormatSeconds(double totalSeconds)
         {
             var timeSpan = TimeSpan.FromSeconds(totalSeconds);
@@ -928,7 +895,6 @@ namespace PrinceQueuing.Controllers
                 return $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
             }
         }
-
         private string FormatSeconds(double totalSeconds)
         {
             var timeSpan = TimeSpan.FromSeconds(totalSeconds);

@@ -1,6 +1,23 @@
 ﻿$(document).ready(function () {
     load_Data();
+
+
+    $('#toExcelBtn').click(function () {
+        convertDetailsToExcel();
+    });
 });
+
+function convertDetailsToExcel() {
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.table_to_sheet(document.getElementById('detailsTable')); 
+
+    ws['!cols'] = [{ wch: 20 }]; 
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Details');
+
+    XLSX.writeFile(wb, 'DetailedData.xlsx');
+}
+
 
 function load_Data() {
     $.ajax({
@@ -55,14 +72,12 @@ function populateTable(data) {
         ],
         columnDefs: [
             {
-                targets: 1, 
-                className: 'text-leftt' 
+                targets: 5, 
+                className: 'text-center' 
             }
         ]
     });
 
-
-    // Event listener for the "View All" button
     $('#servingReportTable tbody').on('click', 'button.view-details', function () {
         var button = $(this);
         var userId = button.data('userid');
@@ -118,6 +133,8 @@ function populateModalViewDetails(data) {
     });
 }
 
+
+//Helper
 function formatTime(secondsOrDate) {
     if (typeof secondsOrDate === 'number') {
         // Formatting seconds
@@ -134,7 +151,6 @@ function formatTime(secondsOrDate) {
         return '';
     }
 }
-
 function formatDate(date) {
     if (!date) return 'N/A'; 
     var year = date.slice(0, 4);
@@ -142,7 +158,6 @@ function formatDate(date) {
     var day = date.slice(6, 8);
     return `${month}/${day}/${year}`;
 }
-
 function getCategoryLetter(categoryId) {
     switch (categoryId) {
         case 1:

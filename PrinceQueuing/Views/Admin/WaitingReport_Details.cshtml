@@ -3,17 +3,31 @@
     Layout = "_AdminLayout";
 }
 
+<style>
+    .select-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        border-radius: 3px;
+        border: 2px solid #666666;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
+    }
+</style>
+
 <div class="p-5 mb-4">
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <div class="d-flex align-items-center justify-content-between px-2">
-                <h6 class="fw-bold m-0">Average Waiting Time Statistics</h6>
+                <h6 class="fw-bold m-0">Waiting Time Statistics</h6>
 
                 <div class="d-flex align-items-center gap-3">
                     <a class="btn btn-secondary" style="font-size: 12px;" asp-controller="Admin" asp-action="WaitingReport">
                         Line Chart
                     </a>
+                    <button class="btn btn-success" id="export-to-excel" style="font-size: 12px;">Export to Excel</button>
                 </div>
+
 
             </div>
         </div>
@@ -23,15 +37,21 @@
                 <table id="waitingReportTable" class="table table-striped align-middle table-responsive border" style="width:100%; table-layout:auto;">
                     <thead class="border-top">
                         <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
-
+                            <th class="text-center">
+                                <div class="d-flex align-items-center flex-column">
+                                    <small style="font-size: 12px;">All</small>
+                                    <input class="form-check-input select-checkbox" type="checkbox" id="select-all" />
+                                </div>
+                            </th>
                             <th>Generate Date</th>
                             <th>Queue Number</th>
                             <th>Generated Start</th>
                             <th>Call For Filling</th>
+                            <th>Call For Filling Reserved</th>
                             <th>Call For Releasing</th>
+                            <th>Call For Releasing Reserved</th>
                             <th>Releasing End</th>
                             <th>Total Time</th>
-
                         </tr>
                     </thead>
                 </table>
@@ -43,8 +63,7 @@
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-tooltip"></script>
 <script src="/js/admin/WaitingReportDetailScript.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
 

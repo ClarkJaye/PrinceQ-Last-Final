@@ -30,7 +30,7 @@ namespace PrinceQ.DataAccess.Services
             _webHostEnvironment = webHostEnvironment;
             _hubContext = hubContext;
         }
-
+         
 
         //-----DASHBOARD-----//
 
@@ -117,12 +117,27 @@ namespace PrinceQ.DataAccess.Services
         }
         public async Task<CommonResponse> AddUser(UserVM model, string[] roleIds)
         {
+            // Check if the username already exists
+            var existingUserByUsername = await _userManager.FindByNameAsync(model.UserName);
+            if (existingUserByUsername != null)
+            {
+                return new CommonResponse(false, "Username is already taken.");
+            }
+
+            // Check if the email already exists
+            var existingUserByEmail = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUserByEmail != null)
+            {
+                return new CommonResponse(false, "Email is already taken.");
+            }
+
             User user = new()
             {
                 UserName = model.UserName,
                 Email = model.Email,
                 IsActive = true
             };
+
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -134,7 +149,7 @@ namespace PrinceQ.DataAccess.Services
                         _roleManager.Roles.FirstOrDefault(role => role.Name == roleName)?.Id
                     ).Where(id => id != null).ToList();
 
-                    // Determine roles to add and roles to remove
+                    // Determine roles to add
                     var roleIdsToAdd = roleIds.Except(existingRoleIds).ToArray();
 
                     // Handle role add
@@ -147,10 +162,13 @@ namespace PrinceQ.DataAccess.Services
                         }
                     }
                 }
+                await _unitOfWork.SaveAsync();
+                return new CommonResponse(true, "User added successfully");
             }
-            await _unitOfWork.SaveAsync();
-            return new CommonResponse( true, "User added successfully");
+
+            return new CommonResponse(false, "Failed to add user.");
         }
+
         public async Task<CommonResponse> UpdateUser(UserVM model, string[] roleIds)
         {
             var user = await _userManager.FindByIdAsync(model.Id);

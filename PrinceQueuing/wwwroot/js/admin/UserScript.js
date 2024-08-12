@@ -164,7 +164,7 @@ function addUsers(e) {
                 toastr.success(response.message);
                 $('#userAddModal').modal('hide');
             } else if (response && response.isSuccess === false) {
-
+                toastr.error(response.message);
             }
             else {
                 toastr.error(response.message);

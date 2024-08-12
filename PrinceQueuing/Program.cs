@@ -12,7 +12,6 @@ using PrinceQ.DataAccess.Hubs;
 using ExternalLogin;
 using Serilog;
 using Microsoft.AspNetCore.Authorization;
-using PrinceQ.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,17 +59,6 @@ builder.Services.AddAuthorization(options =>
     options.DefaultPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
-
-    options.AddPolicy(SD.Policy_UserPolicy, policy => policy.RequireAssertion(context =>
-        context.User.IsInRole(SD.Role_GenerateNumber)
-        || context.User.IsInRole(SD.Role_Filling)
-        || context.User.IsInRole(SD.Role_Releasing)
-        || context.User.IsInRole(SD.Role_Reports)
-        || context.User.IsInRole(SD.Role_Users)
-        || context.User.IsInRole(SD.Role_Videos)
-        || context.User.IsInRole(SD.Role_Announcement)
-    ));
-
 });
 
 var app = builder.Build();

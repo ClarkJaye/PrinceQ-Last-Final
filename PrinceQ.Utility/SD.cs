@@ -11,15 +11,5 @@ namespace PrinceQ.Utility
         public const string Role_Videos = "Videos";
         public const string Role_Announcement = "Announcement";
 
-
-
-
-        
-
-
-
-
-
-
     }
 }

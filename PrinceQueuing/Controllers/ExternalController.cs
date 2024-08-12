@@ -52,23 +52,7 @@ namespace PrinceQueuing.Controllers
             {
                 await signInManager.SignInAsync(user, isPersistent: false);
 
-
-                var roles = await userManager.GetRolesAsync(user);
-
-                //if (roles.Contains(SD.Role_Personnel))
-                //{
-                //    return RedirectToAction("Home", "RegisterPersonnel");
-                //}
-                //else if (roles.Contains(SD.Role_Clerk))
-                //{
-                //    return RedirectToAction("Serving", "Clerk");
-                //}
-                //else if (roles.Contains(SD.Role_Admin))
-                //{
-                //    return RedirectToAction("Dashboard", "Admin");
-                //}
-
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Dashboard", "Admin");
             }
 
             return Redirect(externalLoginService.PortalUrl);

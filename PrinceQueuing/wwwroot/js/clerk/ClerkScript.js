@@ -565,7 +565,7 @@ function ToReleasingQueue() {
 
 }
 
-//Speak
+//Speech / Sound
 function speak(text) {
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
@@ -573,8 +573,6 @@ function speak(text) {
 
     synth.speak(utterance);
 }
-
-// Play background music
 function playBackgroundMusic() {
     const audio = new Audio('/src/audio/ascend.mp3');
     audio.play();

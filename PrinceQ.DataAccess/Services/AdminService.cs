@@ -16,9 +16,9 @@ namespace PrinceQ.DataAccess.Services
 {
     public class AdminService : IAdmin
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHubContext<QueueHub> _hubContext;
 

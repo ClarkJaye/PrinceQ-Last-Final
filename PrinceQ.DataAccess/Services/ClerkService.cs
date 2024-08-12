@@ -88,9 +88,7 @@ namespace PrinceQ.DataAccess.Services
 
             return new DualResponse(true, device, user, "Success");
         }
-
-
-        //Get All Waiting Queuenumber on Each Categories
+        //Get All Waiting Queue Number on Each Categories
         public async Task<GeneralResponse> GetAllWaitingQueue(string userId)
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
@@ -111,7 +109,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse(true, userResult, "Get categories Success");
         }
-
         //GET CLERK SERVING
         public async Task<GetResponse> GetServings(string userId, string ipAddress)
         {
@@ -128,7 +125,6 @@ namespace PrinceQ.DataAccess.Services
             return new GetResponse(true, new { servingData.CategoryId, queueNumber = servingData.QueueNumberServe, qNumber?.QueueId, qNumber?.StageId, qNumber?.Total_Cheques } , "Success");
             //return new GetResponse(true, servingData.CategoryId, servingData.QueueNumberServe, qNumber?.StageId, qNumber?.Total_Cheques, "Success");
         }
-
         //GET RESERVE QUEUENUMBER
         public async Task<GeneralResponse> GetReservedQueues(string userId)
         {
@@ -156,7 +152,6 @@ namespace PrinceQ.DataAccess.Services
                 return new GeneralResponse(false, null, "There is no Queue Number.");
             }
         }
-
         //GET Filling QUEUENUMBER
         public async Task<GeneralResponse> GetFillingUpQueues(string userId)
         {
@@ -177,7 +172,6 @@ namespace PrinceQ.DataAccess.Services
            .ToList();
             return new GeneralResponse(true, fillingQueue, "Get all filling up queues Success.");
         }
-
         //GET Releasing QUEUENUMBER
         public async Task<GeneralResponse> GetReleasingQueues(string userId)
         {
@@ -198,7 +192,6 @@ namespace PrinceQ.DataAccess.Services
            .ToList();
             return new GeneralResponse(true, fillingQueue, "Get all filling up queues Success.");
         }
-
         //NEXT QUEUENUMBER
         public async Task<GeneralResponse> NextQueueNumber(int Id, string userId)
         {
@@ -301,7 +294,6 @@ namespace PrinceQ.DataAccess.Services
           
            
         }
-
         //RESERVE QUEUENUMBER
         public async Task<GeneralResponse> ReserveQueueNumber(string userId, string deviceId)
         {

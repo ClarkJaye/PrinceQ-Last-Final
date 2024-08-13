@@ -360,8 +360,9 @@ namespace PrinceQueuing.Controllers
         {
             try
             {
+                var ipAddress = GetUserIpAddress();
                 var userId = GetCurrentUserId();
-                var response = await _clerk.ToUpdateQueue(generateDate, categoryId, qNumber, userId, cheque);
+                var response = await _clerk.ToUpdateQueue(generateDate, categoryId, qNumber, userId, cheque, ipAddress);
 
                 return Json(response);
             }
@@ -377,13 +378,6 @@ namespace PrinceQueuing.Controllers
         {
             return User.GetUserId();
         }
-
-
-        //private string GetUserIpAddress()
-        //{
-        //    string ipAddress = HttpContext.IpAddress();         
-        //    return ipAddress ?? "";
-        //}
 
         //Temporary
         private string GetUserIpAddress()

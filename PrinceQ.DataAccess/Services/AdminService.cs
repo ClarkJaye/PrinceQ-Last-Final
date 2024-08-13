@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Interfaces;
 using PrinceQ.DataAccess.Repository;
+using PrinceQ.Models.DTOs;
 using PrinceQ.Models.Entities;
 using PrinceQ.Models.ViewModel;
 using static PrinceQ.DataAccess.Response.ServiceResponses;
@@ -30,10 +30,118 @@ namespace PrinceQ.DataAccess.Services
             _webHostEnvironment = webHostEnvironment;
             _hubContext = hubContext;
         }
-         
+
 
         //-----DASHBOARD-----//
+        public async Task<ChartDataResponse> GetDataByYearAndMonth(string year, string month)
+        {
+            if (year != null && month == null)
+            {
+                // Retrieve monthly data
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StageId != null && d.QueueId!.Substring(0, 4) == year);
+                var monthlyData = data
+                    .GroupBy(item => item.QueueId!.Substring(4, 2))
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        CategoryASum = g.Sum(i => i.CategoryId == 1 ? 1 : 0),
+                        CategoryBSum = g.Sum(i => i.CategoryId == 2 ? 1 : 0),
+                        CategoryCSum = g.Sum(i => i.CategoryId == 3 ? 1 : 0),
+                        CategoryDSum = g.Sum(i => i.CategoryId == 4 ? 1 : 0),
+                        GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
+                    })
+                    .ToList();
+                return new ChartDataResponse( true, monthlyData);
+            }
+            else if (year != null && month != null)
+            {
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StageId != null && d.QueueId!.Substring(0, 6) == year + month);
+                var dailyData = data
+                    .GroupBy(item => item.QueueId!.Substring(6, 2))
+                    .Select(g => new
+                    {
+                        Day = g.Key,
+                        CategoryASum = g.Sum(i => i.CategoryId == 1 ? 1 : 0),
+                        CategoryBSum = g.Sum(i => i.CategoryId == 2 ? 1 : 0),
+                        CategoryCSum = g.Sum(i => i.CategoryId == 3 ? 1 : 0),
+                        CategoryDSum = g.Sum(i => i.CategoryId == 4 ? 1 : 0),
+                        GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
+                    })
+                    .ToList();
 
+                return new ChartDataResponse(false, dailyData);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public async Task<GeneralResponse> TotalQueueNumberPerDay()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate);
+
+            var totalGenerate = data.Count();
+
+            if (totalGenerate <= 0) return new GeneralResponse( false, new{ value = totalGenerate }, "failed to fetched");
+
+            return new GeneralResponse(true, new {value = totalGenerate } , "fetched successful");
+        }
+        public async Task<GeneralResponse> GetQueueServed()
+        {
+            var servings = await _unitOfWork.servings.GetAll(g => g.Served_At.Date == DateTime.Now.Date);
+
+            if (servings == null || !servings.Any())
+                return new GeneralResponse ( false, null ,"No data available." );
+
+            var queueNumbers = await _unitOfWork.queueNumbers.GetAll();
+            var userIds = servings.Select(s => s.UserId).Distinct();
+            var users = await _unitOfWork.users.GetAll(u => userIds.Contains(u.Id));
+
+            var result = servings.Select(serving =>
+            {
+                var user = users.FirstOrDefault(u => u.Id == serving.UserId);
+                var queueNumber = queueNumbers.FirstOrDefault(q =>
+                    q.QueueId == serving.Served_At.ToString("yyyyMMdd") &&
+                    q.CategoryId == serving.CategoryId &&
+                    q.QueueNumber == serving.QueueNumberServe);
+
+                return new
+                {
+                    category = serving.CategoryId,
+                    qNumber = serving.QueueNumberServe,
+                    servingBy = user?.UserName ?? "Unknown",
+                    stage = queueNumber?.StageId,
+                    dateTime = serving.Served_At.ToString("MM/dd/yyyy, hh:mm:ss tt")
+                };
+            }).ToList();
+
+            return new GeneralResponse( true, new {data = result } , "successfully get.");
+        }
+
+        public async Task<GeneralResponse> TotalServed()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StageId == 2);
+
+            var totalQ = data.Count();
+
+            if (totalQ <= 0) return new GeneralResponse( false, new {value = totalQ }, "fetch failed.");
+
+            return new GeneralResponse( true, new { value = totalQ }, "successfuly get.");
+        }
+
+        public async Task<GeneralResponse> RecentlyServed()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StageId == 2);
+
+            var totalQ = data.Count();
+
+            if (totalQ <= 0) return new GeneralResponse( false, new { value = totalQ }, "fetch failed");
+
+            return new GeneralResponse( true, new { value = totalQ }, "successfully get.");
+        }
 
         //-----USERS-----//
         public async Task<GeneralResponse> UserPage()
@@ -168,7 +276,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new CommonResponse(false, "Failed to add user.");
         }
-
         public async Task<CommonResponse> UpdateUser(UserVM model, string[] roleIds)
         {
             var user = await _userManager.FindByIdAsync(model.Id);
@@ -243,7 +350,6 @@ namespace PrinceQ.DataAccess.Services
             await _unitOfWork.SaveAsync();
             return new CommonResponse(true, "User updated successfully");
         }
-
         public async Task<UserCategoryResponse> UserCategory(string? userId)
         {
             var user = await _unitOfWork.users.Get(u => u.Id == userId);
@@ -291,6 +397,23 @@ namespace PrinceQ.DataAccess.Services
             await _hubContext.Clients.All.SendAsync("UpdateQueue");
             return new CommonResponse(true, "User remove successful");
         }
+        public async Task<GeneralResponse> totalUserCount()
+        {
+            int totalUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd");
+            int activeUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd" && u.IsActive == true);
+            int inactiveUsers = await _unitOfWork.users.Count(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd" && u.IsActive == false);
+
+            var response = new
+            {
+                TotalUsers = totalUsers,
+                ActiveUsers = activeUsers,
+                InactiveUsers = inactiveUsers
+            };
+
+            if(response.TotalUsers == 0) return new GeneralResponse(false, null, "no user yet.");
+
+            return new GeneralResponse(true, response, "Fetched Successfully.");
+        }
 
         //-----MANAGE VIDEO-----//
         public async Task<videoFilesResponse> AllVideos()
@@ -307,20 +430,20 @@ namespace PrinceQ.DataAccess.Services
         {
             var videoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, videoName);
 
-            if (System.IO.File.Exists(videoFilePath))
+            if (File.Exists(videoFilePath))
             {
                 var currentTime = DateTime.Now;
-                System.IO.File.SetCreationTime(videoFilePath, currentTime);
+                File.SetCreationTime(videoFilePath, currentTime);
 
                 // Optional: Change modification time as well
-                System.IO.File.SetLastWriteTime(videoFilePath, currentTime);
+                File.SetLastWriteTime(videoFilePath, currentTime);
 
-                // Return the updated video list
                 string[] videoFiles = Directory.GetFiles(Path.Combine(_webHostEnvironment.WebRootPath, "Videos"))
                     .Select(f => new FileInfo(f))
                     .OrderByDescending(f => f.CreationTime)
-                    .Select(f => f.FullName.Replace(_webHostEnvironment.WebRootPath, string.Empty))
+                    .Select(f => f.FullName.Replace(_webHostEnvironment.WebRootPath, string.Empty).Replace("\\", "/"))
                     .ToArray();
+
                 // For REALTIME update
                 await _hubContext.Clients.All.SendAsync("DisplayVideo");
                 return new videoFilesResponse(true, videoFiles, "Video Play in Monitor.");
@@ -329,19 +452,40 @@ namespace PrinceQ.DataAccess.Services
         }
         public async Task<GeneralResponse> DeleteVideo(string videoName)
         {
-            var videoFilePath = Path.Combine("wwwroot/", videoName);
+            var videoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, videoName.Replace("/", "\\"));
 
-            if (videoFilePath != null)
+            if (File.Exists(videoFilePath))
             {
-                if (System.IO.File.Exists(videoFilePath))
-                {
-                    System.IO.File.Delete(videoFilePath);
+                const int maxRetries = 3;
+                const int delayBetweenRetries = 200; // in milliseconds
 
-                    return new GeneralResponse( true, null, "Video Successfully Deleted!" );
+                for (int retry = 0; retry < maxRetries; retry++)
+                {
+                    try
+                    {
+                        File.Delete(videoFilePath);
+                        await _hubContext.Clients.All.SendAsync("DisplayVideo");
+                        return new GeneralResponse(true, null, "Video Successfully Deleted!");
+                    }
+                    catch (IOException)
+                    {
+                        if (retry == maxRetries - 1)
+                        {
+                            return new GeneralResponse(false, null, "An error occurred while deleting the video. The file is in use.");
+                        }
+                        await Task.Delay(delayBetweenRetries);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Optional: log the exception
+                        return new GeneralResponse(false, null, "An unexpected error occurred while deleting the video.");
+                    }
                 }
             }
-            return new GeneralResponse(false, null, "Video delete failed!");
+
+            return new GeneralResponse(false, null, "Video delete failed! File not found.");
         }
+
         public async Task<GeneralResponse> UploadVideo(IFormFile videoFile)
         {
             if (videoFile != null && videoFile.Length > 0)
@@ -365,7 +509,6 @@ namespace PrinceQ.DataAccess.Services
         //-----Announcement-----//
         public async Task<GeneralResponse> AnnouncementDetail(int? id)
         {
-            //var active = await _unitOfWork.active.GetAll();
             var announcement = await _unitOfWork.announcement.Get(u => u.Id == id);
 
             if (announcement == null) return new GeneralResponse(false, announcement,"Get announcement failed." );
@@ -397,22 +540,25 @@ namespace PrinceQ.DataAccess.Services
         public async Task<CommonResponse> UpdateAnnouncement(Announcement model)
         {
             var prevAnnounceActive = await _unitOfWork.announcement.Get(a => a.IsActive == true);
+
             if (prevAnnounceActive != null && prevAnnounceActive.Id == model.Id)
             {
                 _unitOfWork.announcement.Update(model);
-                await _unitOfWork.SaveAsync();
-                await _hubContext.Clients.All.SendAsync("LoadAnnouncement");
-                return new CommonResponse( true, "Announcement updated successfully." );
             }
-            if (prevAnnounceActive != null)
+            else
             {
-                prevAnnounceActive.IsActive = false;
-                _unitOfWork.announcement.Update(prevAnnounceActive);
+                if (prevAnnounceActive != null)
+                {
+                    prevAnnounceActive.IsActive = false;
+                    _unitOfWork.announcement.Update(prevAnnounceActive);
+                }
+
+                _unitOfWork.announcement.Update(model);
             }
-            _unitOfWork.announcement.Update(model);
+
             await _unitOfWork.SaveAsync();
             await _hubContext.Clients.All.SendAsync("LoadAnnouncement");
-            return new CommonResponse(true, "Announcement updated successfully");
+            return new CommonResponse(true, "Announcement updated successfully.");
         }
         public async Task<CommonResponse> DeleteAnnouncement(int? id)
         {
@@ -430,5 +576,272 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, totalAnnounce, "");
         }
+
+        //----- SERVING Report-----//
+        public async Task<GeneralResponse> Serving_GetAllServedData()
+        {
+
+            var forFillingData = await _unitOfWork.forFilling.GetAll();
+            var releasingData = await _unitOfWork.releasing.GetAll();
+            var users = await _unitOfWork.users.GetAll();
+
+            var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
+            var forFillingMapped = forFillingData
+                .Where(f => f.Serve_start.HasValue && f.Serve_end.HasValue)
+                .Select(f => new ServeDataDTO
+                {
+                    GenerateDate = f.GenerateDate,
+                    ClerkId = f.ClerkId,
+                    CategoryId = f.CategoryId ?? 0,
+                    QueueNumber = f.QueueNumber ?? 0,
+                    ServeStart = f.Serve_start.Value.TimeOfDay,
+                    ServeEnd = f.Serve_end.Value.TimeOfDay
+                });
+            var releasingMapped = releasingData
+                .Where(r => r.Serve_start.HasValue && r.Serve_end.HasValue)
+                .Select(r => new ServeDataDTO
+                {
+                    GenerateDate = r.GenerateDate,
+                    ClerkId = r.ClerkId,
+                    CategoryId = r.CategoryId ?? 0,
+                    QueueNumber = r.QueueNumber ?? 0,
+                    ServeStart = r.Serve_start.Value.TimeOfDay,
+                    ServeEnd = r.Serve_end.Value.TimeOfDay
+                });
+            var combinedData = forFillingMapped.Concat(releasingMapped)
+                                .GroupBy(x => new { x.ClerkId, x.GenerateDate })
+                                .Select(g => new
+                                {
+                                    User = g.Key,
+                                    Username = userDictionary.TryGetValue(g.Key.ClerkId, out var username) ? username : "Unknown",
+                                    TotalNumberServed = g.Count(),
+                                    LongestServedTime = g.Max(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                    ShortestServedTime = g.Min(x => (x.ServeEnd - x.ServeStart).TotalSeconds),
+                                    Date = g.Key.GenerateDate
+                                });
+            return new GeneralResponse(true, combinedData, "Successfully fetched");
+        }
+        public async Task<GeneralResponse> GetDetailedData(string clerkId, string generateDate)
+        {
+                var forFillingData = await _unitOfWork.forFilling.GetAll();
+                var releasingData = await _unitOfWork.releasing.GetAll();
+                var queuesData = await _unitOfWork.queueNumbers.GetAll();
+                var users = await _unitOfWork.users.GetAll();
+
+                var userDictionary = users.ToDictionary(u => u.Id, u => u.UserName);
+
+                var forFillingMapped = forFillingData
+                    .Select(f => new ServeDataDTO
+                    {
+                        GenerateDate = f.GenerateDate,
+                        ClerkId = f.ClerkId,
+                        CategoryId = f.CategoryId ?? 0,
+                        QueueNumber = f.QueueNumber ?? 0,
+                        Total_Cheque = queuesData.FirstOrDefault(q => q.QueueId == f.GenerateDate && q.CategoryId == f.CategoryId && q.QueueNumber == f.QueueNumber)?.Total_Cheques ?? 0,
+                        ServeStart = f.Serve_start.Value.TimeOfDay,
+                        ServeEnd = f.Serve_end.Value.TimeOfDay,
+                        stageId = 1,
+                    });
+                var releasingMapped = releasingData
+                    .Select(r => new ServeDataDTO
+                    {
+                        GenerateDate = r.GenerateDate,
+                        ClerkId = r.ClerkId,
+                        CategoryId = r.CategoryId ?? 0,
+                        QueueNumber = r.QueueNumber ?? 0,
+                        Total_Cheque = queuesData.FirstOrDefault(q => q.QueueId == r.GenerateDate && q.CategoryId == r.CategoryId && q.QueueNumber == r.QueueNumber)?.Total_Cheques ?? 0,
+                        ServeStart = r.Serve_start.Value.TimeOfDay,
+                        ServeEnd = r.Serve_end.Value.TimeOfDay,
+                        stageId = 2,
+                    });
+                var combinedData = forFillingMapped.Concat(releasingMapped)
+                                      .Where(x => x.ClerkId == clerkId && x.GenerateDate == generateDate)
+                                      .Select(x => new
+                                      {
+                                          x.GenerateDate,
+                                          Username = userDictionary.TryGetValue(x.ClerkId, out var username) ? username : "Unknown",
+                                          x.CategoryId,
+                                          x.QueueNumber,
+                                          x.Total_Cheque,
+                                          x.ServeStart,
+                                          x.ServeEnd,
+                                          x.stageId,
+                                      });
+                return new GeneralResponse(true, combinedData, "Successfully fetched");
+        }
+        public async Task<GeneralResponse> GetClerks_Categories()
+        {
+            var categ = await _unitOfWork.category.GetAll();
+            var categories = categ.OrderBy(c => c.Created_At).ToList();
+            var users = await _unitOfWork.users.GetAll(u => u.Id != "f626b751-35a0-43df-8173-76cb5b4886fd");
+            var ListUsers = new List<dynamic>();
+
+            foreach (var user in users)
+            {
+
+                ListUsers.Add(new
+                {
+                    user.Id,
+                    user.UserName,
+                    user.Email,
+                    user.PhoneNumber,
+                    user.Created_At,
+                    user.IsActive,
+                });
+            }
+
+            if (ListUsers == null) return new GeneralResponse(false, null, "Retrieved clerks failed." );
+            var sortedUsers = ListUsers.OrderBy(c => c.Created_At).ToList();
+
+            return new GeneralResponse( true, new {users = sortedUsers, categories }, "Successfully Fetched");
+        }
+
+        //----- Waiting Report-----//
+        public async Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month)
+        {
+            if (clerkId != null && year != null && month == null)
+            {
+                var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 4) == year);
+                var monthlyData = data
+                    .GroupBy(item => item.GenerateDate!.Substring(4, 2))
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        CategoryASum = g.Count(i => i.CategoryId == 1),
+                        CategoryBSum = g.Count(i => i.CategoryId == 2),
+                        CategoryCSum = g.Count(i => i.CategoryId == 3),
+                        CategoryDSum = g.Count(i => i.CategoryId == 4),
+                    })
+                    .ToList();
+                return new ChartDataResponse( true , monthlyData);
+            }
+            else if (clerkId == null && year != null && month == null)
+            {
+                var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 4) == year);
+                var monthlyData = data
+                    .GroupBy(item => item.GenerateDate!.Substring(4, 2))
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        CategoryASum = g.Count(i => i.CategoryId == 1),
+                        CategoryBSum = g.Count(i => i.CategoryId == 2),
+                        CategoryCSum = g.Count(i => i.CategoryId == 3),
+                        CategoryDSum = g.Count(i => i.CategoryId == 4),
+                    })
+                    .ToList();
+                return new ChartDataResponse(true, monthlyData);
+            }
+            else if (clerkId != null && year != null && month != null)
+            {
+                var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 6) == year + month);
+                var dailyData = data
+                    .GroupBy(item => item.GenerateDate!.Substring(6, 2))
+                    .Select(g => new
+                    {
+                        Day = g.Key,
+                        CategoryASum = g.Count(i => i.CategoryId == 1),
+                        CategoryBSum = g.Count(i => i.CategoryId == 2),
+                        CategoryCSum = g.Count(i => i.CategoryId == 3),
+                        CategoryDSum = g.Count(i => i.CategoryId == 4),
+                        GenerateDate = g.Select(i => i.GenerateDate).FirstOrDefault()
+                    })
+                    .ToList();
+                return new ChartDataResponse(false, dailyData );
+            }
+            else if (clerkId == null && year != null && month != null)
+            {
+                // example data of generateDate = "20240626"
+                var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 6) == year + month);
+                var dailyData = data
+                    .GroupBy(item => item.GenerateDate!.Substring(6, 2))
+                    .Select(g => new
+                    {
+                        Day = g.Key,
+                        CategoryASum = g.Count(i => i.CategoryId == 1),
+                        CategoryBSum = g.Count(i => i.CategoryId == 2),
+                        CategoryCSum = g.Count(i => i.CategoryId == 3),
+                        CategoryDSum = g.Count(i => i.CategoryId == 4),
+                        GenerateDate = g.Select(i => i.GenerateDate).FirstOrDefault()
+                    })
+                    .ToList();
+                return new ChartDataResponse(false, dailyData);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public async Task<GeneralResponse> Waiting_GetAllServedData()
+        {
+            var data = await _unitOfWork.queueNumbers.GetAll();
+
+            var result = data.Select(q => new
+            {
+                GenerateDate = q.QueueId,
+                CategoryId = q.CategoryId,
+                QueueNumber = q.QueueNumber,
+                Total_Cheque = q.Total_Cheques,
+                GeneratedStart = q.Generate_At.HasValue ? q.Generate_At.Value.ToString("hh:mm tt") : "N/A",
+                FillingStart = q.ForFilling_start.HasValue ? q.ForFilling_start.Value.ToString("hh:mm tt") : "N/A",
+                FillingEnd = q.ForFilling_end.HasValue ? q.ForFilling_end.Value.ToString("hh:mm tt") : "N/A",
+                ReleasingStart = q.Releasing_start.HasValue ? q.Releasing_start.Value.ToString("hh:mm tt") : "N/A",
+                ReleasingEnd = q.Releasing_end.HasValue ? q.Releasing_end.Value.ToString("hh:mm tt") : "N/A",
+
+                CallFillingStart_Reserved = q.ForFilling_start_Backup.HasValue ? q.ForFilling_start_Backup.Value.ToString("hh:mm tt") : "N/A",
+                CallReleasingStart_Reserved = q.Releasing_start_Backup.HasValue ? q.Releasing_start_Backup.Value.ToString("hh:mm tt") : "N/A",
+
+                AverageTime = CalculateAverageTime(q)
+            });
+
+            return new GeneralResponse( true, new{ data = result }, "Successfully Fetched");
+        }
+        private string CalculateAverageTime(Queues q)
+        {
+            var forFillingStart = q.ForFilling_start_Backup ?? q.ForFilling_start;
+            var releasingStart = q.Releasing_start_Backup ?? q.Releasing_start;
+
+            if (q.Releasing_end.HasValue && forFillingStart.HasValue && releasingStart.HasValue && q.Generate_At.HasValue)
+            {
+                var one = q.ForFilling_start.Value - q.Generate_At.Value;
+                var two = q.ForFilling_end.HasValue ? q.ForFilling_end.Value - forFillingStart.Value : TimeSpan.Zero;
+                var three = q.Releasing_start.HasValue ? q.Releasing_start.Value - q.ForFilling_end.Value : TimeSpan.Zero;
+                var four = q.Releasing_end.Value - releasingStart.Value;
+
+                double totalSeconds = (one + two + three + four).TotalSeconds;
+
+                return waiting_FormatSeconds(totalSeconds);
+            }
+            else
+            {
+                return "N/A";
+            }
+        }
+        private string waiting_FormatSeconds(double totalSeconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(totalSeconds);
+            if (timeSpan.TotalMinutes >= 60)
+            {
+                return $"{(int)timeSpan.TotalHours}h {timeSpan.Minutes}m";
+            }
+            else
+            {
+                return $"{(int)timeSpan.TotalMinutes}m {timeSpan.Seconds}s";
+            }
+        }
+        private string FormatSeconds(double totalSeconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(totalSeconds);
+            if (timeSpan.TotalMinutes >= 60)
+            {
+                return $"{(int)timeSpan.TotalHours}.{timeSpan.Minutes}";
+            }
+            else
+            {
+                return $"{(int)timeSpan.TotalMinutes}.{timeSpan.Seconds}";
+            }
+        }
+
+        
     }
 }

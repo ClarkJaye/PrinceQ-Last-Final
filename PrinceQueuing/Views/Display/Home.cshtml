@@ -61,32 +61,29 @@
         <div class="customer-video">
             <div class="w-100 h-100">
                 <video id="main-video-page2" class="w-100 h-100" preload="auto" style="object-fit:fill;" controls autoplay muted >
-                   @*  @foreach (var videoFile in videoFiles!)
-                    {
-                        <source src="@videoFile" type="video/mp4">
-                    } *@
                 </video>
 
-                <div class="time">
+              @*   <div class="time">
                     <h2 id="time"></h2>
                     <span id="date"></span>
-                </div>
+                </div> *@
             </div>
 
         </div>
         <div class="advertisement">
-            <div class="top">
-                <div class="prince-logo">
-                    <div class="img-cont">
-                        <img src="~/src/logo-prince.png" class="logoAnimate" />
-                    </div>
+            <div class="top position-relative">
+              
+                <div class="time">
+                    <h2 class="m-0" id="time"></h2>
+                    <span id="date"></span>
                 </div>
+
                 <div class="announcement">
-                    <h2 class="mt-3">Announcement!</h2>
-                    <div class="announcement-words" >
+                    <h2 class="mt-3">ANNOUNCEMENT!</h2>
+                    <div class="announcement-words text-center">
                         <p id="announcementWord"></p>
                     </div>
-                </div>
+                </div>            
             </div>
             <div class="bottom">
                 <marquee class="w-100">

@@ -30,8 +30,9 @@ function load_Data() {
         url: '/Admin/Waiting_GetAllServedData',
         dataType: 'json',
         success: function (response) {
+            console.log(response)
             if (response.isSuccess) {
-                populateTable(response.data);
+                populateTable(response.obj.data);
             } else {
                 console.error(response.message);
             }
@@ -42,6 +43,7 @@ function load_Data() {
     });
 }
 function populateTable(data) {
+    console.log(data)
     var table = $("#waitingReportTable").DataTable({
         data: data,
         destroy: true,
@@ -72,10 +74,11 @@ function populateTable(data) {
                 }
             },
             { data: 'generatedStart' },
-            { data: 'callForFilling' },
-            { data: 'callForFilling_Reserved' },
-            { data: 'callForReleasing' },
-            { data: 'callForReleasing_Reserved' },
+            { data: 'fillingStart' },
+            { data: 'callFillingStart_Reserved' },
+            { data: 'fillingEnd' },
+            { data: 'releasingStart' },
+            { data: 'callReleasingStart_Reserved' },
             { data: 'releasingEnd' },
             { data: 'averageTime' },
         ],

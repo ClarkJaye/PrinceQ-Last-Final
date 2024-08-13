@@ -148,7 +148,7 @@ function load_Clerks() {
         url: '/Admin/GetClerks_Categories',
         dataType: 'json',
         success: function (response) {
-            $.each(response.users, function (i, data) {
+            $.each(response.obj.users, function (i, data) {
                 $('#selectedClerk').append('<option value=' + data.id + '>' + data.userName + '</option>');
             });
         },

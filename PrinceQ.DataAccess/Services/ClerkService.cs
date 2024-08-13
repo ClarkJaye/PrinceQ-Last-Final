@@ -295,7 +295,7 @@ namespace PrinceQ.DataAccess.Services
            
         }
         //RESERVE QUEUENUMBER
-        public async Task<GeneralResponse> ReserveQueueNumber(string userId, string deviceId)
+        public async Task<GeneralResponse> ReserveQueueNumber(string userId, string ipAddress)
         {
             var servingQueue = await _unitOfWork.servings.Get(q => q.UserId == userId && q.Served_At.Date == DateTime.Today);
             if(servingQueue != null) { 
@@ -331,7 +331,7 @@ namespace PrinceQ.DataAccess.Services
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
 
-                    var device = await _unitOfWork.device.Get(d=> d.IPAddress == deviceId);
+                    var device = await _unitOfWork.device.Get(d=> d.IPAddress == ipAddress);
                     var clerkNum = device?.ClerkNumber;
                     await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
 
@@ -348,7 +348,7 @@ namespace PrinceQ.DataAccess.Services
 
         }
         //Cancel QUEUENUMBER
-        public async Task<GeneralResponse> CancelQueueNumber(string userId, string deviceId)
+        public async Task<GeneralResponse> CancelQueueNumber(string userId, string ipAddress)
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
             var servingQueue = await _unitOfWork.servings.Get(q => q.UserId == userId && q.Served_At.Date == DateTime.Today);
@@ -384,7 +384,7 @@ namespace PrinceQ.DataAccess.Services
                     _unitOfWork.queueNumbers.Update(queueItem!);
                     await _unitOfWork.SaveAsync();
 
-                    var device = await _unitOfWork.device.Get(d => d.IPAddress == deviceId);
+                    var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
                     var clerkNum = device?.ClerkNumber;
                     //signalr method
                     await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
@@ -691,11 +691,10 @@ namespace PrinceQ.DataAccess.Services
 
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
+                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.All.SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
-                    await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
-                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     return new GeneralResponse(true, null, "Transfer to releasing successful.");
                 }
                 else
@@ -707,11 +706,8 @@ namespace PrinceQ.DataAccess.Services
             {
                 return new GeneralResponse(false, null, "Your account is disabled.");
             }
-
-
-
         }
-        public async Task<CommonResponse> ToUpdateQueue(string generateDate, int categoryId, int qNumber, string userId, int cheque)
+        public async Task<CommonResponse> ToUpdateQueue(string generateDate, int categoryId, int qNumber, string userId, int cheque, string ipAddress)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
             if (userAccess.IsActive == true)
@@ -738,6 +734,13 @@ namespace PrinceQ.DataAccess.Services
                 queueItem.Releasing_end = DateTime.Now;
                 _unitOfWork.queueNumbers.Update(queueItem);
                 await _unitOfWork.SaveAsync();
+
+                var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
+                var clerkNum = device?.ClerkNumber;
+                await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
+
+
+
                 await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                 await _hubContext.Clients.Group(userId).SendAsync("removeCheqBtn");
                 return new CommonResponse(true, "Cheques added success.");

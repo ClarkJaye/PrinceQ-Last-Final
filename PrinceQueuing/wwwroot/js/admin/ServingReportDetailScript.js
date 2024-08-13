@@ -25,9 +25,8 @@ function load_Data() {
         url: '/Admin/Serving_GetAllServedData',
         dataType: 'json',
         success: function (response) {
-
             if (response.isSuccess) {
-                populateTable(response.data);
+                populateTable(response.obj);
             } else {
                 console.error(response.message);
             }
@@ -39,6 +38,7 @@ function load_Data() {
 }
 //creating the Table using Datatable
 function populateTable(data) {
+
     var table = $("#servingReportTable").DataTable({
         data: data,
         destroy: true,
@@ -90,7 +90,7 @@ function populateTable(data) {
             dataType: 'json',
             success: function (response) {
                 if (response.isSuccess) {
-                    populateModalViewDetails(response.data);
+                    populateModalViewDetails(response.obj);
                     $('#detailsModal').modal('show');
                 } else {
                     console.error(response.message);
@@ -105,8 +105,7 @@ function populateTable(data) {
 
 //creating the Table inside the Modal 
 function populateModalViewDetails(data) {
-    console.log(data);
-
+    console.log(data)
     var tableBody = $("#detailsTable tbody");
     tableBody.empty();
 

@@ -61,9 +61,8 @@ function LoadData(yearData, monthData) {
         dataType: 'json',
         data: { year: yearData, month: monthData },
         success: function (data) {
-            // console.log(data);
-
-            if (data && data.isMonth == true) {
+             //console.log(data);
+            if (data && data.byMonth == true) {
                 data = data.value.sort((a, b) => a.month - b.month);
                 ServingLabels = data.map(item => {
                     const monthIndex = parseInt(item.month) - 1;
@@ -71,7 +70,7 @@ function LoadData(yearData, monthData) {
                     return monthName;
                 });
             }
-            else if (data && data.isMonth == false) {
+            else if (data && data.byMonth == false) {
                 data = data.value.sort((a, b) => a.day - b.day);
                 ServingLabels = data.map(item => {
                     const year = item.generateDate.substring(0, 4);
@@ -139,7 +138,7 @@ function TotalGeneratedNumber() {
         success: function (response) {
             var generateQ = document.getElementById("totalGeneratedQ");
             if (response) {
-                generateQ.textContent = response.value;
+                generateQ.textContent = response.obj.value;
             }
             else {
                 generateQ.textContent = 0;
@@ -159,7 +158,7 @@ function TotalQueueServe() {
         success: function (response) {
             var totalQ = document.getElementById("totalServed");
             if (response) {
-                totalQ.textContent = response.value;
+                totalQ.textContent = response.obj.value;
             }
             else {
                 totalQ.textContent = 0;
@@ -178,7 +177,7 @@ function GetAllRecentQueue() {
         url: "/admin/GetQueueServed",
         dataType: "json",
         success: function (response) {
-            var items = response.data;
+            var items = response.obj.data;
             var tbody = $("#recentlyQServes");
             tbody.empty();
 

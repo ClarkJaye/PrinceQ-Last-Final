@@ -80,7 +80,6 @@ function getSelectedVideoName() {
 
 function deleteVideo() {
     var videoName = getSelectedVideoName();
-    //console.log(videoName)
     if (videoName) {
         Swal.fire({
             title: "Are you sure?",
@@ -97,7 +96,6 @@ function deleteVideo() {
                     url: '/Admin/DeleteVideo',
                     data: { videoName: videoName },
                     success: function (response) {
-                        getAllVideos();
 
                         $('#selected-video').attr('src', '');
                         $('#selected-video').removeAttr('vid-selected');
@@ -108,6 +106,7 @@ function deleteVideo() {
                         } else {
                             toastr.error(response.message);
                         }
+                        getAllVideos();
                     },
                     error: function (error) {
                         console.log("Error deleting video - " + error);
@@ -156,14 +155,12 @@ function uploadVideo() {
 
 function playVideo() {
     var videoName = getSelectedVideoName();
-    //console.log(videoName)
     if (videoName) {
         $.ajax({
             type: 'GET',
             url: '/Admin/PlayVideo',
             data: { videoName: videoName },
             success: function (response) {
-                console.log(response)
                 if (response.isSuccess) {
                     Swal.fire({
                         title: "Success!",

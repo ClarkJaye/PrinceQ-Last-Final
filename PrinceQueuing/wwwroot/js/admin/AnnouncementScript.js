@@ -56,7 +56,7 @@ function loadAllAnnouncement() {
                     value.name,
                     descriptionText,
                     createdAt,
-                    `<a class=" btn-sm ${value.isActiveId === 1 ? 'btn-success' : 'btn-danger'} custom-btn-font">${value.isActiveId === 1 ? 'Active' : 'Inactive'}</a>`,
+                    `<a class=" btn-sm ${value.isActive === true ? 'btn-success' : 'btn-danger'} custom-btn-font">${value.isActive === true ? 'Active' : 'Inactive'}</a>`,
                     buttonsContainer.prop('outerHTML')
                 ];
 
@@ -115,33 +115,26 @@ function editAnnouncement(id) {
         type: "GET",
         dataType: 'json',
         success: function (response) {
-            //console.log(response)
-            var announce = response.obj1;
+            var announce = response.obj;
             $("#editAnnounceId").val(announce.id);
             $("#editName").val(announce.name);
             $("#editMessage").val(announce.description);
             $("#editCreated_At").val(formatDate(new Date(announce.created_At)));
-            var isActive = announce.isActiveId === 1 ? "Active" : "InActive";
+
+            var isActive = announce.isActive == true ? "Active" : "Inactive";
             var activeSelect = $("#EditActive");
-            activeSelect.empty();
 
-            activeSelect.append("<option selected value =" + announce.isActiveId + ">" + isActive + "</option>")
-
-            $.each(response.obj2, function (i, data) {
-                if (data.isActiveId !== announce.isActiveId) {
-                    activeSelect.append('<option value=' + data.isActiveId + '>' + data.name + '</option>');
-                }
-            });
-
+            activeSelect.find("option[data-temp='true']").remove();
+            activeSelect.append("<option data-temp='true' selected disabled value='" + announce.isActive + "'>" + isActive + "</option>");
 
             $('#announcementEditModal').modal('show');
         },
         error: function (err) {
             console.log('Unable to fetch the data.', err);
         }
-
-    })
+    });
 }
+
 //Update 
 function updateAnnouncement(e) {
     e.preventDefault();
@@ -162,7 +155,6 @@ function updateAnnouncement(e) {
                 data: $('#updateAnnounceForm').serialize(),
                 dataType: 'json',
                 success: function (response) {
-                    console.log(response)
                     if (response && response.isSuccess) {
                         loadAllAnnouncement();
                         toastr.success(response.message)

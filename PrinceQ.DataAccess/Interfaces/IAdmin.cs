@@ -9,8 +9,23 @@ namespace PrinceQ.DataAccess.Interfaces
     public interface IAdmin
     {
 
-        //-----DASHBOARD-----//
-        //Task<CommonResponse> GetDataYAndM(string year, string month);
+        //DASHBOARD
+        Task<ChartDataResponse> GetDataByYearAndMonth(string year, string month);
+        Task<GeneralResponse> TotalQueueNumberPerDay();
+        Task<GeneralResponse> GetQueueServed();
+        Task<GeneralResponse> TotalServed();
+        Task<GeneralResponse> RecentlyServed();
+
+
+        //SERVING REPORT
+        Task<GeneralResponse> Serving_GetAllServedData();
+        Task<GeneralResponse> GetDetailedData(string clerkId, string generateDate);
+        Task<GeneralResponse> GetClerks_Categories();
+
+        //Waiting REPORT
+        Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month);
+        Task<GeneralResponse> Waiting_GetAllServedData();
+
 
 
         //-----USERS-----//
@@ -25,6 +40,7 @@ namespace PrinceQ.DataAccess.Interfaces
         Task<UserCategoriesResponse> GetAssignCategory(string? userId);
         Task<CommonResponse> AddAssignUserCategories(int[] categoryId, string userId);
         Task<CommonResponse> RemoveAssignUserCategories(int categoryId, string userId);
+        Task<GeneralResponse> totalUserCount();
 
         //-----MANAGE VIDEO-----//
         Task<videoFilesResponse> AllVideos();

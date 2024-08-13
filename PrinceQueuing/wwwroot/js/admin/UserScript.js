@@ -192,8 +192,9 @@ function editUser(id) {
                 roleSelect.empty();
 
 
-                var activeText = user.isActive == true ? "Enable" : "Disable";
-                activeSelect.append('<option selected disabled value=' + user.isActive + '>' + activeText + '</option>');
+                var activeText = user.isActive ? "Enable" : "Disable";
+                activeSelect.append('<option value="true" ' + (user.isActive ? 'selected' : '') + '>Enable</option>');
+                activeSelect.append('<option value="false" ' + (!user.isActive ? 'selected' : '') + '>Disable</option>');
                 
 
                 $("#EditUserId").val(user.id);
@@ -476,9 +477,9 @@ function LoadAllCard() {
         type: "GET",
         dataType: 'json',
         success: function (response) {
-            $("#countAllUsers").text(response.totalUsers);
-            $("#countActive").text(response.activeUsers);
-            $("#countInactive").text(response.inactiveUsers);
+            $("#countAllUsers").text(response.obj.totalUsers);
+            $("#countActive").text(response.obj.activeUsers);
+            $("#countInactive").text(response.obj.inactiveUsers);
         },
         error: function (err) {
             console.log('Unable to fetch the data.', err);

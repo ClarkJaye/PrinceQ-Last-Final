@@ -799,7 +799,7 @@ function GetClerkNumber() {
         url: "/Clerk/DesignatedDeviceId",
         type: 'GET',
         success: function (response) {
-            var clerk = response.obj1;
+            var clerk = response.obj;
             $('#ClerkNum').text(clerk.clerkNumber);
         },
         error: function (error) {

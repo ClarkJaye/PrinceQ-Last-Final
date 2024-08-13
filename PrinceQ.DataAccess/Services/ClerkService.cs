@@ -77,16 +77,33 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse(true, queue, "Print Successful!");
         }
-
-        //Designated Clerk Number
-        public async Task<DualResponse> DesignatedClerk(string ipAddress, string userId)
+        //Get Recenelty Generated
+        public async Task<GeneralResponse> RecentDataQueue()
         {
-            var device = await _unitOfWork.device.Get(u => u.IPAddress == ipAddress);
-            var user = await _unitOfWork.users.Get(u => u.Id == userId);
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var recentQ = await _unitOfWork.queueNumbers.GetAll(rq => rq.QueueId == currentDate);
 
-            if (device is null) return new DualResponse(false, null, null, "failed");
+            if (recentQ is null) return new GeneralResponse(false, null, "No data yet.");
 
-            return new DualResponse(true, device, user, "Success");
+            var data = recentQ.Select(q => new
+            {
+                generateDate = q.QueueId,
+                generate_at = q.Generate_At,
+                categoryId = q.CategoryId,
+                queueNumber = q.QueueNumber ?? 0,
+                category = GetCategoryString((int)q.CategoryId),
+            });
+
+            return new GeneralResponse(true, data, "Successfully fetch.");
+        }
+        //Designated Clerk Number
+        public async Task<GeneralResponse> DesignatedClerk(string ipAddress, string userId)
+        {
+            var device = await _unitOfWork.device.Get(u => u.IPAddress == ipAddress && u.UserId == userId);
+
+            if (device is null) return new GeneralResponse(false, null, "failed");
+
+            return new GeneralResponse(true, device, "Success");
         }
         //Get All Waiting Queue Number on Each Categories
         public async Task<GeneralResponse> GetAllWaitingQueue(string userId)
@@ -843,5 +860,7 @@ namespace PrinceQ.DataAccess.Services
             }
 
         }
+
+        
     }
 }

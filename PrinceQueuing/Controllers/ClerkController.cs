@@ -189,6 +189,24 @@ namespace PrinceQueuing.Controllers
             }
         }
 
+
+        public async Task<IActionResult> Get_RecentDataQueue()
+        {
+            try
+            {
+                var response = await _clerk.RecentDataQueue();
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetServings action");
+                return Json(new { IsSuccess = false, message = "An error occurred while fetching the GetServings." });
+            }
+        }
+
+
+
         public async Task<IActionResult> GetReservedQueues()
         {
             try

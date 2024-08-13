@@ -350,6 +350,26 @@ namespace PrinceQ.DataAccess.Migrations
                         {
                             IPAddress = "10.64.14.50",
                             ClerkNumber = "Clerk 1"
+                        },
+                        new
+                        {
+                            IPAddress = "10.64.27.32",
+                            ClerkNumber = "Clerk 1"
+                        },
+                        new
+                        {
+                            IPAddress = "10.64.27.40",
+                            ClerkNumber = "Clerk 2"
+                        },
+                        new
+                        {
+                            IPAddress = "10.64.27.41",
+                            ClerkNumber = "Clerk 3"
+                        },
+                        new
+                        {
+                            IPAddress = "10.64.27.30",
+                            ClerkNumber = "Clerk 4"
                         });
                 });
 
@@ -693,6 +713,28 @@ namespace PrinceQ.DataAccess.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("User_Category");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
+                            CategoryId = 1
+                        },
+                        new
+                        {
+                            UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
+                            CategoryId = 2
+                        },
+                        new
+                        {
+                            UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
+                            CategoryId = 3
+                        },
+                        new
+                        {
+                            UserId = "f626b751-35a0-43df-8173-76cb5b4886fd",
+                            CategoryId = 4
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -361,7 +361,9 @@ namespace PrinceQ.DataAccess.Migrations
                     Reserve_At = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Cancelled_At = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ClerkId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    StageId = table.Column<int>(type: "int", nullable: true)
+                    StageId = table.Column<int>(type: "int", nullable: true),
+                    ForFilling_start_Backup = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Releasing_start_Backup = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -423,7 +425,14 @@ namespace PrinceQ.DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "Device",
                 columns: new[] { "IPAddress", "ClerkNumber", "UserId" },
-                values: new object[] { "10.64.14.50", "Clerk 1", null });
+                values: new object[,]
+                {
+                    { "10.64.14.50", "Clerk 1", null },
+                    { "10.64.27.30", "Clerk 4", null },
+                    { "10.64.27.32", "Clerk 1", null },
+                    { "10.64.27.40", "Clerk 2", null },
+                    { "10.64.27.41", "Clerk 3", null }
+                });
 
             migrationBuilder.InsertData(
                 table: "Queue_Statuses",
@@ -458,6 +467,17 @@ namespace PrinceQ.DataAccess.Migrations
                     { "b8b558cb-8f42-40a8-97f8-2f86d69d5b43", "f626b751-35a0-43df-8173-76cb5b4886fd" },
                     { "b9eb12b9-d840-472d-9620-790a9f0aa125", "f626b751-35a0-43df-8173-76cb5b4886fd" },
                     { "f9df0f53-2eb0-4d9e-9e23-7100730d2ff6", "f626b751-35a0-43df-8173-76cb5b4886fd" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "User_Category",
+                columns: new[] { "CategoryId", "UserId" },
+                values: new object[,]
+                {
+                    { 1, "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { 2, "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { 3, "f626b751-35a0-43df-8173-76cb5b4886fd" },
+                    { 4, "f626b751-35a0-43df-8173-76cb5b4886fd" }
                 });
 
             migrationBuilder.CreateIndex(

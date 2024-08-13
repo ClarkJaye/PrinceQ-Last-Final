@@ -70,29 +70,29 @@
     }
 </style>
 
+
+<div class="position-absolute" style="top: 20px; left: 20px;">
+    <button class="btn btn-secondary" id="historyBtn">Recently Generated</button>
+</div>
+
 <div class="container p-5 pt-2" style="height: 80%;">
+    <input type="text" id="isDisabledUser" hidden value="@userIsDisabled" />
 
     <div class="row d-flex justify-content-center align-items-center h-100 px-5">
-
         <h2 class="text-center fst-italic fw-bold text-danger">Generate Queue</h2>
-
         @foreach (var obj in Model.Categories!.OrderBy(u => u.CategoryId))
         {
             if (obj != null)
-            {
+            {   
                 <div class="col-6 catBtn">
-
                     <button type="submit" class="generateBtn d-flex flex-column align-items-center btn w-100 p-3 category-@obj.CategoryId" id="@obj.CategoryId" @(userIsDisabled ? "disabled" : "")>
                         <h3>@obj.CategoryName</h3>
                         <p class="h6 m-0 catName">(@obj.Description)</p>
                     </button>
-
                 </div>
             }
         }
-
     </div>
-
 </div>
 
 <!--Date & Time-->
@@ -130,7 +130,6 @@
     </div>
 </div>
 
-<!-- Notification Modal -->
 @if (userIsDisabled)
 {
     <div class="modal fade" id="notificationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
@@ -150,121 +149,35 @@
     </div>
 }
 
+@* <div id="historyModal" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"> *@
+<div id="historyModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary">
+                <h5 class="modal-title text-white">Recently Generated Number</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Generate Date</th>
+                            <th>Queue Number</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                       <!--Data will render here-->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-
-<script>
-    $(document).ready(function () {
-        displayDateTime();
-        setInterval(displayDateTime, 1000);
-
-        //Show Modal
-        $('.generateBtn').on("click", GenerateQueue);
-
-        // Show User Disabled modal if userIsDisabled is true
-        if (@(userIsDisabled.ToString().ToLower())) {
-            $('#notificationModal').modal('show');
-        }
-        $('#notificationModal').modal('show');
-        //Print
-        $('#printBtn').on("click", PrintQueueForm);
-
-     
-    });
-    const displayDateTime = () => {
-        var currentTime = new Date();
-        var options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        var formattedTime = currentTime.toLocaleString('en-US', options);
-        var optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
-        var formattedDate = currentTime.toLocaleString('en-US', optionsDate);
-
-        $('#time').text(formattedTime);
-        $('#date').text(formattedDate);
-    };
-    function GenerateQueue() {
-        var categoryId = $(this).attr('id');
-        $.ajax({
-            type: 'POST',
-            url: "/Clerk/GenerateQueueNumber",
-            dataType: "json",
-            data: { categoryId: categoryId },
-            success: function (response) {
-                console.log(response);
-
-                if (response && response.isSuccess) {
-                    // Handle success
-                    var queueItem = response.obj1;
-                    var category = response.obj2;
-                    var queueNumber;
-
-                    $('#modalCategoryName').text(category.categoryName);
-
-                    switch (queueItem.categoryId) {
-                        case 1:
-                            queueNumber = "A - " + queueItem.queueNumber;
-                            break;
-                        case 2:
-                            queueNumber = "B - " + queueItem.queueNumber;
-                            break;
-                        case 3:
-                            queueNumber = "C - " + queueItem.queueNumber;
-                            break;
-                        case 4:
-                            queueNumber = "D - " + queueItem.queueNumber;
-                            break;
-                        default:
-                            queueNumber = "Error";
-                    }
-
-                    $('#modalQueueNumber').text(queueNumber);
-
-                    var generatedAt = new Date(
-                        queueItem.queueId.substr(0, 4),
-                        queueItem.queueId.substr(4, 2) - 1,
-                        queueItem.queueId.substr(6, 2)
-                    );
-                    var options = { year: 'numeric', month: 'long', day: 'numeric' };
-                    var formattedDateTime = generatedAt.toLocaleString('en-US', options);
-                    $('#modalGeneratedAt').text(formattedDateTime);
-
-                    $('#gDate').val(queueItem.queueId);
-                    $('#categoryId').val(queueItem.categoryId);
-                    $('#qNumber').val(queueItem.queueNumber);
-
-                    $('#queueNumberModal').modal('show');
-                    $('.modal-header').removeClass().addClass('modal-header m-header-category-' + categoryId);
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                alert("An error occurred while generating the queue number.");
-            }
-        });
-    }
-    function PrintQueueForm() {
-        var date = document.getElementById("gDate").value;
-        var categoryId = document.getElementById("categoryId").value;
-        var queueNumber = document.getElementById("qNumber").value;
-
-        $.ajax({
-            type: 'GET', 
-            url: "/Clerk/Print_QueueNumber",
-            data: { date: date, categoryId: categoryId, queueNumber: queueNumber },
-            success: function (response) {
-                console.log(response)
-                if (response && response.isSuccess === false) {
-                    alert(response.message);
-                } else if (response && response.isSuccess === true) {
-                    window.location.href = "/Clerk/Print_Form?date=" + date + "&categoryId=" + categoryId + "&queueNumber=" + queueNumber;
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle error
-                alert("An error occurred while generating the queue number.");
-            }
-        });
-    }
-
-
-</script>
+<script src="~/js/clerk/GenerateScript.js"></script>

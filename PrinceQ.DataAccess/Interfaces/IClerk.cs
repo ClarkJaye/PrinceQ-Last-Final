@@ -8,9 +8,9 @@ namespace PrinceQ.DataAccess.Interfaces
         Task<GeneralResponse> GenerateVM(string userId);
         Task<DualResponse> GenerateQueue(int categoryId);
         Task<GeneralResponse> GetQueue(string date, int categoryId, int queueNumber);
-
+        Task<GeneralResponse> RecentDataQueue();
         Task<GeneralResponse> GetAllWaitingQueue(string userId);
-        Task<DualResponse> DesignatedClerk(string ipAddress, string userId);
+        Task<GeneralResponse> DesignatedClerk(string ipAddress, string userId);
         Task<GetResponse> GetServings(string userId, string ipAddress);
         Task<GeneralResponse> GetReservedQueues(string userId);
         Task<GeneralResponse> GetFillingUpQueues(string userId);

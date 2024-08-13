@@ -20,15 +20,13 @@ namespace PrinceQ.DataAccess.Data.Context
         public virtual DbSet<Serving> Serving { get; set; }
         public virtual DbSet<Announcement> Announcement { get; set; }
         public virtual DbSet<User_Category> User_Categories{ get; set; }
-        //public virtual DbSet<IsActive> IsActive{ get; set; }
         public virtual DbSet<Stage_Queue> Stage{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             //CONSTANT VALUE
-            const string SOFTWAREADMIN = "f626b751-35a0-43df-8173-76cb5b4886fd";
+            const string SOFTWAREADMINID = "f626b751-35a0-43df-8173-76cb5b4886fd";
             const string GENID = "b8b558cb-8f42-40a8-97f8-2f86d69d5b43";
             const string FILLINGID = "7143ddd4-7854-4161-b1a1-730fb6185965";
             const string RELEASINGID = "9609ba67-ae84-46cd-916e-23f45a765b4a";
@@ -39,24 +37,24 @@ namespace PrinceQ.DataAccess.Data.Context
 
             //Seeding
             modelBuilder.Entity<User>().HasData(
-                    new User
-                    {
-                        Id = SOFTWAREADMIN,
-                        UserName = "clarky",
-                        NormalizedUserName = "CLARKY",
-                        Email = "clarky@princeretail.com",
-                        NormalizedEmail = "CLARKY@PRINCERETAIL.COM",
-                        EmailConfirmed = false,
-                        PhoneNumberConfirmed = false,
-                        TwoFactorEnabled = false,
-                        LockoutEnabled = true,
-                        AccessFailedCount = 0,
-                        PasswordHash = "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==",
-                        SecurityStamp = "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM",
-                        ConcurrencyStamp = "79681f10-0ee2-4127-9e9c-0eb73ded94fe",
-                        IsActive = true
-                    }                             
-                );
+                new User
+                {
+                    Id = SOFTWAREADMINID,
+                    UserName = "clarky",
+                    NormalizedUserName = "CLARKY",
+                    Email = "clarky@princeretail.com",
+                    NormalizedEmail = "CLARKY@PRINCERETAIL.COM",
+                    EmailConfirmed = false,
+                    PhoneNumberConfirmed = false,
+                    TwoFactorEnabled = false,
+                    LockoutEnabled = true,
+                    AccessFailedCount = 0,
+                    PasswordHash = "AQAAAAIAAYagAAAAECnnqwWvQxblMxWGHvFRkui6EcfZu6BPqf2MtI8fZS9u6gCf8BWu3bZIc1xF16W6zA==",
+                    SecurityStamp = "GJ636UXBBLKO5JOGP6X3WISMIEBRVVHM",
+                    ConcurrencyStamp = "79681f10-0ee2-4127-9e9c-0eb73ded94fe",
+                    IsActive = true
+                }                             
+            );
 
             modelBuilder.Entity<IdentityRole>().HasData(
                 new  { Id = GENID, Name = "GenerateNumber", NormalizedName = "GENERATENUMBER" },
@@ -69,44 +67,50 @@ namespace PrinceQ.DataAccess.Data.Context
             );
 
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
-                   new { UserId = SOFTWAREADMIN, RoleId = GENID },
-                   new { UserId = SOFTWAREADMIN, RoleId = FILLINGID },
-                   new { UserId = SOFTWAREADMIN, RoleId = RELEASINGID },
-                   new { UserId = SOFTWAREADMIN, RoleId = ANNOUNCEMENTID },
-                   new { UserId = SOFTWAREADMIN, RoleId = VIDEOID },
-                   new { UserId = SOFTWAREADMIN, RoleId = USERID },
-                   new { UserId = SOFTWAREADMIN, RoleId = REPORTID }
-
-               );
+                new { UserId = SOFTWAREADMINID, RoleId = GENID },
+                new { UserId = SOFTWAREADMINID, RoleId = FILLINGID },
+                new { UserId = SOFTWAREADMINID, RoleId = RELEASINGID },
+                new { UserId = SOFTWAREADMINID, RoleId = ANNOUNCEMENTID },
+                new { UserId = SOFTWAREADMINID, RoleId = VIDEOID },
+                new { UserId = SOFTWAREADMINID, RoleId = USERID },
+                new { UserId = SOFTWAREADMINID, RoleId = REPORTID }
+            );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Category A", Description = "Trade", IsActive = true },
                 new Category { CategoryId = 2, CategoryName = "Category B", Description = "Non-Trade", IsActive = true },
                 new Category { CategoryId = 3, CategoryName = "Category C", Description = "Special", IsActive = true },
                 new Category { CategoryId = 4, CategoryName = "Category D", Description = "Inquiry" , IsActive = true }
-                );
-            
-            
-            //modelBuilder.Entity<User_Category>().HasData(
-            //    new User_Category { UserId = "", CategoryId = 1 },
-            //    );
+            );
+
+            modelBuilder.Entity<User_Category>().HasData(
+                new User_Category { UserId = SOFTWAREADMINID, CategoryId = 1},
+                new User_Category { UserId = SOFTWAREADMINID, CategoryId = 2},
+                new User_Category { UserId = SOFTWAREADMINID, CategoryId = 3},
+                new User_Category { UserId = SOFTWAREADMINID, CategoryId = 4}
+            );
 
             modelBuilder.Entity<Queue_Status>().HasData(
-                 new Queue_Status { StatusId = 1, StatusName = "waiting" },
-                 new Queue_Status { StatusId = 2, StatusName = "serve" },
-                 new Queue_Status { StatusId = 3, StatusName = "reserve" },
-                 new Queue_Status { StatusId = 4, StatusName = "cancel" },
-                 new Queue_Status { StatusId = 5, StatusName = "serving" }
-                 );
+                new Queue_Status { StatusId = 1, StatusName = "waiting" },
+                new Queue_Status { StatusId = 2, StatusName = "serve" },
+                new Queue_Status { StatusId = 3, StatusName = "reserve" },
+                new Queue_Status { StatusId = 4, StatusName = "cancel" },
+                new Queue_Status { StatusId = 5, StatusName = "serving" }
+            );
 
             modelBuilder.Entity<Stage_Queue>().HasData(
                new Stage_Queue { StageId = 1, StageName = "Filling" },
                new Stage_Queue { StageId = 2, StageName = "Releasing" }
-               );
+            );
 
             modelBuilder.Entity<ClerkIPAddress>().HasData(
-               new ClerkIPAddress { IPAddress = "10.64.14.50", ClerkNumber = "Clerk 1" }
-               );
+               new ClerkIPAddress { IPAddress = "10.64.14.50", ClerkNumber = "Clerk 1" },
+
+               new ClerkIPAddress { IPAddress = "10.64.27.32", ClerkNumber = "Clerk 1" },
+               new ClerkIPAddress { IPAddress = "10.64.27.40", ClerkNumber = "Clerk 2" },
+               new ClerkIPAddress { IPAddress = "10.64.27.41", ClerkNumber = "Clerk 3" },
+               new ClerkIPAddress { IPAddress = "10.64.27.30", ClerkNumber = "Clerk 4" }
+            );
 
             // For Junction 
             modelBuilder.Entity<Queues>()

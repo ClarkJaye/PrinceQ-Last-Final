@@ -20,7 +20,7 @@ namespace PrinceQueuing.Controllers
             IExternalLoginService externalLoginService,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            IUnitOfWork unitOfWork,)
+            IUnitOfWork unitOfWork)
         {
             this.externalLoginService = externalLoginService;
             this.userManager = userManager;

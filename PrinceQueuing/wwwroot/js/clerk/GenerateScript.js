@@ -165,6 +165,7 @@ function RecentlyGenerated() {
     });
 
     $('#historyModal').modal('show');
+    $('.modal-header').removeClass().addClass('modal-header bg-secondary');
 }
 
 

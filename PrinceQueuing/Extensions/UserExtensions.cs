@@ -1,5 +1,4 @@
-﻿using System.Management;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace PrinceQueuing.Extensions
 {

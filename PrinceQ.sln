@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinceQueuing", "PrinceQueuing\PrinceQueuing.csproj", "{AA3847D3-3594-44C6-B74B-426AB5830ADF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrinceQueuing", "PrinceQueuing\PrinceQueuing.csproj", "{AA3847D3-3594-44C6-B74B-426AB5830ADF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinceQ.DataAccess", "PrinceQ.DataAccess\PrinceQ.DataAccess.csproj", "{47274DAF-BF20-4F13-BA68-DA2A9C755FC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrinceQ.DataAccess", "PrinceQ.DataAccess\PrinceQ.DataAccess.csproj", "{47274DAF-BF20-4F13-BA68-DA2A9C755FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinceQ.Models", "PrinceQ.Models\PrinceQ.Models.csproj", "{7A8246BF-1095-4402-8BF5-27537268F4AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrinceQ.Models", "PrinceQ.Models\PrinceQ.Models.csproj", "{7A8246BF-1095-4402-8BF5-27537268F4AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinceQ.Utility", "PrinceQ.Utility\PrinceQ.Utility.csproj", "{923F0BDD-90FC-4F96-863C-8FC281ABE1EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrinceQ.Utility", "PrinceQ.Utility\PrinceQ.Utility.csproj", "{923F0BDD-90FC-4F96-863C-8FC281ABE1EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Repository;
-using System.Management;
 
 namespace PrinceQueuing.Controllers
 {

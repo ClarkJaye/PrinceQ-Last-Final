@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using PrinceQ.DataAccess.Extensions;
-using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Interfaces;
-using PrinceQ.DataAccess.Repository;
 using PrinceQ.Models.Entities;
 using PrinceQ.Models.ViewModel;
 using PrinceQ.Utility;
@@ -14,18 +12,13 @@ namespace PrinceQueuing.Controllers
     [Authorize]
     public class AdminController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AdminController> _logger;
-        private readonly IHubContext<QueueHub> _hubContext;
-
         private readonly IAdmin _admin;
 
-        public AdminController(IAdmin admin, IUnitOfWork unitOfWork, ILogger<AdminController> logger, IHubContext<QueueHub> hubContext)
+        public AdminController(IAdmin admin, ILogger<AdminController> logger)
         {
             _admin = admin;
-            _unitOfWork = unitOfWork;
             _logger = logger;
-            _hubContext = hubContext;
         }
 
         //-----DASHBOARD-----//

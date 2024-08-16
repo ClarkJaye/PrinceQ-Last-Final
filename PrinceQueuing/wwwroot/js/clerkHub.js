@@ -57,19 +57,6 @@ connectionQueueHub.on("RecentServing", function () {
     GetAllRecentQueue();
 });
 
-
-////For TV Display
-//connectionQueueHub.on("DisplayTVQueue", () => {
-//    DisplayServeTV();
-//})
-
-
-
-
-
-
-
-
 //For TV Display
 function getCategoryLetter(categoryId) {
     var categories = {
@@ -96,10 +83,6 @@ function playBackgroundMusic() {
 
 // Call QueueNumber in Monitor 
 connectionQueueHub.on("CallQueueNumber", function (categoryId, queueNumber, clerkNumber) {
-    console.log(categoryId)
-    console.log(queueNumber)
-    console.log(clerkNumber)
-
     var clerkNum = clerkNumber ? clerkNumber.replace("Clerk ", "").trim() : null;
     var display = document.getElementById('TVClerk' + clerkNum);
     var category = categoryId;
@@ -128,17 +111,6 @@ connectionQueueHub.on("CallQueueNumber", function (categoryId, queueNumber, cler
         servingDisplay.innerText = "----";
     }
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 

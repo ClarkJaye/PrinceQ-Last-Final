@@ -342,7 +342,6 @@ namespace PrinceQ.DataAccess.Services
                     await _unitOfWork.SaveAsync();
 
                     //For REALTIME
-                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.All.SendAsync("UpdateQueue", Id);
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
@@ -766,7 +765,6 @@ namespace PrinceQ.DataAccess.Services
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
 
-                    //await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.All.SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");

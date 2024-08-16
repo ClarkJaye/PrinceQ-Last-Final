@@ -2,8 +2,6 @@
     ViewData["Title"] = "TV Display";
     Layout = "_DisplayLayout";
 
-    // var videoFiles = ViewBag.VideoFiles as string[];
-
 }
 
 <div class="customer-body">
@@ -62,11 +60,6 @@
             <div class="w-100 h-100">
                 <video id="main-video-page2" class="w-100 h-100" preload="auto" style="object-fit:fill;" controls autoplay muted >
                 </video>
-
-              @*   <div class="time">
-                    <h2 id="time"></h2>
-                    <span id="date"></span>
-                </div> *@
             </div>
 
         </div>
@@ -96,125 +89,5 @@
 
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
-
-<script>
-    $(document).ready(function () {
-        //Load Serving
-        DisplayServeTV();
-        //Load Announcement
-        loadAnnouncement();
-        //Load Video
-        DisplayVideo();
-        //Date And Time
-        displayDateTime();
-        setInterval(displayDateTime, 1000);
-    });
-
-    const displayDateTime = () => {
-        var currentTime = new Date();
-        var options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-        var formattedTime = currentTime.toLocaleString('en-US', options);
-        var optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
-        var formattedDate = currentTime.toLocaleString('en-US', optionsDate);
-
-        $('#time').text(formattedTime);
-        $('#date').text(formattedDate);
-    };
-    //Dispaly Serve
-    function DisplayServeTV() {
-        $.ajax({
-            type: 'GET',
-            url: "/Display/GetServings",
-            dataType: "json",
-            success: function (response) {
-                // console.log(response)
-
-                response.queues.forEach(function (value) {
-                    // console.log(value)
-                    if (value) {
-                        var clerkNumber = response.device[0].clerkNumber.replace("Clerk ", "").trim();
-                        var display = document.getElementById('TVClerk' + clerkNumber);
-                        var category = value.categoryId;
-
-                        if (display) {
-                            var categoryLetter = getCategoryLetter(category);
-                            var queueNumberServe = value.queueNumberServe !== null ? value.queueNumberServe : "----";
-                            display.innerText = categoryLetter + " - " + queueNumberServe;
-                        }
-                    }
-                });
-            },
-            error: function (req, status, error) {
-                console.log(status);
-            }
-        });
-    }
-    function getCategoryLetter(categoryId) {
-        var categories = {
-            1: "A",
-            2: "B",
-            3: "C",
-            4: "D"
-        };
-        return categories[categoryId] || "----";
-    }
-
-
-    function DisplayVideo() {
-        $.ajax({
-            type: 'GET',
-            url: '/admin/AllVideos',
-            dataType: 'json',
-            success: function (response) {
-                var videos = response.result.videoFiles;
-                var videoPlayer = document.getElementById('main-video-page2');
-                var videoFiles = videos.map(file => file.replace(/\\/g, '/'));
-                var videoIndex = 0;
-
-                // Set initial video source and play
-                if (videoFiles.length > 0) {
-                    videoPlayer.src = videoFiles[videoIndex];
-                    videoPlayer.play();
-                }
-
-                // Add event listener for when the video ends
-                videoPlayer.addEventListener('ended', function () {
-                    videoIndex++;
-                    if (videoIndex >= videoFiles.length) {
-                        videoIndex = 0;
-                    }
-                    videoPlayer.src = videoFiles[videoIndex];
-                    videoPlayer.play();
-                });
-            },
-            error: function (error) {
-                console.log("Error loading videos: ", error);
-            }
-        });
-    }
-
-    function loadAnnouncement() {
-        $.ajax({
-            type: 'GET',
-            url: '/Display/GetAnnouncement',
-            dataType: 'json',
-            success: function (response) {
-                console.log(response)
-                var announceContainer = document.getElementById('announcementWord');
-
-                if (response.isSuccess) {
-                    announceContainer.textContent = response.announce.description;
-                } else {
-                    announceContainer.textContent = "Visit Our Page!"
-                }
-               
-            },
-            error: function (error) {
-                console.log("Error: ", error);
-            }
-        });
-    }
-
-</script>
+<script src="~/js/display/DisplayScripts.js"></script>
 

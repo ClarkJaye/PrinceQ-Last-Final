@@ -432,21 +432,34 @@ namespace PrinceQ.DataAccess.Services
 
             if (File.Exists(videoFilePath))
             {
-                var currentTime = DateTime.Now;
-                File.SetCreationTime(videoFilePath, currentTime);
+                try
+                {
+                    var currentTime = DateTime.Now;
+                    File.SetCreationTime(videoFilePath, currentTime);
 
-                // Optional: Change modification time as well
-                File.SetLastWriteTime(videoFilePath, currentTime);
+                    // Optional: Change modification time as well
+                    File.SetLastWriteTime(videoFilePath, currentTime);
 
-                string[] videoFiles = Directory.GetFiles(Path.Combine(_webHostEnvironment.WebRootPath, "Videos"))
-                    .Select(f => new FileInfo(f))
-                    .OrderByDescending(f => f.CreationTime)
-                    .Select(f => f.FullName.Replace(_webHostEnvironment.WebRootPath, string.Empty).Replace("\\", "/"))
-                    .ToArray();
+                    string[] videoFiles = Directory.GetFiles(Path.Combine(_webHostEnvironment.WebRootPath, "Videos"))
+                        .Select(f => new FileInfo(f))
+                        .OrderByDescending(f => f.CreationTime)
+                        .Select(f => f.FullName.Replace(_webHostEnvironment.WebRootPath, string.Empty).Replace("\\", "/"))
+                        .ToArray();
 
-                // For REALTIME update
-                await _hubContext.Clients.All.SendAsync("DisplayVideo");
-                return new videoFilesResponse(true, videoFiles, "Video Play in Monitor.");
+                    // For REALTIME update
+                    await _hubContext.Clients.All.SendAsync("DisplayVideo");
+                    return new videoFilesResponse(true, videoFiles, "Video Play in Monitor.");
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    // For REALTIME update
+                    await _hubContext.Clients.All.SendAsync("DisplayVideo");
+                }
+              
             }
             return new videoFilesResponse(false, null, "Video not found.");
         }
@@ -697,14 +710,13 @@ namespace PrinceQ.DataAccess.Services
             return new GeneralResponse( true, new {users = sortedUsers, categories }, "Successfully Fetched");
         }
 
-        //----- Waiting Report-----//
         public async Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month)
         {
             if (clerkId != null && year != null && month == null)
             {
-                var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 4) == year);
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StatusId == 5 && d.ClerkId == clerkId && d.QueueId!.Substring(0, 4) == year);
                 var monthlyData = data
-                    .GroupBy(item => item.GenerateDate!.Substring(4, 2))
+                    .GroupBy(item => item.QueueId!.Substring(4, 2))
                     .Select(g => new
                     {
                         Month = g.Key,
@@ -718,9 +730,9 @@ namespace PrinceQ.DataAccess.Services
             }
             else if (clerkId == null && year != null && month == null)
             {
-                var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 4) == year);
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StatusId == 5 && d.QueueId!.Substring(0, 4) == year);
                 var monthlyData = data
-                    .GroupBy(item => item.GenerateDate!.Substring(4, 2))
+                    .GroupBy(item => item.QueueId!.Substring(4, 2))
                     .Select(g => new
                     {
                         Month = g.Key,
@@ -734,9 +746,9 @@ namespace PrinceQ.DataAccess.Services
             }
             else if (clerkId != null && year != null && month != null)
             {
-                var data = await _unitOfWork.forFilling.GetAll(d => d.ClerkId == clerkId && d.GenerateDate!.Substring(0, 6) == year + month);
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StatusId == 5 && d.ClerkId == clerkId && d.QueueId!.Substring(0, 6) == year + month);
                 var dailyData = data
-                    .GroupBy(item => item.GenerateDate!.Substring(6, 2))
+                    .GroupBy(item => item.QueueId!.Substring(6, 2))
                     .Select(g => new
                     {
                         Day = g.Key,
@@ -744,7 +756,7 @@ namespace PrinceQ.DataAccess.Services
                         CategoryBSum = g.Count(i => i.CategoryId == 2),
                         CategoryCSum = g.Count(i => i.CategoryId == 3),
                         CategoryDSum = g.Count(i => i.CategoryId == 4),
-                        GenerateDate = g.Select(i => i.GenerateDate).FirstOrDefault()
+                        GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
                     })
                     .ToList();
                 return new ChartDataResponse(false, dailyData );
@@ -752,9 +764,9 @@ namespace PrinceQ.DataAccess.Services
             else if (clerkId == null && year != null && month != null)
             {
                 // example data of generateDate = "20240626"
-                var data = await _unitOfWork.forFilling.GetAll(d => d.GenerateDate!.Substring(0, 6) == year + month);
+                var data = await _unitOfWork.queueNumbers.GetAll(d => d.StatusId == 5 && d.QueueId!.Substring(0, 6) == year + month);
                 var dailyData = data
-                    .GroupBy(item => item.GenerateDate!.Substring(6, 2))
+                    .GroupBy(item => item.QueueId!.Substring(6, 2))
                     .Select(g => new
                     {
                         Day = g.Key,
@@ -762,7 +774,7 @@ namespace PrinceQ.DataAccess.Services
                         CategoryBSum = g.Count(i => i.CategoryId == 2),
                         CategoryCSum = g.Count(i => i.CategoryId == 3),
                         CategoryDSum = g.Count(i => i.CategoryId == 4),
-                        GenerateDate = g.Select(i => i.GenerateDate).FirstOrDefault()
+                        GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
                     })
                     .ToList();
                 return new ChartDataResponse(false, dailyData);
@@ -772,6 +784,7 @@ namespace PrinceQ.DataAccess.Services
                 return null;
             }
         }
+        //----- Waiting Report-----//
         public async Task<GeneralResponse> Waiting_GetAllServedData()
         {
             var data = await _unitOfWork.queueNumbers.GetAll();

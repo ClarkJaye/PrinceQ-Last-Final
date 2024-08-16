@@ -1,5 +1,4 @@
 ﻿//Create Connection
-//var connectionQueueHub = new signalR.HubConnectionBuilder().withUrl("/hubs/queueHub").build();
 var connectionQueueHub = new signalR.HubConnectionBuilder().withUrl("/PrinceQ.DataAccess/hubs/queueHub").build();
 
 //From Generate a Number By Register Personnel
@@ -59,10 +58,91 @@ connectionQueueHub.on("RecentServing", function () {
 });
 
 
+////For TV Display
+//connectionQueueHub.on("DisplayTVQueue", () => {
+//    DisplayServeTV();
+//})
+
+
+
+
+
+
+
+
 //For TV Display
-connectionQueueHub.on("DisplayTVQueue", () => {
-    DisplayServeTV();
-})
+function getCategoryLetter(categoryId) {
+    var categories = {
+        1: "A",
+        2: "B",
+        3: "C",
+        4: "D"
+    };
+    return categories[categoryId] || "----";
+}
+
+//Speech / Sound
+function speak(text) {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.6;
+
+    synth.speak(utterance);
+}
+function playBackgroundMusic() {
+    const audio = new Audio('/src/audio/ascend.mp3');
+    audio.play();
+}
+
+// Call QueueNumber in Monitor 
+connectionQueueHub.on("CallQueueNumber", function (categoryId, queueNumber, clerkNumber) {
+    console.log(categoryId)
+    console.log(queueNumber)
+    console.log(clerkNumber)
+
+    var clerkNum = clerkNumber ? clerkNumber.replace("Clerk ", "").trim() : null;
+    var display = document.getElementById('TVClerk' + clerkNum);
+    var category = categoryId;
+
+    if (display) {
+        playBackgroundMusic()
+
+        var categoryLetter = getCategoryLetter(category);
+        var queueNumberServe = queueNumber !== null ? queueNumber : "----";
+        display.innerText = categoryLetter + " - " + queueNumberServe;
+        display.classList.add("blink-red");
+
+        setTimeout(function () {
+            display.classList.remove("blink-red");
+        }, 3000);
+
+        setTimeout(function () {
+            var getQ = getCategoryLetter(category);
+            var queue = getQ + "-- " + queueNumber;
+
+            var clerk = "Clerk-" + clerkNum;
+            var speechText = queue + " Please Proceed to " + clerk;
+            speak(speechText);
+        }, 1000);
+    } else {
+        servingDisplay.innerText = "----";
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //For TV Display Video
 connectionQueueHub.on("DisplayVideo", () => {
     DisplayVideo();

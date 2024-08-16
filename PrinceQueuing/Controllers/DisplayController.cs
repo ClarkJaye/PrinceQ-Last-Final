@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Repository;
 using System.Management;
@@ -22,37 +23,32 @@ namespace PrinceQueuing.Controllers
 
         public IActionResult Home()
         {
-            string[] videoFiles = Directory.GetFiles(Path.Combine(_webHostEnvironment.WebRootPath, "Videos"))
-                .Select(f => new FileInfo(f))
-                .OrderByDescending(f => f.CreationTime)
-                .Select(f => f.FullName.Replace(_webHostEnvironment.WebRootPath, string.Empty))
-                .ToArray();
-
-            ViewBag.VideoFiles = videoFiles;
-
             return View();
         }
 
-        //GET QUEUE
+        //GET Announcement
         public async Task<IActionResult> GetServings()
         {
             try
             {
-                var user = await _unitOfWork.users.GetAll();
-                var queueSer = await _unitOfWork.servings.GetAll(u => u.Served_At.Date == DateTime.Today);
-                var clerkNumber = await _unitOfWork.device.GetAll();
-                var queueServe = queueSer.OrderByDescending(q => q.Served_At);
+                var queueServing = await _unitOfWork.servings.GetAll(s => s.Served_At.Date == DateTime.Today);
+                var queueServe = queueServing.OrderByDescending(s => s.Served_At);
+                var clerkDevices = await _unitOfWork.device.GetAll();
 
-                return Json(new {queues = queueServe, device = clerkNumber});
+                var result = queueServe.Select(s => new
+                {
+                    s.QueueNumberServe,
+                    s.CategoryId,
+                    clerkNumber = clerkDevices.FirstOrDefault(d => d.UserId == s.UserId)?.ClerkNumber,
+                }).ToList();
 
+                return Json(new { queues = result });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
             }
-
         }
-
 
         //GET Announcement
         public async Task<IActionResult> GetAnnouncement()

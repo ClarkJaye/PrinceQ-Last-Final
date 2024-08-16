@@ -189,10 +189,9 @@ function editUser(id) {
 
                 var roleSelect = $('#EditRoleMultipleSelect');
                 var activeSelect = $('#EditActive');
+                activeSelect.empty();
                 roleSelect.empty();
 
-
-                var activeText = user.isActive ? "Enable" : "Disable";
                 activeSelect.append('<option value="true" ' + (user.isActive ? 'selected' : '') + '>Enable</option>');
                 activeSelect.append('<option value="false" ' + (!user.isActive ? 'selected' : '') + '>Disable</option>');
                 

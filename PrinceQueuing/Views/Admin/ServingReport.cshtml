@@ -10,72 +10,79 @@
 </style>
 
 <div class="px-5 mb-4">
+    <div class="row">
 
-    <div class="bg-white rounded border shadow mt-5">
-        <div class="border-bottom">
-            <div class="d-flex align-items-center justify-content-between p-3 px-4">
-                <h6 class="fw-bold m-0">Serving Statistics</h6>
-
-                <div class="d-flex align-items-center gap-3">
-                    <a class="btn btn-success" style="font-size: 12px;" asp-controller="Admin" asp-action="ServingReport_Details">
-                        See Detailed
-                    </a>
+        <div class="col-8">  
+            <div class="bg-white rounded border shadow mt-5">
+                <div class="border-bottom">
+                    <div class="d-flex align-items-center justify-content-between p-3 px-4">
+                        <h6 class="fw-bold m-0">Serving Statistics</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <a class="btn btn-success" style="font-size: 12px;" asp-controller="Admin" asp-action="ServingReport_Details">
+                                See Detailed
+                            </a>
+                        </div>
+                    </div>
                 </div>
-
-
-            </div>
-        </div>
-        <div class="d-flex align-items-center justify-content-between p-2 px-5">
+                <div class="d-flex align-items-center justify-content-between p-2 px-5">
             
-            <div class="d-flex align-items-center gap-2">
-                <select id="selectedClerk" onchange="LoadServeData( this.value, document.getElementById('selectedYear').value, document.getElementById('selectedMonth').value)" class="form-select">
-                    <option value="" selected disabled>select user</option>
-                    <option value="">All</option>
-                </select>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="selectedClerk" onchange="LoadServeData( this.value, document.getElementById('selectedYear').value, document.getElementById('selectedMonth').value)" class="form-select">
+                            <option value="" selected disabled>select user</option>
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="month-Container">
+                        <h1 id="monthSelect">All</h1>
+                    </div>
+                    <div class="yearContainer d-flex gap-2">           
+                        <select id="selectedMonth" onchange="LoadServeData(document.getElementById('selectedClerk').value, document.getElementById('selectedYear').value, this.value)" class="form-select">
+                            <option data-month="All" value="">All</option>
+                            <option data-month="January" value="01">January</option>
+                            <option data-month="February" value="02">February</option>
+                            <option data-month="March" value="03">March</option>
+                            <option data-month="April" value="04">April</option>
+                            <option data-month="May" value="05">May</option>
+                            <option data-month="June" value="06">June</option>
+                            <option data-month="July" value="07">July</option>
+                            <option data-month="August" value="08">August</option>
+                            <option data-month="September" value="09">September</option>
+                            <option data-month="October" value="10">October</option>
+                            <option data-month="November" value="11">November</option>
+                            <option data-month="December" value="12">December</option>
+                        </select>
 
+                        <select id="selectedYear" onchange="LoadServeData(document.getElementById('selectedClerk').value, this.value,  document.getElementById('selectedMonth').value)" class="form-select">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pb-5 mx-5">
+                    <canvas id="servedChart"></canvas>
+                </div>
             </div>
-
-            <div class="month-Container">
-                <h1 id="monthSelect">All</h1>
-            </div>
-
-            <div class="yearContainer d-flex gap-2">
-              
-                <select id="selectedMonth" onchange="LoadServeData(document.getElementById('selectedClerk').value, document.getElementById('selectedYear').value, this.value)" class="form-select">
-                    <option data-month="All" value="">All</option>
-                    <option data-month="January" value="01">January</option>
-                    <option data-month="February" value="02">February</option>
-                    <option data-month="March" value="03">March</option>
-                    <option data-month="April" value="04">April</option>
-                    <option data-month="May" value="05">May</option>
-                    <option data-month="June" value="06">June</option>
-                    <option data-month="July" value="07">July</option>
-                    <option data-month="August" value="08">August</option>
-                    <option data-month="September" value="09">September</option>
-                    <option data-month="October" value="10">October</option>
-                    <option data-month="November" value="11">November</option>
-                    <option data-month="December" value="12">December</option>
-                </select>
-
-                <select id="selectedYear" onchange="LoadServeData(document.getElementById('selectedClerk').value, this.value,  document.getElementById('selectedMonth').value)" class="form-select">
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
-                    <option value="2028">2028</option>
-                    <option value="2029">2029</option>
-                    <option value="2030">2030</option>
-                </select>
-            </div>
-
-
         </div>
 
-        <div class="pb-5 mx-5">
-            <canvas id="servedChart"></canvas>
+        <div class="col-4">
+            <div class="bg-white rounded border shadow mt-5">
+                <div class="border-bottom">
+                    <div class="d-flex align-items-center justify-content-between p-4">
+                        <h6 class="fw-bold m-0">Total Serving </h6>
+                    </div>
+                </div>
+                <div class="pb-5 mx-5">
+                    <canvas id="waitingPieChart"></canvas>
+                </div>
+            </div>
         </div>
+
     </div>
-
 </div>
 
 

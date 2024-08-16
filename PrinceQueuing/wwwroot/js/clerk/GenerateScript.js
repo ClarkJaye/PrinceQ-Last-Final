@@ -135,14 +135,18 @@ function PrintQueueFormFromRecentHistory() {
     });
 }
 
-
 function RecentlyGenerated() {
     $.ajax({
         type: 'GET',
         url: '/Clerk/Get_RecentDataQueue',
         dataType: 'json',
         success: function (response) {
-            var recentQ = response.obj;
+            var recentQ = response.obj.data;
+            var categoryCounts = response.obj.categoryCounts || {};
+            $("#totalA").text(categoryCounts.categoryA || 0);
+            $("#totalB").text(categoryCounts.categoryB || 0);
+            $("#totalC").text(categoryCounts.categoryC || 0);
+            $("#totalD").text(categoryCounts.categoryD || 0);
             recentQ.sort(function (a, b) {
                 return new Date(b.generate_at) - new Date(a.generate_at);
             });
@@ -167,7 +171,6 @@ function RecentlyGenerated() {
     $('#historyModal').modal('show');
     $('.modal-header').removeClass().addClass('modal-header bg-secondary');
 }
-
 
 //Function Create Table
 function createTableRecently(queue) {

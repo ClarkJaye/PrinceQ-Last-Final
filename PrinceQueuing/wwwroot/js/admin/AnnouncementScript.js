@@ -120,12 +120,13 @@ function editAnnouncement(id) {
             $("#editName").val(announce.name);
             $("#editMessage").val(announce.description);
             $("#editCreated_At").val(formatDate(new Date(announce.created_At)));
+            $("#editCreated").val(announce.created_At);
 
-            var isActive = announce.isActive == true ? "Active" : "Inactive";
             var activeSelect = $("#EditActive");
+            activeSelect.empty();
 
-            activeSelect.find("option[data-temp='true']").remove();
-            activeSelect.append("<option data-temp='true' selected disabled value='" + announce.isActive + "'>" + isActive + "</option>");
+            activeSelect.append('<option value="true" ' + (announce.isActive ? 'selected' : '') + '>Active</option>');
+            activeSelect.append('<option value="false" ' + (!announce.isActive ? 'selected' : '') + '>Inactive</option>');
 
             $('#announcementEditModal').modal('show');
         },

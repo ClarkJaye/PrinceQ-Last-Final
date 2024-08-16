@@ -58,12 +58,7 @@
             border-color: #0b5ed7c2;
         }
 
-
     @@media (max-width: 767.98px) {
-/*         .row.d-flex.justify-content-center.align-items-center {
-            flex-direction: column;
-            gap: 10px;
-        } */
         .catName{
             display: none;
         }
@@ -157,8 +152,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-striped">
-                    <thead>
+                <p>Total Generated:</p>
+                <div class="d-flex justify-content-around align-content-center pb-2">
+                        <strong>A - <span id="totalA"></span></strong>
+                        <strong>B - <span id="totalB"></span></strong>
+                        <strong>C - <span id="totalC"></span></strong>
+                        <strong>D - <span id="totalD"></span></strong>
+                </div>
+
+                <table class="table table-striped border-top">
+                    <thead class="position-relative">
                         <tr>
                             <th>Generate Date</th>
                             <th>Queue Number</th>

@@ -107,7 +107,6 @@ namespace PrinceQueuing.Controllers
             }
 
         }
-
         //Process
         public async Task<IActionResult> Print_QueueNumber(string date, int categoryId, int queueNumber)
         {
@@ -128,7 +127,6 @@ namespace PrinceQueuing.Controllers
             }
 
         }
-
         [HttpPost]
         public async Task<IActionResult> GenerateQueueNumber(int categoryId)
         {
@@ -155,7 +153,6 @@ namespace PrinceQueuing.Controllers
 
             return Json(response);
         }
-
         public async Task<IActionResult> GetCategories()
         {
             try
@@ -171,7 +168,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred while fetching the categories." });
             }
         }
-
         public async Task<IActionResult> GetServings()
         {
             try
@@ -188,8 +184,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred while fetching the GetServings." });
             }
         }
-
-
         public async Task<IActionResult> Get_RecentDataQueue()
         {
             try
@@ -204,9 +198,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred while fetching the GetServings." });
             }
         }
-
-
-
         public async Task<IActionResult> GetReservedQueues()
         {
             try
@@ -264,13 +255,31 @@ namespace PrinceQueuing.Controllers
             {
                 //User ID
                 var userId = GetCurrentUserId();
-                var response = await _clerk.NextQueueNumber(id, userId);
+                var ipAddress = GetUserIpAddress();
+                var response = await _clerk.NextQueueNumber(id, userId, ipAddress);
                 return Json(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in NextQueue action");
                 return Json(new { IsSuccess = false, message = "An error occurred in NextQueue." });
+            }
+        }
+
+        public async Task<IActionResult> CallQueueNumber()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var ipAddress = GetUserIpAddress();
+                var response = await _clerk.CallQueueNumber(userId, ipAddress);
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CallQueueNumber action");
+                return Json(new { IsSuccess = false, message = "An error occurred while fetching the CallQueueNumber." });
             }
         }
 
@@ -314,7 +323,8 @@ namespace PrinceQueuing.Controllers
             {
                 //User ID
                 var userId = GetCurrentUserId();
-                var response = await _clerk.ServeQueueFromTable(generateDate, categoryId, qNumber, userId);
+                var ipAddress = GetUserIpAddress();
+                var response = await _clerk.ServeQueueFromTable(generateDate, categoryId, qNumber, userId, ipAddress);
 
                 return Json(response);
             }
@@ -331,7 +341,8 @@ namespace PrinceQueuing.Controllers
             {
                 //User ID
                 var userId = GetCurrentUserId();
-                var response = await _clerk.ServeQueueFromReserveTable(generateDate, categoryId, qNumber, userId);
+                var ipAddress = GetUserIpAddress();
+                var response = await _clerk.ServeQueueFromReserveTable(generateDate, categoryId, qNumber, userId, ipAddress);
 
                 return Json(response);
             }

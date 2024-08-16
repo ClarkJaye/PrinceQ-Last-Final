@@ -1,12 +1,15 @@
 ﻿$(document).ready(function () {
     loadServingReport();
+    loadPieChart();
     load_Clerks();
 });
 
-//Load TotalServing
+// Load TotalServing
 var servedChart;
 var servedLabels = [];
 var servedDatasets = [];
+var myPieChart;
+
 function loadServingReport() {
     var clerkDropdown = document.getElementById('selectedClerk').value;
     var yearDropdown = document.getElementById('selectedYear').value;
@@ -83,7 +86,7 @@ function LoadServeData(clerkData, yearData, monthData) {
 
             servedDatasets = [
                 {
-                    label: 'Category A',
+                    label: 'Trade',
                     data: data.map(item => item.categoryASum),
                     borderColor: "#157347",
                     backgroundColor: "#157347",
@@ -92,7 +95,7 @@ function LoadServeData(clerkData, yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category B',
+                    label: 'Non-Trade',
                     data: data.map(item => item.categoryBSum),
                     borderColor: "#ffca2c",
                     backgroundColor: "#ffca2c",
@@ -101,7 +104,7 @@ function LoadServeData(clerkData, yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category C',
+                    label: 'Special',
                     data: data.map(item => item.categoryCSum),
                     borderColor: "#dc3545",
                     backgroundColor: "#dc3545",
@@ -110,7 +113,7 @@ function LoadServeData(clerkData, yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category D',
+                    label: 'Inquiry',
                     data: data.map(item => item.categoryDSum),
                     borderColor: "#0b5ed7",
                     backgroundColor: "#0b5ed7",
@@ -123,6 +126,20 @@ function LoadServeData(clerkData, yearData, monthData) {
             servedChart.data.labels = servedLabels;
             servedChart.data.datasets = servedDatasets;
             servedChart.update();
+
+            // Update the pie chart data
+            const totalCategoryASum = data.map(item => item.categoryASum).reduce((a, b) => a + b, 0);
+            const totalCategoryBSum = data.map(item => item.categoryBSum).reduce((a, b) => a + b, 0);
+            const totalCategoryCSum = data.map(item => item.categoryCSum).reduce((a, b) => a + b, 0);
+            const totalCategoryDSum = data.map(item => item.categoryDSum).reduce((a, b) => a + b, 0);
+
+            myPieChart.data.datasets[0].data = [
+                totalCategoryASum,
+                totalCategoryBSum,
+                totalCategoryCSum,
+                totalCategoryDSum
+            ];
+            myPieChart.update();
         },
         error: function (error) {
             console.log("Error:", error);
@@ -130,7 +147,38 @@ function LoadServeData(clerkData, yearData, monthData) {
     });
 }
 
-//Plugin
+// Load Pie Chart
+function loadPieChart() {
+    const ctxPie = document.getElementById('waitingPieChart');
+
+    myPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Trade', 'Non-Trade', 'Special', 'Inquiry'],
+            datasets: [
+                {
+                    data: [0, 0, 0, 0], // Initial dummy data
+                    backgroundColor: ['#157347', '#ffca2c', '#dc3545', '#0b5ed7'],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            plugins: {
+                datalabels: {
+                    color: '#fff',
+                    formatter: (value, ctx) => {
+                        let label = ctx.chart.data.labels[ctx.dataIndex];
+                        return `${label}: ${value}`;
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+// Plugin
 const plugin = {
     beforeInit(chart) {
         const originalFit = chart.legend.fit;
@@ -141,7 +189,7 @@ const plugin = {
     }
 }
 
-//Load Clerks
+// Load Clerks
 function load_Clerks() {
     $.ajax({
         type: 'GET',
@@ -157,5 +205,3 @@ function load_Clerks() {
         }
     })
 }
-
-

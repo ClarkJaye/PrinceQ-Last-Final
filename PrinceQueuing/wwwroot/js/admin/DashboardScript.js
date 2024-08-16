@@ -83,7 +83,7 @@ function LoadData(yearData, monthData) {
 
             ServingDatasets = [
                 {
-                    label: 'Category A',
+                    label: 'Trade',
                     data: data.map(item => item.categoryASum),
                     borderColor: "#157347",
                     backgroundColor: "#157347",
@@ -92,7 +92,7 @@ function LoadData(yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category B',
+                    label: 'Non-Trade',
                     data: data.map(item => item.categoryBSum),
                     borderColor: "#ffca2c",
                     backgroundColor: "#ffca2c",
@@ -101,7 +101,7 @@ function LoadData(yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category C',
+                    label: 'Special',
                     data: data.map(item => item.categoryCSum),
                     borderColor: "#dc3545",
                     backgroundColor: "#dc3545",
@@ -110,7 +110,7 @@ function LoadData(yearData, monthData) {
                     fill: false
                 },
                 {
-                    label: 'Category D',
+                    label: 'Inquiry',
                     data: data.map(item => item.categoryDSum),
                     borderColor: "#0b5ed7",
                     backgroundColor: "#0b5ed7",

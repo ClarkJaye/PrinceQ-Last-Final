@@ -105,7 +105,6 @@ function populateTable(data) {
 
 //creating the Table inside the Modal 
 function populateModalViewDetails(data) {
-    console.log(data)
     var tableBody = $("#detailsTable tbody");
     tableBody.empty();
 
@@ -114,7 +113,16 @@ function populateModalViewDetails(data) {
         var serveEnd = item.serveEnd && item.serveEnd !== '00:00:00' ? new Date(`1970-01-01T${item.serveEnd}Z`) : null;
         var servingTime = (serveEnd && serveStart) ? (serveEnd - serveStart) / 1000 : "N/A";
 
-        var stage = item.stageId === 1 ? "Filling" : "Releasing";
+        var stage;
+        var stageClass;
+        if (item.categoryId !== 4) {
+            stage = item.stageId === 1 ? "Filling" : "Releasing";
+            stageClass = item.stageId === 1 ? "text-primary" : "text-danger";
+        } else {
+            stage = "Inquiry";
+            stageClass = "text-muted"
+        }
+
 
         var category = getCategoryLetter(item.categoryId);
         var generateDate = item.generateDate ? formatDate(item.generateDate) : 'N/A';
@@ -122,7 +130,7 @@ function populateModalViewDetails(data) {
             <td>${generateDate}</td>
             <td>${item.username}</td>
             <td>${category}-${item.queueNumber}</td>
-            <td>${stage}</td>
+            <td class="${stageClass}">${stage}</td>
             <td>${item.total_Cheque} pcs</td>
             <td>${serveStart ? formatTime(serveStart) : 'N/A'}</td>
             <td>${serveEnd ? formatTime(serveEnd) : 'N/A'}</td>

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using PrinceQ.DataAccess.Hubs;
 using PrinceQ.DataAccess.Interfaces;
 using PrinceQ.DataAccess.Repository;
 using PrinceQ.Models.Entities;
 using PrinceQ.Models.ViewModel;
+using System.Net;
 using static PrinceQ.DataAccess.Response.ServiceResponses;
 
 namespace PrinceQ.DataAccess.Services
@@ -81,27 +83,52 @@ namespace PrinceQ.DataAccess.Services
         public async Task<GeneralResponse> RecentDataQueue()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var recentQ = await _unitOfWork.queueNumbers.GetAll(rq => rq.QueueId == currentDate);
+            var queueNumbers = await _unitOfWork.queueNumbers.GetAll(q => q.QueueId == currentDate);
 
-            if (recentQ is null) return new GeneralResponse(false, null, "No data yet.");
+            if (queueNumbers == null || !queueNumbers.Any())
+                return new GeneralResponse(false, null, "No data yet.");
 
-            var data = recentQ.Select(q => new
+            var data = queueNumbers.Select(q => new
             {
                 generateDate = q.QueueId,
                 generate_at = q.Generate_At,
                 categoryId = q.CategoryId,
                 queueNumber = q.QueueNumber ?? 0,
                 category = GetCategoryString((int)q.CategoryId),
-            });
+            }).ToList(); 
 
-            return new GeneralResponse(true, data, "Successfully fetch.");
+            var qData = queueNumbers.GroupBy(q => q.CategoryId).ToDictionary(g => g.Key, g => g.Count());
+
+            var categoryCounts = new
+            {
+                categoryA = qData.TryGetValue(1, out var catA) ? catA : 0,
+                categoryB = qData.TryGetValue(2, out var catB) ? catB : 0,
+                categoryC = qData.TryGetValue(3, out var catC) ? catC : 0,
+                categoryD = qData.TryGetValue(4, out var catD) ? catD : 0
+            };
+
+            return new GeneralResponse(true, new { data, categoryCounts }, "Successfully fetched.");
         }
+
         //Designated Clerk Number
         public async Task<GeneralResponse> DesignatedClerk(string ipAddress, string userId)
         {
             var device = await _unitOfWork.device.Get(u => u.IPAddress == ipAddress && u.UserId == userId);
 
-            if (device is null) return new GeneralResponse(false, null, "failed");
+            if (device is null)
+            {
+                var user = await _unitOfWork.users.Get(u=>u.Id == userId);
+
+                var clerkUser = await _unitOfWork.device.Get(u => u.IPAddress == ipAddress);
+                if (clerkUser != null)
+                {
+                    clerkUser.UserId = user?.Id;
+                    _unitOfWork.device.Update(clerkUser);
+                    await _unitOfWork.SaveAsync();
+                }
+
+                return new GeneralResponse(true, device = clerkUser, "Success");
+            }
 
             return new GeneralResponse(true, device, "Success");
         }
@@ -115,11 +142,13 @@ namespace PrinceQ.DataAccess.Services
 
             var userCate = await _unitOfWork.userCategories.GetAll(uc => uc.UserId == userId);
             var userCategories = userCate.OrderBy(uc => uc.CategoryId).ToList();
+            var categories = await _unitOfWork.category.GetAll();
 
             var userResult = userCategories.Select(uc => new
             {
                 categoryId = uc.CategoryId,
-                queueCount = queueNumbers.Count(q => q.CategoryId == uc.CategoryId)
+                queueCount = queueNumbers.Count(q => q.CategoryId == uc.CategoryId),
+                category = categories.FirstOrDefault(c=>c.CategoryId == uc.CategoryId)?.Description,
             }).ToList();
 
             if (userResult is null) return new GeneralResponse(false, null, "categories not found");
@@ -130,17 +159,33 @@ namespace PrinceQ.DataAccess.Services
         public async Task<GetResponse> GetServings(string userId, string ipAddress)
         {
             var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
-
             if (servingData is null) return new GetResponse(false, null, "There is no QueueNumber");
-
             var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
             var clerkNum = device?.ClerkNumber;
 
-            var qNumber = await _unitOfWork.queueNumbers.Get(s => s.QueueId == servingData.Served_At.ToString("yyyyMMdd") && s.CategoryId == servingData.CategoryId && s.QueueNumber == servingData.QueueNumberServe);
+            var qNumber = await _unitOfWork.queueNumbers.Get(s => s.QueueId == servingData.Served_At.ToString("yyyyMMdd") && s.CategoryId == servingData.CategoryId
+            && s.QueueNumber == servingData.QueueNumberServe);
 
-            await _hubContext.Clients.All.SendAsync("CallQueueInTVRed", clerkNum);
-            return new GetResponse(true, new { servingData.CategoryId, queueNumber = servingData.QueueNumberServe, qNumber?.QueueId, qNumber?.StageId, qNumber?.Total_Cheques } , "Success");
-            //return new GetResponse(true, servingData.CategoryId, servingData.QueueNumberServe, qNumber?.StageId, qNumber?.Total_Cheques, "Success");
+            return new GetResponse(true, new { categoryId = qNumber?.CategoryId, queueNumber = qNumber?.QueueNumber, qNumber?.QueueId, qNumber?.StageId, qNumber?.Total_Cheques }, "Success");
+
+        }
+        //Call Number
+        public async Task<GeneralResponse> CallQueueNumber(string userId, string ipAddress)
+        {
+            var queueServe = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
+            var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
+            var clerkNum = device?.ClerkNumber;
+            var queues = new[] {
+                new
+                {
+                    queueNumberServe = queueServe?.QueueNumberServe,
+                    categoryId = queueServe?.CategoryId,
+                    clerkNumber = clerkNum
+                }
+            };
+            await _hubContext.Clients.All.SendAsync("CallQueueNumber", queueServe?.CategoryId, queueServe?.QueueNumberServe, clerkNum);
+
+            return new GeneralResponse(true, queues, "Call Successfully");
         }
         //GET RESERVE QUEUENUMBER
         public async Task<GeneralResponse> GetReservedQueues(string userId)
@@ -210,7 +255,7 @@ namespace PrinceQ.DataAccess.Services
             return new GeneralResponse(true, fillingQueue, "Get all filling up queues Success.");
         }
         //NEXT QUEUENUMBER
-        public async Task<GeneralResponse> NextQueueNumber(int Id, string userId)
+        public async Task<GeneralResponse> NextQueueNumber(int Id, string userId,string ipAddress)
         {
             var userAccess = await _unitOfWork.users.Get(u=> u.Id == userId);
             if (userAccess.IsActive == true)
@@ -227,6 +272,8 @@ namespace PrinceQ.DataAccess.Services
                     queueItem.ForFilling_start = DateTime.Now;
 
                     var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId);
+                    var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
+                    var clerkNum = device?.ClerkNumber;
                     if (servingData != null)
                     {
                         var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
@@ -236,8 +283,10 @@ namespace PrinceQ.DataAccess.Services
                             {
                                 return new GeneralResponse(false, new { prevQ.Total_Cheques, prevQ.QueueId, prevQ.CategoryId, prevQ.QueueNumber }, "Input the number of cheque first");
                             }
-
-                            prevQ.StatusId = 2;
+                            if(prevQ.CategoryId != 4)
+                            {
+                                prevQ.StatusId = 2;
+                            }
                             if (prevQ.CategoryId == 4)
                             {
                                 prevQ.ForFilling_end = DateTime.Now;
@@ -263,8 +312,8 @@ namespace PrinceQ.DataAccess.Services
                         servingData.CategoryId = Id;
                         servingData.QueueNumberServe = (int)queueItem.QueueNumber!;
                         servingData.Served_At = DateTime.Now;
-
                         _unitOfWork.servings.Update(servingData);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", servingData?.CategoryId, servingData?.QueueNumberServe, clerkNum);
                     }
                     else
                     {
@@ -275,8 +324,9 @@ namespace PrinceQ.DataAccess.Services
                             QueueNumberServe = (int)queueItem.QueueNumber!,
                             Served_At = DateTime.Now,
                         };
-
                         _unitOfWork.servings.Add(serving);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", serving?.CategoryId, serving?.QueueNumberServe, clerkNum);
+
                     }
 
                     if (queueItem.StageId == 1)
@@ -421,7 +471,7 @@ namespace PrinceQ.DataAccess.Services
         ////// -------------QUEUE IN TABLES-------------- //////
 
         //Serve QUEUENUMBER From Releasing Table
-        public async Task<GeneralResponse> ServeQueueFromTable(string generateDate, int categoryId, int qNumber, string userId)
+        public async Task<GeneralResponse> ServeQueueFromTable(string generateDate, int categoryId, int qNumber, string userId, string ipAddress)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
             if (userAccess.IsActive == true)
@@ -450,11 +500,12 @@ namespace PrinceQ.DataAccess.Services
                         await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
 
-                    var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
                     //For Serving the QueueNumbers
+                    var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
+                    var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
+                    var clerkNum = device?.ClerkNumber;
                     if (servingData != null && servingData.Served_At.Date == DateTime.Today)
                     {
-                        //var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == servingData.Served_At.ToString("yyyyMMdd") && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         if (prevQ is not null)
                         {
@@ -487,6 +538,7 @@ namespace PrinceQ.DataAccess.Services
                         servingData.QueueNumberServe = (int)queueItem.QueueNumber!;
                         servingData.Served_At = DateTime.Now;
                         _unitOfWork.servings.Update(servingData);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", servingData?.CategoryId, servingData?.QueueNumberServe, clerkNum);
                     }
                     else
                     {
@@ -498,11 +550,11 @@ namespace PrinceQ.DataAccess.Services
                             Served_At = DateTime.Now,
                         };
                         _unitOfWork.servings.Add(serving);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", serving?.CategoryId, serving?.QueueNumberServe, clerkNum);
                     }
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
 
-                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("ServeInReservedQueue", queueItem);
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
@@ -520,8 +572,9 @@ namespace PrinceQ.DataAccess.Services
                 return new GeneralResponse(false, null, "Your account is disabled.");
             }
         }
+
         //Serve QUEUENUMBER From Reserve Table
-        public async Task<GeneralResponse> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber, string userId)
+        public async Task<GeneralResponse> ServeQueueFromReserveTable(string generateDate, int categoryId, int qNumber, string userId, string ipAddress)
         {
             var userAccess = await _unitOfWork.users.Get(u => u.Id == userId);
             if (userAccess.IsActive == true)
@@ -550,11 +603,13 @@ namespace PrinceQ.DataAccess.Services
                         await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber!);
                     }
 
-                    var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
                     //For Serving the QueueNumbers
+                    var servingData = await _unitOfWork.servings.Get(u => u.UserId == userId && u.Served_At.Date == DateTime.Today);
+                    var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
+                    var clerkNum = device?.ClerkNumber;
+
                     if (servingData != null && servingData.Served_At.Date == DateTime.Today)
                     {
-                        //var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == servingData.Served_At.ToString("yyyyMMdd") && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         if (prevQ is not null)
                         {
@@ -587,6 +642,7 @@ namespace PrinceQ.DataAccess.Services
                         servingData.QueueNumberServe = (int)queueItem.QueueNumber!;
                         servingData.Served_At = DateTime.Now;
                         _unitOfWork.servings.Update(servingData);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", servingData?.CategoryId, servingData?.QueueNumberServe, clerkNum);
                     }
                     else
                     {
@@ -598,12 +654,13 @@ namespace PrinceQ.DataAccess.Services
                             Served_At = DateTime.Now,
                         };
                         _unitOfWork.servings.Add(serving);
+                        await _hubContext.Clients.All.SendAsync("CallQueueNumber", serving?.CategoryId, serving?.QueueNumberServe, clerkNum);
                     }
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
 
-                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
+                    //await _hubContext.Clients.All.SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("ServeInReservedQueue", queueItem);
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
@@ -708,7 +765,8 @@ namespace PrinceQ.DataAccess.Services
 
                     _unitOfWork.queueNumbers.Update(queueItem);
                     await _unitOfWork.SaveAsync();
-                    await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
+
+                    //await _hubContext.Clients.All.SendAsync("DisplayTVQueue");
                     await _hubContext.Clients.All.SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
@@ -755,9 +813,6 @@ namespace PrinceQ.DataAccess.Services
                 var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
                 var clerkNum = device?.ClerkNumber;
                 await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
-
-
-
                 await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                 await _hubContext.Clients.Group(userId).SendAsync("removeCheqBtn");
                 return new CommonResponse(true, "Cheques added success.");

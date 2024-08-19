@@ -57,6 +57,19 @@ connectionQueueHub.on("RecentServing", function () {
     GetAllRecentQueue();
 });
 
+connectionQueueHub.on("updateGenerateCard", function () {
+    TotalGeneratedNumber();
+});
+connectionQueueHub.on("updateServingCard", function () {
+    TotalQueueServe();
+});
+connectionQueueHub.on("updateReservedCard", function () {
+    TotalReserveNumber();
+});
+connectionQueueHub.on("updateCancelCard", function () {
+    TotalCancelNumber();
+});
+
 //For TV Display
 function getCategoryLetter(categoryId) {
     var categories = {

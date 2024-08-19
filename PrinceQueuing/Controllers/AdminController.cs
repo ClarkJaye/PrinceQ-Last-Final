@@ -40,7 +40,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in GetDataByYearAndMonth." });
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> TotalQueueNumber()
         {
@@ -55,7 +54,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> GetQueueServed()
         {
@@ -76,6 +74,34 @@ namespace PrinceQueuing.Controllers
             try
             {
                 var response = await _admin.TotalServed();
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in HighestServePerDay action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> TotalReservedNumber()
+        {
+            try
+            {
+                var response = await _admin.TotalReservedNumberPerDay();
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in HighestServePerDay action");
+                return Json(new { IsSuccess = false, Message = "An error occurred in HighestServePerDay." });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> TotalCancelNumber()
+        {
+            try
+            {
+                var response = await _admin.TotalCancelNumberPerDay();
                 return Json(response);
             }
             catch (Exception ex)

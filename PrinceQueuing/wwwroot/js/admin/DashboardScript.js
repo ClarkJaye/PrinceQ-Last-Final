@@ -1,6 +1,8 @@
 ﻿$(document).ready(function () {
     loadTotalServing();
     TotalGeneratedNumber();
+    TotalReserveNumber();
+    TotalCancelNumber();
     TotalQueueServe();
     GetAllRecentQueue();
 });
@@ -156,6 +158,7 @@ function TotalQueueServe() {
         type: "GET",
         url: "/admin/totalServed",
         success: function (response) {
+            console.log(response)
             var totalQ = document.getElementById("totalServed");
             if (response) {
                 totalQ.textContent = response.obj.value;
@@ -170,21 +173,58 @@ function TotalQueueServe() {
     })
 }
 
-//Load Reserve Table
+//Total Reserved Queue Nubmer
+function TotalReserveNumber() {
+    $.ajax({
+        type: "GET",
+        url: "/admin/totalReservedNumber",
+        success: function (response) {
+            var totalQ = document.getElementById("totalReserved");
+            if (response) {
+                totalQ.textContent = response.obj.value;
+            }
+            else {
+                totalQ.textContent = 0;
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+//Total Cancel Queue Nubmer
+function TotalCancelNumber() {
+    $.ajax({
+        type: "GET",
+        url: "/admin/totalCancelNumber",
+        success: function (response) {
+            var totalQ = document.getElementById("totalCancel");
+            if (response) {
+                totalQ.textContent = response.obj.value;
+            }
+            else {
+                totalQ.textContent = 0;
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+// Load Reserve Table
 function GetAllRecentQueue() {
     $.ajax({
         type: 'GET',
         url: "/admin/GetQueueServed",
         dataType: "json",
         success: function (response) {
-            var items = response.obj.data;
+            var items = response?.obj?.data || []; 
             var tbody = $("#recentlyQServes");
             tbody.empty();
-
-            if (items && items.length > 0) {
-                var tableRows = items.map(function (queue) {
-                    return createTableRecent(queue);
-                });
+            if (items.length > 0) {
+                var tableRows = items.map(createTableRecent);
                 tbody.append(tableRows);
             } else {
                 var noItemRow = $("<tr class='text-center'>").append($("<td colspan='4'>").text("No Serving yet"));
@@ -192,17 +232,20 @@ function GetAllRecentQueue() {
             }
         },
         error: function (error) {
-            console.log("Error:", error);
+            var tbody = $("#recentlyQServes");
+            tbody.empty();
+            var errorRow = $("<tr class='text-center text-danger'>").append($("<td colspan='4'>").text("Failed to load data"));
+            tbody.append(errorRow);
         }
     });
-
 }
 // Function to Create Table Row
 function createTableRecent(queue) {
     var category = getCategoryLetter(queue.category)
     var queueNumber = $("<th>").text(category + " - " + queue.qNumber);
     var servingByCell = $("<td>").text(queue.servingBy);
-    var stageCell = $("<td>").text(queue.stage === 2 ? "Releasing" : "Filling");
+    var stageColor = queue.stage === 2 ? "text-danger" : "text-success"
+    var stageCell = $("<td>").addClass(stageColor).text(queue.stage === 2 ? "Releasing" : "Filling");
     var dateTimeCell = $("<td>").text(queue.dateTime);
 
     var tableRow = $("<tr>").append(queueNumber, servingByCell, stageCell, dateTimeCell);

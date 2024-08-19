@@ -12,6 +12,8 @@ namespace PrinceQ.DataAccess.Interfaces
         //DASHBOARD
         Task<ChartDataResponse> GetDataByYearAndMonth(string year, string month);
         Task<GeneralResponse> TotalQueueNumberPerDay();
+        Task<GeneralResponse> TotalReservedNumberPerDay();
+        Task<GeneralResponse> TotalCancelNumberPerDay();
         Task<GeneralResponse> GetQueueServed();
         Task<GeneralResponse> TotalServed();
         Task<GeneralResponse> RecentlyServed();

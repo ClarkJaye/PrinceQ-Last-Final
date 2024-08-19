@@ -68,7 +68,7 @@ namespace PrinceQ.DataAccess.Services
             _unitOfWork.queueNumbers.Add(queueNumber);
             await _unitOfWork.SaveAsync();
             await _hubContext.Clients.All.SendAsync("UpdateQueueFromPersonnel");
-
+            await _hubContext.Clients.All.SendAsync("updateGenerateCard");
             return new DualResponse(true, queueNumber, selectedCategory, "Generation successful");
         }
         //Get Queue
@@ -346,6 +346,7 @@ namespace PrinceQ.DataAccess.Services
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("RecentServing");
+                    await _hubContext.Clients.All.SendAsync("updateServingCard");
                     return new GeneralResponse(true, queueItem, "successful");
                 }
                 else
@@ -404,6 +405,8 @@ namespace PrinceQ.DataAccess.Services
                     await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                     await _hubContext.Clients.All.SendAsync("reservedQueue");
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
+                    await _hubContext.Clients.All.SendAsync("RecentServing");
+                    await _hubContext.Clients.All.SendAsync("updateReservedCard");
                 }
                 return new GeneralResponse(true, null, "Reserve Success.");
             }
@@ -452,11 +455,11 @@ namespace PrinceQ.DataAccess.Services
 
                     var device = await _unitOfWork.device.Get(d => d.IPAddress == ipAddress);
                     var clerkNum = device?.ClerkNumber;
-                    //signalr method
                     await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
                     await _hubContext.Clients.Group(userId).SendAsync("cancelQueueInMenu");
-                    //For Display in TV
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
+                    await _hubContext.Clients.All.SendAsync("RecentServing");
+                    await _hubContext.Clients.All.SendAsync("updateCancelCard");
                 }
 
                 return new GeneralResponse(true, null, "Cancel successful.");
@@ -559,6 +562,7 @@ namespace PrinceQ.DataAccess.Services
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
                     await _hubContext.Clients.All.SendAsync("RecentServing");
+                    await _hubContext.Clients.All.SendAsync("updateServingCard");
                     return new GeneralResponse(true, queueItem, "Served from reserve table success.");
                 }
                 else
@@ -664,6 +668,7 @@ namespace PrinceQ.DataAccess.Services
                     await _hubContext.Clients.All.SendAsync("fillingQueue");
                     await _hubContext.Clients.All.SendAsync("releasingQueue");
                     await _hubContext.Clients.All.SendAsync("RecentServing");
+                    await _hubContext.Clients.All.SendAsync("updateServingCard");
                     return new GeneralResponse(true, queueItem, "Served from reserve table success.");
                 }
                 else
@@ -813,6 +818,7 @@ namespace PrinceQ.DataAccess.Services
                 await _hubContext.Clients.All.SendAsync("QueueDisplayInTvRemove", clerkNum);
                 await _hubContext.Clients.Group(userId).SendAsync("DisplayQueue");
                 await _hubContext.Clients.Group(userId).SendAsync("removeCheqBtn");
+                await _hubContext.Clients.All.SendAsync("RecentServing");
                 return new CommonResponse(true, "Cheques added success.");
             }
             else

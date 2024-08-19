@@ -118,7 +118,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, new {data = result } , "successfully get.");
         }
-
         public async Task<GeneralResponse> TotalServed()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
@@ -130,7 +129,28 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, new { value = totalQ }, "successfuly get.");
         }
+        public async Task<GeneralResponse> TotalReservedNumberPerDay()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 3);
 
+            var totalGenerate = data.Count();
+
+            if (totalGenerate <= 0) return new GeneralResponse(false, new { value = totalGenerate }, "failed to fetched");
+
+            return new GeneralResponse(true, new { value = totalGenerate }, "fetched successful");
+        }
+        public async Task<GeneralResponse> TotalCancelNumberPerDay()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 4);
+
+            var totalGenerate = data.Count();
+
+            if (totalGenerate <= 0) return new GeneralResponse(false, new { value = totalGenerate }, "failed to fetched");
+
+            return new GeneralResponse(true, new { value = totalGenerate }, "fetched successful");
+        }
         public async Task<GeneralResponse> RecentlyServed()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
@@ -709,7 +729,6 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, new {users = sortedUsers, categories }, "Successfully Fetched");
         }
-
         public async Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month)
         {
             if (clerkId != null && year != null && month == null)

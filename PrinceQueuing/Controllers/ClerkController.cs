@@ -107,7 +107,6 @@ namespace PrinceQueuing.Controllers
             }
 
         }
-        //Process
         public async Task<IActionResult> Print_QueueNumber(string date, int categoryId, int queueNumber)
         {
             try
@@ -175,6 +174,20 @@ namespace PrinceQueuing.Controllers
                 var userId = GetCurrentUserId();
                 var ipAddress = GetUserIpAddress();
                 var response = await _clerk.GetServings(userId, ipAddress);
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetServings action");
+                return Json(new { IsSuccess = false, message = "An error occurred while fetching the GetServings." });
+            }
+        }
+        public async Task<IActionResult> AnnounceCutOff()
+        {
+            try
+            {
+                var response = await _clerk.AnnounceCutOff();
 
                 return Json(response);
             }

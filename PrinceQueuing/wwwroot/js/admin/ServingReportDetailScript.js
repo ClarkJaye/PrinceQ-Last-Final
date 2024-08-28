@@ -70,6 +70,7 @@ function populateTable(data) {
                 }
             }
         ],
+        order: [[1, 'desc']], 
         columnDefs: [
             {
                 targets: 5, 

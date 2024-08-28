@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     loadTotalServing();
     TotalGeneratedNumber();
+    TotalWaitingNumber();
     TotalReserveNumber();
     TotalCancelNumber();
     TotalQueueServe();
@@ -173,6 +174,25 @@ function TotalQueueServe() {
     })
 }
 
+//Total Reserved Queue Nubmer
+function TotalWaitingNumber() {
+    $.ajax({
+        type: "GET",
+        url: "/admin/totalWaitingNumber",
+        success: function (response) {
+            var totalQ = document.getElementById("totalWaiting");
+            if (response) {
+                totalQ.textContent = response.obj.value;
+            }
+            else {
+                totalQ.textContent = 0;
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+}
 //Total Reserved Queue Nubmer
 function TotalReserveNumber() {
     $.ajax({

@@ -12,6 +12,7 @@ namespace PrinceQ.DataAccess.Interfaces
         //DASHBOARD
         Task<ChartDataResponse> GetDataByYearAndMonth(string year, string month);
         Task<GeneralResponse> TotalQueueNumberPerDay();
+        Task<GeneralResponse> TotalWaitingNumberPerDay();
         Task<GeneralResponse> TotalReservedNumberPerDay();
         Task<GeneralResponse> TotalCancelNumberPerDay();
         Task<GeneralResponse> GetQueueServed();
@@ -23,9 +24,10 @@ namespace PrinceQ.DataAccess.Interfaces
         Task<GeneralResponse> Serving_GetAllServedData();
         Task<GeneralResponse> GetDetailedData(string clerkId, string generateDate);
         Task<GeneralResponse> GetClerks_Categories();
+        Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month);
 
         //Waiting REPORT
-        Task<ChartDataResponse> GetServingDataClerk(string clerkId, string year, string month);
+        Task<ChartDataResponse> GetAllWaitingTimeData(string year, string month);
         Task<GeneralResponse> Waiting_GetAllServedData();
 
 
@@ -54,7 +56,7 @@ namespace PrinceQ.DataAccess.Interfaces
         //-----Announcement-----//
         Task<GeneralResponse> AnnouncementDetail(int? id);
         Task<GeneralResponse> AllAnnouncement();
-        Task<CommonResponse> AddAnnouncement(Announcement model);
+        Task<CommonResponse> AddAnnouncement(Announcement model, string addedBy);
         Task<CommonResponse> UpdateAnnouncement(Announcement model);
         Task<CommonResponse> DeleteAnnouncement(int? id);
         Task<GeneralResponse> GetTotalAnnounce();

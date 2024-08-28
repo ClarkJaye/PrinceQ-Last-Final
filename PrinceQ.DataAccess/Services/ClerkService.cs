@@ -167,7 +167,12 @@ namespace PrinceQ.DataAccess.Services
             && s.QueueNumber == servingData.QueueNumberServe);
 
             return new GetResponse(true, new { categoryId = qNumber?.CategoryId, queueNumber = qNumber?.QueueNumber, qNumber?.QueueId, qNumber?.StageId, qNumber?.Total_Cheques }, "Success");
-
+        }
+        //Announce Cut Off
+        public async Task<GetResponse> AnnounceCutOff()
+        {
+            await _hubContext.Clients.All.SendAsync("CutOff");
+            return new GetResponse(true, null, "Success");
         }
         //Call Number
         public async Task<GeneralResponse> CallQueueNumber(string userId, string ipAddress)

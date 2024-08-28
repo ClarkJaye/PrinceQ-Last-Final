@@ -7,37 +7,42 @@
     select{
         font-size: 12px!important;
     }
+
+    #waitingChart {
+        height: 700px !important;
+    }
+
+    
+    @@media (max-width: 1200px) {
+        .bdy {
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
+        }
+    }
+
 </style>
 
-<div class="px-5 mb-4">
+<div class="px-5 mb-4 bdy">
 
     <div class="bg-white rounded border shadow mt-5">
         <div class="border-bottom">
             <div class="d-flex align-items-center justify-content-between p-3 px-4">
-                <h6 class="fw-bold m-0"> Waiting Time Statistics</h6> 
+                <h6 class="fw-bold m-0"> Waiting Time Overview</h6>
 
                 <div class="d-flex align-items-center gap-3">
                     <a class="btn btn-warning" style="font-size: 12px;" asp-controller="Admin" asp-action="WaitingReport_Details">
-                        See Detailed
+                        See Detailed Statistics
                     </a>
                 </div>
 
             </div>
         </div>
         <div class="d-flex align-items-center justify-content-between p-2 px-5">
-          
-            <div>
-                <select id="selectedRange" class="form-select" onchange="LoadWaitingData( this.value, document.getElementById('selectedYear').value, document.getElementById('selectedMonth').value)">
-                    <option value="" selected disabled>Select Range</option>
-                    <option value="gf">Generate Start To ForFilling</option>
-                    <option value="fr">ForFilling Start To Releasing</option>
-                    <option value="gr">Generate Start To Releasing End</option>
 
-                </select>
-            </div>
+            <h6 class="text-success m-0">- Longest Average Wait Time</h6>
 
             <div class="yearContainer d-flex gap-2">
-                <select id="selectedMonth" onchange="LoadWaitingData( document.getElementById('selectedRange').value, document.getElementById('selectedYear').value, this.value)" class="form-select">
+                <select id="selectedMonth" onchange="LoadWaitingData( document.getElementById('selectedYear').value, this.value)" class="form-select">
                     <option data-month="All" value="">All</option>
                     <option data-month="January" value="01">January</option>
                     <option data-month="February" value="02">February</option>
@@ -53,7 +58,7 @@
                     <option data-month="December" value="12">December</option>
                 </select>
 
-                <select id="selectedYear" onchange="LoadWaitingData( document.getElementById('selectedRange').value, this.value,  document.getElementById('selectedMonth').value)" class="form-select">
+                <select id="selectedYear" onchange="LoadWaitingData( this.value,  document.getElementById('selectedMonth').value)" class="form-select">
                     <option value="2024">2024</option>
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
@@ -63,11 +68,9 @@
                     <option value="2030">2030</option>
                 </select>
             </div>
-
-
         </div>
 
-        <div class="pb-5 mx-5">
+        <div class="mx-5 pb-2">
             <canvas id="waitingChart"></canvas>
         </div>
     </div>

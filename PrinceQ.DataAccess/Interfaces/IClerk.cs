@@ -12,6 +12,7 @@ namespace PrinceQ.DataAccess.Interfaces
         Task<GeneralResponse> GetAllWaitingQueue(string userId);
         Task<GeneralResponse> DesignatedClerk(string ipAddress, string userId);
         Task<GetResponse> GetServings(string userId, string ipAddress);
+        Task<GetResponse> AnnounceCutOff();
         Task<GeneralResponse> GetReservedQueues(string userId);
         Task<GeneralResponse> GetFillingUpQueues(string userId);
         Task<GeneralResponse> CallQueueNumber(string userId, string ipAddress);

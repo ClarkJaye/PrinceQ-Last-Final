@@ -133,7 +133,7 @@ function CallQueue() {
             if (response && response.isSuccess == true) {
                 var queue = response.obj[0];
                 var categoryLetter = getCategoryLetter(queue.categoryId);
-                var displayText = categoryLetter ? `${categoryLetter} - ${queue.queueNumberServe}` : "----";
+                var displayText = categoryLetter !== null ? `${categoryLetter} - ${queue.queueNumberServe}` : "----";
                 servingDisplay.innerText = displayText;
 
                 servingDisplay.classList.add("blink-red");
@@ -404,7 +404,7 @@ function getCategoryLetter(categoryId) {
         case 4:
             return 'D';
         default:
-            return '';
+            return null;
     }
 }
 

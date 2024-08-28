@@ -107,3 +107,11 @@ const displayDateTime = () => {
     $('#time').text(formattedTime);
     $('#date').text(formattedDate);
 };
+
+function cutOffAnnounce() {
+    var speechText = "Attention, please. Operations will be Cut Off at 5 PM.";
+    playBackgroundMusic();
+    setTimeout(function () {
+        speak(speechText);
+    }, 1000);
+}

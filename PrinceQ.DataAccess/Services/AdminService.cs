@@ -121,7 +121,7 @@ namespace PrinceQ.DataAccess.Services
         public async Task<GeneralResponse> TotalServed()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
-            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StageId == 2);
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 5);
 
             var totalQ = data.Count();
 
@@ -129,27 +129,38 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, new { value = totalQ }, "successfuly get.");
         }
+        public async Task<GeneralResponse> TotalWaitingNumberPerDay()
+        {
+            var currentDate = DateTime.Today.ToString("yyyyMMdd");
+            var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 1);
+
+            var total = data.Count();
+
+            if (total <= 0) return new GeneralResponse(false, new { value = total }, "failed to fetched");
+
+            return new GeneralResponse(true, new { value = total }, "fetched successful");
+        }
         public async Task<GeneralResponse> TotalReservedNumberPerDay()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
             var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 3);
 
-            var totalGenerate = data.Count();
+            var total = data.Count();
 
-            if (totalGenerate <= 0) return new GeneralResponse(false, new { value = totalGenerate }, "failed to fetched");
+            if (total <= 0) return new GeneralResponse(false, new { value = total }, "failed to fetched");
 
-            return new GeneralResponse(true, new { value = totalGenerate }, "fetched successful");
+            return new GeneralResponse(true, new { value = total }, "fetched successful");
         }
         public async Task<GeneralResponse> TotalCancelNumberPerDay()
         {
             var currentDate = DateTime.Today.ToString("yyyyMMdd");
             var data = await _unitOfWork.queueNumbers.GetAll(g => g.QueueId == currentDate && g.StatusId == 4);
 
-            var totalGenerate = data.Count();
+            var total = data.Count();
 
-            if (totalGenerate <= 0) return new GeneralResponse(false, new { value = totalGenerate }, "failed to fetched");
+            if (total <= 0) return new GeneralResponse(false, new { value = total }, "failed to fetched");
 
-            return new GeneralResponse(true, new { value = totalGenerate }, "fetched successful");
+            return new GeneralResponse(true, new { value = total }, "fetched successful");
         }
         public async Task<GeneralResponse> RecentlyServed()
         {
@@ -557,14 +568,15 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, data, "Fetch successfully.");
         }
-        public async Task<CommonResponse> AddAnnouncement(Announcement model)
+        public async Task<CommonResponse> AddAnnouncement(Announcement model, string addedBy)
         {
             Announcement announce = new()
             {
                 Name = model.Name,
                 Description = model.Description,
                 Created_At = DateTime.Now,
-                IsActive = false
+                IsActive = false,
+                AddedBy = addedBy
             };
             _unitOfWork.announcement.Add(announce);
             await _unitOfWork.SaveAsync();
@@ -585,7 +597,6 @@ namespace PrinceQ.DataAccess.Services
                     prevAnnounceActive.IsActive = false;
                     _unitOfWork.announcement.Update(prevAnnounceActive);
                 }
-
                 _unitOfWork.announcement.Update(model);
             }
 
@@ -672,8 +683,8 @@ namespace PrinceQ.DataAccess.Services
                         CategoryId = f.CategoryId ?? 0,
                         QueueNumber = f.QueueNumber ?? 0,
                         Total_Cheque = queuesData.FirstOrDefault(q => q.QueueId == f.GenerateDate && q.CategoryId == f.CategoryId && q.QueueNumber == f.QueueNumber)?.Total_Cheques ?? 0,
-                        ServeStart = f.Serve_start.Value.TimeOfDay,
-                        ServeEnd = f.Serve_end.Value.TimeOfDay,
+                        ServeStart = f.Serve_start.HasValue ? f.Serve_start.Value.TimeOfDay : TimeSpan.Zero, 
+                        ServeEnd = f.Serve_end.HasValue ? f.Serve_end.Value.TimeOfDay : TimeSpan.Zero, 
                         stageId = 1,
                     });
                 var releasingMapped = releasingData
@@ -684,8 +695,8 @@ namespace PrinceQ.DataAccess.Services
                         CategoryId = r.CategoryId ?? 0,
                         QueueNumber = r.QueueNumber ?? 0,
                         Total_Cheque = queuesData.FirstOrDefault(q => q.QueueId == r.GenerateDate && q.CategoryId == r.CategoryId && q.QueueNumber == r.QueueNumber)?.Total_Cheques ?? 0,
-                        ServeStart = r.Serve_start.Value.TimeOfDay,
-                        ServeEnd = r.Serve_end.Value.TimeOfDay,
+                        ServeStart = r.Serve_start.HasValue ? r.Serve_start.Value.TimeOfDay : TimeSpan.Zero, 
+                        ServeEnd = r.Serve_end.HasValue ? r.Serve_end.Value.TimeOfDay : TimeSpan.Zero, 
                         stageId = 2,
                     });
                 var combinedData = forFillingMapped.Concat(releasingMapped)
@@ -828,6 +839,55 @@ namespace PrinceQ.DataAccess.Services
 
             return new GeneralResponse( true, new{ data = result }, "Successfully Fetched");
         }
+
+
+        public async Task<ChartDataResponse> GetAllWaitingTimeData(string year, string month)
+        {
+            if (!string.IsNullOrEmpty(year) && string.IsNullOrEmpty(month))
+            {
+                var data = await _unitOfWork.queueNumbers.GetAll(d =>
+                    d.StatusId == 5 &&
+                    d.QueueId!.Substring(0, 4) == year &&
+                    d.Generate_At.HasValue &&
+                    d.ForFilling_start.HasValue);
+
+                var monthlyData = data
+                    .GroupBy(item => item.QueueId!.Substring(4, 2))
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        CategoryAAvg = g.Any(i => i.CategoryId == 1) ? FormatSeconds(g.Where(i => i.CategoryId == 1).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryBAvg = g.Any(i => i.CategoryId == 2) ? FormatSeconds(g.Where(i => i.CategoryId == 2).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryCAvg = g.Any(i => i.CategoryId == 3) ? FormatSeconds(g.Where(i => i.CategoryId == 3).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryDAvg = g.Any(i => i.CategoryId == 4) ? FormatSeconds(g.Where(i => i.CategoryId == 4).Average(i => CalculateTotalSeconds(i))) : "00"
+                    })
+                    .ToList();
+
+                return new ChartDataResponse(true, monthlyData );
+            }
+            else
+            {
+                var data = await _unitOfWork.queueNumbers.GetAll(d =>
+                   d.StatusId == 5 &&
+                   d.QueueId!.Substring(0, 6) == year + month &&
+                   d.Generate_At.HasValue &&
+                   d.ForFilling_start.HasValue);
+
+                var dailyData = data
+                    .GroupBy(item => item.QueueId!.Substring(6, 2))
+                    .Select(g => new
+                    {
+                        Day = g.Key,
+                        CategoryAAvg = g.Any(i => i.CategoryId == 1) ? FormattedTime(g.Where(i => i.CategoryId == 1).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryBAvg = g.Any(i => i.CategoryId == 2) ? FormattedTime(g.Where(i => i.CategoryId == 2).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryCAvg = g.Any(i => i.CategoryId == 3) ? FormattedTime(g.Where(i => i.CategoryId == 3).Average(i => CalculateTotalSeconds(i))) : "00",
+                        CategoryDAvg = g.Any(i => i.CategoryId == 4) ? FormattedTime(g.Where(i => i.CategoryId == 4).Average(i => CalculateTotalSeconds(i))) : "00",
+                        GenerateDate = g.Select(i => i.QueueId).FirstOrDefault()
+                    })
+                    .ToList();
+                return new ChartDataResponse(false, dailyData);
+            }
+        }
         private string CalculateAverageTime(Queues q)
         {
             var forFillingStart = q.ForFilling_start_Backup ?? q.ForFilling_start;
@@ -864,16 +924,38 @@ namespace PrinceQ.DataAccess.Services
         private string FormatSeconds(double totalSeconds)
         {
             var timeSpan = TimeSpan.FromSeconds(totalSeconds);
-            if (timeSpan.TotalMinutes >= 60)
+            return $"{(int)timeSpan.TotalHours:D2}.{timeSpan.Minutes:D2}.{timeSpan.Seconds:D2}";
+        }
+
+
+
+        private double CalculateTotalSeconds(Queues q)
+        {
+            var forFillingStart = q.ForFilling_start_Backup ?? q.ForFilling_start;
+            var releasingStart = q.Releasing_start_Backup ?? q.Releasing_start;
+
+            if (q.Releasing_end.HasValue && forFillingStart.HasValue && releasingStart.HasValue && q.Generate_At.HasValue)
             {
-                return $"{(int)timeSpan.TotalHours}.{timeSpan.Minutes}";
+                var one = forFillingStart.Value - q.Generate_At.Value;
+                var two = q.ForFilling_end.HasValue ? q.ForFilling_end.Value - forFillingStart.Value : TimeSpan.Zero;
+                var three = q.Releasing_start.HasValue ? q.Releasing_start.Value - q.ForFilling_end.Value : TimeSpan.Zero;
+                var four = q.Releasing_end.Value - releasingStart.Value;
+
+                return (one + two + three + four).TotalSeconds;
             }
             else
             {
-                return $"{(int)timeSpan.TotalMinutes}.{timeSpan.Seconds}";
+                var one = forFillingStart.Value - q.Generate_At.Value;
+                var two = q.ForFilling_end.HasValue ? q.ForFilling_end.Value - forFillingStart.Value : TimeSpan.Zero;
+
+                return (one + two).TotalSeconds;
             }
         }
+        private string FormattedTime(double totalSeconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(totalSeconds);
+            return $"{(int)timeSpan.TotalHours:D2}.{timeSpan.Minutes:D2}.{timeSpan.Seconds:D2}";
+        }
 
-        
     }
 }

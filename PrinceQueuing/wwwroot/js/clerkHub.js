@@ -71,15 +71,6 @@ connectionQueueHub.on("updateCancelCard", function () {
 });
 
 //For TV Display
-function getCategoryLetter(categoryId) {
-    var categories = {
-        1: "A",
-        2: "B",
-        3: "C",
-        4: "D"
-    };
-    return categories[categoryId] || "----";
-}
 
 //Speech / Sound
 function speak(text) {
@@ -125,6 +116,10 @@ connectionQueueHub.on("CallQueueNumber", function (categoryId, queueNumber, cler
     }
 });
 
+
+connectionQueueHub.on("CutOff", () => {
+    cutOffAnnounce();
+});
 
 
 

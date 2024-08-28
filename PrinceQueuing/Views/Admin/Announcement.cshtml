@@ -56,8 +56,9 @@
                         <tr class="text-start fw-bold text-uppercase border-bottom" style="color: #666666;">
                             <th>Announcement Name</th>
                             <th>Description</th>
-                            <th>Created At</th>
+                            <th>Added By</th>
                             <th>Status</th>
+                            <th>Created At</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -115,6 +116,12 @@
                 <form id="updateAnnounceForm" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                     <input id="editAnnounceId" name="Id" class="form-control" hidden />
+
+                    <div class="mb-3">
+                        <label for="editAddedBy" class="p-0">Added By</label>
+                        <input id="editAddedBy" name="AddedBy" class="form-control" />
+                        <span id="UserValid" class="text-danger"></span>
+                    </div>
 
                     <div class="mb-3">
                         <label for="editName" class="p-0">Announcement Name</label>

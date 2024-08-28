@@ -12,7 +12,7 @@ using PrinceQ.DataAccess.Data.Context;
 namespace PrinceQ.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240813090238_Initial")]
+    [Migration("20240827023724_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace PrinceQ.DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0-preview.2.24128.4")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -247,6 +247,10 @@ namespace PrinceQ.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AddedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("Created_At")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -378,11 +382,11 @@ namespace PrinceQ.DataAccess.Migrations
 
             modelBuilder.Entity("PrinceQ.Models.Entities.Queue_Status", b =>
                 {
-                    b.Property<int>("StatusId")
+                    b.Property<int?>("StatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("StatusId"));
 
                     b.Property<DateTime>("Created_At")
                         .ValueGeneratedOnAdd()
@@ -434,10 +438,10 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<string>("QueueId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QueueNumber")
+                    b.Property<int?>("QueueNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Cancelled_At")
@@ -473,7 +477,8 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<int?>("StageId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int?>("StatusId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int?>("Total_Cheques")
@@ -500,10 +505,10 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<string>("ClerkId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QueueNumber")
+                    b.Property<int?>("QueueNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Serve_end")
@@ -529,10 +534,10 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<string>("ClerkId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QueueNumber")
+                    b.Property<int?>("QueueNumber")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Serve_end")
@@ -634,7 +639,8 @@ namespace PrinceQ.DataAccess.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool?>("IsActive")
+                        .IsRequired()
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")

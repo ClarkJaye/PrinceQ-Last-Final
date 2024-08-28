@@ -17,6 +17,22 @@
     $('#historyBtn').on("click", RecentlyGenerated);
     //Print From Recently History
     $('#historyTable').on("click", ".recentPrintBtn", PrintQueueFormFromRecentHistory);
+
+
+    $('#cutOffBtn').on("click", function () {
+        var btn = $(this)
+        $.ajax({
+            type: 'GET',
+            url: "/Clerk/AnnounceCutOff",
+            dataType: "json",
+            success: function (response) {
+                btn.prop("disabled", true);
+                setTimeout(function () {
+                    btn.prop("disabled", false);
+                }, 1000);
+            },
+        });
+    });
 });
 
 const displayDateTime = () => {

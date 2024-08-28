@@ -80,7 +80,7 @@ function populateTable(data) {
             { data: 'releasingEnd' },
             { data: 'averageTime' },
         ],
-        order: [[1, 'asc']], 
+        order: [[1, 'desc']], 
     });
 
     $('#select-all').on('click', function () {

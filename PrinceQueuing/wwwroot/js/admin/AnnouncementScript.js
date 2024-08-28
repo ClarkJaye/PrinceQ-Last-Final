@@ -48,15 +48,16 @@ function loadAllAnnouncement() {
                     .attr('onclick', `deleteAnnouncement('${value.id}')`)
                     .html('<i class="lni lni-trash-can mr-2"></i><span>Delete</span>');
 
-                var buttonsContainer = $('<div>').addClass('d-flex align-items-center float-end gap-2');
+                var buttonsContainer = $('<div>').addClass('d-flex align-items-center justify-content-center gap-2');
 
                 buttonsContainer.append(editButton, deleteButton);
  
                 return [
                     value.name,
                     descriptionText,
-                    createdAt,
+                    value.addedBy,
                     `<a class=" btn-sm ${value.isActive === true ? 'btn-success' : 'btn-danger'} custom-btn-font">${value.isActive === true ? 'Active' : 'Inactive'}</a>`,
+                    createdAt,
                     buttonsContainer.prop('outerHTML')
                 ];
 
@@ -117,6 +118,7 @@ function editAnnouncement(id) {
         success: function (response) {
             var announce = response.obj;
             $("#editAnnounceId").val(announce.id);
+            $("#editAddedBy").val(announce.addedBy);
             $("#editName").val(announce.name);
             $("#editMessage").val(announce.description);
             $("#editCreated_At").val(formatDate(new Date(announce.created_At)));
@@ -139,7 +141,6 @@ function editAnnouncement(id) {
 //Update 
 function updateAnnouncement(e) {
     e.preventDefault();
-
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",

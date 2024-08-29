@@ -405,13 +405,11 @@ namespace PrinceQueuing.Controllers
         {
             return View();
         }
-
         [Authorize(Roles = SD.Role_Reports)]
         public IActionResult WaitingReport_Details()
         {
             return View();
         }
-
         public async Task<IActionResult> GetAllWaitingTimeData(string year, string month)
         {
             try
@@ -425,8 +423,6 @@ namespace PrinceQueuing.Controllers
                 return Json(new { IsSuccess = false, message = "An error occurred in GetAllWaitingTimeData." });
             }
         }
-
-
         [HttpGet]
         public async Task<IActionResult> Waiting_GetAllServedData()
         {

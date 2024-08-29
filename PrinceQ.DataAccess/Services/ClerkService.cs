@@ -281,7 +281,7 @@ namespace PrinceQ.DataAccess.Services
                     var clerkNum = device?.ClerkNumber;
                     if (servingData != null)
                     {
-                        var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
+                        var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == servingData.Served_At.ToString("yyyyMMdd") && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         if (prevQ is not null)
                         {
                             if (prevQ.StageId == 2 && prevQ.Total_Cheques == null)
@@ -336,11 +336,11 @@ namespace PrinceQ.DataAccess.Services
 
                     if (queueItem.StageId == 1)
                     {
-                        await UpdateClerkServeForFilling(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber);
+                        await UpdateClerkServeForFilling(userId, (int)queueItem.CategoryId, (int)queueItem.QueueNumber);
                     }
                     else if (queueItem.StageId == 2)
                     {
-                        await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId!, (int)queueItem.QueueNumber);
+                        await UpdateClerkServeReleasing(userId, (int)queueItem.CategoryId, (int)queueItem.QueueNumber);
                     }
 
                     _unitOfWork.queueNumbers.Update(queueItem);
@@ -618,7 +618,7 @@ namespace PrinceQ.DataAccess.Services
 
                     if (servingData != null && servingData.Served_At.Date == DateTime.Today)
                     {
-                        var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == currentDate && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
+                        var prevQ = await _unitOfWork.queueNumbers.Get(q => q.QueueId == servingData.Served_At.ToString("yyyyMMdd") && q.CategoryId == servingData.CategoryId && q.QueueNumber == servingData.QueueNumberServe);
                         if (prevQ is not null)
                         {
                             if (prevQ.StageId == 2 && prevQ.Total_Cheques == null)

@@ -86,7 +86,6 @@ namespace PrinceQueuing.Controllers
         }
 
 
-
         //FOr Printing the Queue
         public async Task<IActionResult> Print_Form(string date, int categoryId, int queueNumber)
         {

@@ -48,7 +48,6 @@ function GetAllCategories() {
         success: function (response) {
             GetCategoryCount();
             var categoryData = response.data.map(function (value) {
-                console.log(value)
                 var created_At = new Date(value.created_At);
                 var formattedDateTime = formatDate(created_At);
 

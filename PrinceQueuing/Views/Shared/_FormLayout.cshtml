@@ -6,8 +6,9 @@
     <title>@ViewData["Title"] - PrinceLine</title>
     <link rel="icon" type="image/x-icon" href="/src/logo-prince.png">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    @* <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/PrinceQueuing.styles.css" asp-append-version="true" />
+
+    <link rel="manifest" href="~/manifest.json">
 </head>
 <body>
 
@@ -17,5 +18,16 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(function (registration) {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch(function (error) {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+
+    </script>
 </body>
 </html>

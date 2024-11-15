@@ -522,7 +522,7 @@ namespace PrinceQ.DataAccess.Services
                     catch (Exception ex)
                     {
                         // Optional: log the exception
-                        return new GeneralResponse(false, null, "An unexpected error occurred while deleting the video.");
+                        return new GeneralResponse(false, null, "An unexpected error occurred while deleting the video." + ex);
                     }
                 }
             }
